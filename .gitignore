@@ -1,0 +1,15 @@
+node_modules
+dist
+
+.env*
+
+**/*.d.ts
+**/*.d.ts.map
+**/*.js
+**/*.js.map
+
+**/*.tgz
+
+/test.ts
+
+.directus

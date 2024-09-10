@@ -1,0 +1,72 @@
+{
+  "name": "@n0safe/indirectus",
+  "version": "1.2.7",
+  "keywords": [
+    "indirectus",
+    "directus",
+    "sdk",
+    "cli",
+    "typegen",
+    "generator",
+    "type-generator",
+    "typescript"
+  ],
+  "author": {
+    "name": "João Biondo",
+    "email": "wolfulus@gmail.com"
+  },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "./src/**/*.js",
+    "./src/**/*.d.ts",
+    "./src/**/*.njk"
+  ],
+  "bin": {
+    "n0safe-indirectus": "./src/cli/index.js"
+  },
+  "license": "MIT",
+  "description": "Directus Tools CLI.",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "npm run build:src && npm run build:tests",
+    "build:src": "tsc",
+    "build:tests": "echo none",
+    "check-types": "tsc --noEmit",
+    "version": "changeset version",
+    "release": "npm publish --access public",
+    "ci": "npm run version && npm run build && npm run release",
+    "test": "node ./src/cli/index.js sdk generate --url http://127.0.0.1:8055/ --token NfIseJKn8nitlQuq4YJU_k3NRVoCTCis --dir ./.directus/src --outputDir ./.directus/src"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@directus/sdk": "^16.0.0",
+    "@wolfpkgs/core": "^0.2.13",
+    "chokidar": "^3.6.0",
+    "citty": "^0.1.6",
+    "consola": "^3.2.3",
+    "eventemitter2": "^6.4.9",
+    "jiti": "^1.21.0",
+    "nunjucks": "^3.2.4",
+    "pluralize": "^8.0.0",
+    "ts-pattern": "^5.1.1"
+  },
+  "optionalDependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "@types/nunjucks": "^3.2.6",
+    "@types/pluralize": "^0.0.33",
+    "@wolfpkgs/tsconfig": "^0.2.0",
+    "conditional-type-checks": "^1.0.6",
+    "prettier": "^3.3.3",
+    "ts-toolbelt": "^9.6.0",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.8.1"
+}
