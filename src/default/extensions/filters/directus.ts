@@ -234,6 +234,12 @@ export function to_ts_type(context: TemplateContext, field: Field) {
         }
       }
       json_type = false;
+      if (!meta?.options?.allowOther) {
+        const filteredTypes = types.filter((type) => type !== "Types.String");
+        types.length = 0;
+        types.push(...filteredTypes);
+      }
+      
       break;
   }
 
