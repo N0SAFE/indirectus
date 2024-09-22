@@ -177,7 +177,7 @@ export namespace DirectusFileNamespace {
 
   export interface Props {
     /** The current user's access token. */
-    accessToken?: string;
+    accessToken?: string | null;
     /** If the asset should be downloaded instead of rendered. */
     download?: boolean;
     /** Either a preset key or a custom transform object. */

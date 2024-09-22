@@ -15,6 +15,7 @@ import { Schema } from "./schema";
 import { fetchSchema } from "./schema";
 import { TemplateRenderer, createRenderer } from "./template";
 import { TemplateFile } from "./template-loader";
+import { PluginGenerator, createPlugin } from "./plugin";
 
 export const GeneratorOptions = Options.for(() => {
   const e = env.loadSync(process.cwd(), {
@@ -46,6 +47,29 @@ export const GeneratorOptions = Options.for(() => {
     useCache: z.boolean().default(false),
     watch: z.boolean().default(false),
     log: z.string().optional().default("info"),
+    plugins: z
+      .string()
+      .transform((value) => {
+        const arr = value.split(" ");
+        if (arr.length === 1 && arr[0] === "") {
+          return [];
+        }
+        return arr;
+      })
+      .pipe(
+        z
+          .string()
+          .array()
+          .optional()
+          .default(
+            e.PLUGINS
+              ? e.PLUGINS.split(",").length === 1 &&
+                e.PLUGINS.split(",")[0] === ""
+                ? []
+                : e.PLUGINS.split(",")
+              : [],
+          ),
+      ),
   };
 });
 
@@ -97,6 +121,13 @@ export type GeneratorEvents = {
   ["generation.failure"]: (err: GeneratorError) => void;
   ["generation.error"]: (err: GeneratorError) => void;
   ["generation.end"]: () => void;
+  
+  ["generation.plugins.begin"]: () => void;
+  ["generation.plugins.success"]: () => void;
+  ["generation.plugins.failure"]: (err: GeneratorError) => void;
+  ["generation.plugins.error"]: (err: GeneratorError) => void;
+  ["generation.plugins.end"]: () => void;
+  ["generation.plugins.generate"]: (pluginName: string) => void;
 
   ["file.begin"]: (file: TemplateFile) => void;
   ["file.format.error"]: (file: TemplateFile, err: GeneratorError) => void;
@@ -104,6 +135,8 @@ export type GeneratorEvents = {
   ["file.output"]: (file: TemplateFile, output: string) => void;
   ["file.end"]: (file: TemplateFile) => void;
   ["error"]: (err: GeneratorError) => void;
+  
+  ['plugins']: (plugins: string[]) => void;
 };
 
 export class Generator extends TypedEventEmitter<GeneratorEvents> {
@@ -122,6 +155,12 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
   // @ts-expect-error
   private registry: Registry;
 
+  // @ts-expect-error
+  private addons: Record<string, any>;
+
+  // @ts-expect-error
+  private pluginGenerator: PluginGenerator;
+
   private initialized: boolean = false;
 
   constructor(private options: CompleteGeneratorOptions) {
@@ -133,6 +172,8 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       awaitWriteFinish: true,
       ignorePermissionErrors: true,
     });
+
+    this.setMaxListeners(100);
   }
 
   async initialize() {
@@ -144,6 +185,8 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       if (this.schema.version) {
         return;
       }
+      
+      this.emit('plugins', this.options.plugins);
 
       await this.runTask("schema", async () => {
         this.schema = await fetchSchema(
@@ -157,6 +200,13 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           },
         );
         this.registry = createRegistry(this.schema);
+        this.pluginGenerator = createPlugin(this.schema, this.registry);
+        this.addons = await this.options.plugins.reduce(
+          async (acc, plugin) =>
+            Object.assign(acc, await this.pluginGenerator.getAddonMap(plugin)),
+          {},
+        );
+
         this.initialized = true;
       });
     });
@@ -170,28 +220,28 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     return this;
   }
 
-  async generate(template?: string) {
+  async generate() {
     await this.initialize();
 
+    const templateName = this.options.template;
+    const templateDirs = [
+      path.join(__dirname, "../default"),
+      path.join(__dirname, "../../default"),
+      this.options.config,
+    ].filter((dir) => fs.existsSync(dir));
+
+    const key = JSON.stringify({
+      templateName,
+      templateDirs,
+    });
+
+    const render =
+      this.engines[key] ?? (await createRenderer(templateName, templateDirs));
+    if (!(key in this.engines)) {
+      this.engines[key] = render;
+    }
+
     await this.runTask("generation", async () => {
-      const templateName = template ?? this.options.template;
-      const templateDirs = [
-        path.join(__dirname, "../default"),
-        path.join(__dirname, "../../default"),
-        this.options.config,
-      ].filter((dir) => fs.existsSync(dir));
-
-      const key = JSON.stringify({
-        templateName,
-        templateDirs,
-      });
-
-      const render =
-        this.engines[key] ?? (await createRenderer(templateName, templateDirs));
-      if (!(key in this.engines)) {
-        this.engines[key] = render;
-      }
-
       if (this.watching) {
         // this.watcher.add([
         //   ...engine.directories.map((dir) => path.join(dir, "**/*.njk")),
@@ -214,6 +264,17 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           result = await render(file.input, {
             schema: this.schema,
             registry: this.registry,
+            addons: Object.fromEntries(
+              await Promise.all(
+                Object.entries(this.addons).map(async ([name, string]) => [
+                  name,
+                  await render.fromString(string, {
+                    schema: this.schema,
+                    registry: this.registry,
+                  }),
+                ]),
+              ),
+            ),
           });
 
           const info = await prettier.getFileInfo(file.output);
@@ -246,6 +307,73 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           );
           await this.emitAsync("file.output", file, result);
         });
+      }
+    });
+
+    await this.runTask("generation.plugins", async (emit) => {
+      for (const plugin of this.options.plugins) {
+        await emit("generate", plugin);
+        const addonFileTree = this.pluginGenerator.generateAddonTree(plugin);
+
+        const list = addonFileTree
+          .filter((file, p, isEnd) => {
+            return path.extname(file) === ".njk" || !isEnd;
+          })
+          .reduce<[string, string[]][]>((acc, file, p) => {
+            acc.push([file, p]);
+            return acc;
+          }, []);
+        for (const [file, p] of list) {
+          const templateFile = {
+            input: file,
+            output: path.join(this.options.output, ...p).replace(/.njk$/i, ""),
+          } as TemplateFile;
+
+          let result: string;
+
+          await emit("render", templateFile);
+
+          result = await render(templateFile.input, {
+            schema: this.schema,
+            registry: this.registry,
+            addons: Object.fromEntries(
+              await Promise.all(
+                Object.entries(this.addons).map(async ([name, string]) => [
+                  name,
+                  await render.fromString(string, {
+                    schema: this.schema,
+                    registry: this.registry,
+                  }),
+                ]),
+              ),
+            ),
+          });
+
+          const info = await prettier.getFileInfo(templateFile.output);
+          if (info.inferredParser) {
+            try {
+              result = await prettier.format(result, {
+                parser: info.inferredParser,
+              });
+            } catch (err) {
+              await this.emitAsync(
+                "file.format.error",
+                templateFile,
+                this.makeError(err),
+              );
+              await this.emitAsync("generation.error", this.makeError(err));
+            }
+          }
+
+          const dir = path.dirname(templateFile.output);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+
+          await fsp.writeFile(templateFile.output, result, {
+            encoding: "utf-8",
+          });
+        }
       }
     });
 
@@ -286,7 +414,6 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         .replace(/, line:/g, ":")
         .replace(/, col:/g, ":");
       if (err?.context) {
-        console.log(err);
         if (typeof err?.context == "string") {
           context = err?.context?.split("\n") ?? [];
         }

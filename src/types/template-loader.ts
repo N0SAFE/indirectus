@@ -35,6 +35,8 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
 
   constructor(templateName: string, projectDirs: string[]) {
     super();
+    
+    (this as any).setMaxListeners(100)
 
     this.templateName = templateName;
 
@@ -159,7 +161,7 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
     name: string,
     callback: Callback<Error, LoaderSource>,
   ): Promise<void> {
-    let type: string = "default";
+    let type: string = "template";
     let request: string = name;
 
     if (name.indexOf(":") > 0) {

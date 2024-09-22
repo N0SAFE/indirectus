@@ -58,6 +58,13 @@ export default defineCommand({
       description: "Whether to enable caching to avoid subsequent requests to the server.",
       default: false,
     },
+    plugins: {
+      type: 'positional',
+      required: false,
+      description: 'A list of plugins to use',
+      valueHint: 'plugin1,plugin2,...',
+      default: '',
+    }
   },
 
   async run(context) {
@@ -69,6 +76,7 @@ export default defineCommand({
         context.args.outputDir ?? path.join(context.args.dir, "generated"),
       template: "default",
       useCache: context.args.cache,
+      plugins: context.args.plugins,
     });
 
     const generator = new Generator(options);
@@ -98,6 +106,27 @@ export default defineCommand({
       console.fail("Generation errror", err);
       console.error(err);
     });
+    
+    generator.on("generation.plugins.begin", async () =>
+      console.start("Starting plugins generation"),
+    );
+
+    generator.on("generation.plugins.success", async () =>
+      console.success("Plugins generation finished"),
+    );
+
+    generator.on("generation.plugins.failure", async (err) => {
+      console.fail("Plugins Generation errror", err);
+      console.error(err);
+    });
+    
+    generator.on('generation.plugins.generate', async (pluginName) => {
+      console.info(`Generating plugin: ${pluginName}`);
+    })
+    
+    generator.on('plugins', async (plugins) => {
+      console.info(`Using plugins: ${plugins.join(', ')}`);
+    })
 
     await generator.initialize();
     await generator.generate();

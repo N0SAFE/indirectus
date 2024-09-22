@@ -6,6 +6,7 @@ import type { Schema } from "./schema";
 export interface TemplateRenderer {
   (file: string, context: any): Promise<string>;
   files: TemplateFile[];
+  fromString: (string: string, context: any) => Promise<string>;
 }
 
 export interface TemplateContext {
@@ -46,9 +47,33 @@ export async function createRenderer(
       });
     });
   }
+  
+  async function renderFromString(string: string, context: any) {
+    const filters = await loader.getFilters();
+
+    const renderer = new njk.Environment(loader, {
+      autoescape: false,
+    });
+
+    Object.entries(filters).forEach(([name, filter]) => {
+      renderer.addFilter(name, (...args: any[]) => {
+        return filter(context, ...args);
+      });
+    });
+
+    return new Promise<string>((resolve, reject) => {
+      renderer.renderString(string, context, (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(result ?? "");
+      });
+    });
+  }
 
   return Object.assign(render, {
     files,
+    fromString: renderFromString
   });
 
   /*

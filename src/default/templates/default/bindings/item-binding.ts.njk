@@ -6,6 +6,19 @@ import { ApplyQueryFields } from "../types/ApplyQueryFields";
 
 import { Collections, CollectionsType, Schema } from "../client";
 
+export interface TypedCollectionSingletonWrapper<Collection extends object>
+{
+  /**
+   * Reads the singleton.
+   */
+  read<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(query?: Query): Promise<ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>>;
+
+  /**
+   * Updates the singleton.
+   */
+  update<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(patch: Partial<Collection>, query?: Query): Promise<ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>>;
+}
+
 export interface TypedCollectionItemsWrapper<Collection extends object>
 {
   /**
@@ -27,6 +40,11 @@ export interface TypedCollectionItemsWrapper<Collection extends object>
    * Update many items in the collection.
    */
   update<const Query extends DirectusSDK.Query<CollectionsType, Collection[]>>(keys: string[] | number[], patch: Partial<Collection>, query?: Query): Promise<ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>[]>;
+    
+  /**
+   * update many items with batch
+   */
+  updateBatch<const Query extends Directus.Query<CollectionsType, Collection[]>>(items: Partial<Directus.UnpackList<Collection>>[], query?: Query): Promise<ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ["*"] : Query["fields"] extends undefined ? ["*"] : Query["fields"] extends Readonly<any[]> ? Query["fields"] : ["*"]>[]>;
 
   /**
    * Remove many items in the collection.
@@ -56,6 +74,8 @@ export interface TypedCollectionItemWrapper<Collection extends object>
    */
   remove<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number): Promise<void>;
 }
+
+
 
 /**
  * Helper functions
@@ -87,6 +107,41 @@ export function read{{ collectionName }}<
  * Reads the {{ collection.name | to_collection_text }} singleton.
  */
 export const get{{ collectionName }} = read{{ collectionName }};
+
+/**
+ * Updates the {{ collection.name | to_collection_text }} singleton.
+ */
+export function update{{ collectionName }}<
+  {{ genericQuery }},
+>(patch: Partial<{{ collectionType }}>, query?: Query) {
+  return DirectusSDK.updateSingleton<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", patch, query);
+}
+
+export class {{ collectionName }}Singleton implements TypedCollectionSingletonWrapper<{{ collectionType }}>
+{
+  /**
+   *
+   */
+  constructor(private client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
+  {
+  }
+
+  /**
+   * Reads the {{ collection.name | to_collection_text }} singleton.
+   */
+  async read<{{ genericQuery }}>(query?: Query): Promise<{{ applyType }}>
+  {
+    return await this.client.request(read{{ collectionName }}(query)) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+
+  /**
+   * Updates the {{ collection.name | to_collection_text }} singleton.
+   */
+  async update<{{ genericQuery }}>(patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
+  {
+    return await this.client.request(update{{ collectionName }}(patch, query)) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+}
 
 {% else %}
 
@@ -137,7 +192,7 @@ export function read{{ collectionName }}Item<
 export const read{{ collectionName }} = read{{ collectionName }}Item;
 
 /**
- * Read many {{ collection.name | to_collection_text }} items.
+ * Update many {{ collection.name | to_collection_text }} items.
  */
 export function update{{ collectionName }}Items<
   {{ genericQueryArray }},
@@ -146,7 +201,16 @@ export function update{{ collectionName }}Items<
 }
 
 /**
- * Gets a single known {{ collection.name | to_collection_text }} item by id.
+ * Update many {{ collection.name | to_collection_text }} items with batch
+ */
+export function update{{ collectionName }}ItemsBatch<
+  {{ genericQueryArray }},
+> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query) {
+  return DirectusSDK.updateItemsBatch<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
+}
+
+/**
+ * Update a single known {{ collection.name | to_collection_text }} item by id.
  */
 export function update{{ collectionName }}Item<
   {{ genericQueryArray }},
@@ -219,6 +283,14 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
   async update<{{ genericQueryArray }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}[]>
   {
     return await this.client.request(update{{ collectionName }}Items(keys, patch, query)) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+  
+  /**
+   * update many items in the collection with batch
+   */
+  async updateBatch<{{ genericQueryArray }}> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): Promise<ApplyQueryFields<CollectionsType, Collections.{{collectionName}}[], Query extends undefined ? ["*"] : Query["fields"] extends undefined ? ["*"] : Query["fields"] extends Readonly<any[]> ? Query["fields"] : ["*"]>[]>
+  {
+    return await this.client.request(update{{ collectionName }}ItemsBatch(items, query)) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**

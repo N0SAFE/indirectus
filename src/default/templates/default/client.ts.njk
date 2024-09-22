@@ -14,6 +14,7 @@ import { ApplyQueryFields } from './types/ApplyQueryFields';
 
 import * as SystemBinding from './bindings/system-binding'
 import * as ItemBinding from './bindings/item-binding'
+{{ addons.imports | safe }}
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -217,9 +218,9 @@ export type TypedClient = {
 {% else %}
 
   /**
-   * Fetches the only {{ collection.name.raw | singularize | to_collection_name }} instance available.
+   * Manage the only {{ collection.name.raw | singularize | to_collection_name }} instance available.
    */
-  [{{ collection.name | to_collection_name | to_collection_string  }}]<{{ genericQuery }}>(query?: Query): Promise<{{ applyType }}>;
+  {{ collection.name | to_collection_name | to_collection_string  }}: SystemBinding.{{ collectionName }}Singleton;
   
   {% endif %}
 
@@ -238,17 +239,19 @@ export type TypedClient = {
 {% else %}
 
   /**
-   * Fetches the only {{ collection.name.raw | singularize | to_collection_name }} instance available.
+   * Manage the only {{ collection.name.raw | singularize | to_collection_name }} instance available.
    */
-  [{{ collection.name | to_collection_name | to_collection_string  }}]<{{ genericQuery }}>(query?: Query): Promise<{{ applyType }}>;
+  {{ collection.name | to_collection_name | to_collection_string  }}: ItemBinding.{{ collectionName }}Singleton;
   
   {% endif %}
 
 {% endif %}
 
 {%- endfor %}
+
+{{ addons.TypedClient | safe }}
 } & {
-  [K in keyof DirectusCommands as K extends `read${string}` |  `delete${string}` |  `update${string}` |  `create${string}` ? never : K]: DirectusCommands[K];
+  [K in keyof SystemBinding.Requests]: SystemBinding.Requests[K];
 };
 
 type ExcludedDirectusCommands = "withOptions" | "withToken" | "withSearch";
@@ -317,15 +320,6 @@ export type DirectusCommands = {
   >;
 }
 
-function isDirectusRestCommand(
-  pair: [any, any],
-): pair is [string, (...args: any[]) => Directus.RestCommand<any, any>] {
-  return (
-    !((pair?.[0] as any) in excludedDirectusCommands) &&
-    typeof pair?.[1] === "function" && !((pair?.[0]).startsWith("read") || (pair?.[0]).startsWith("create") || (pair?.[0]).startsWith("update") || (pair?.[0]).startsWith("delete"))
-  );
-}
-
 function isDirectusRestClient<Schema>(
   client: DirectusSDK.DirectusClient<Schema>,
 ): client is DirectusSDK.DirectusClient<Schema> &
@@ -341,18 +335,7 @@ export const schema = () => {
     }
 
     return Object.fromEntries([
-      ...Object.entries(DirectusSDK)
-        .filter(isDirectusRestCommand)
-        .map(([key, value]) => {
-          return [
-            key,
-            (...args: any[]): any => {
-              return client.request(
-                value(...args),
-              );
-            },
-          ];
-        }),
+      ...Object.entries(new SystemBinding.Requests(client as any)),
 
 {% for collection in registry.collections | filter_untype_system_collections %}
 {% if collection.is_system %}
@@ -361,9 +344,7 @@ export const schema = () => {
       [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
       [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
 {% else %}
-      [{{ collection.name | to_collection_name | to_collection_string }}, (query: any) => {
-        return client.request(SystemBinding.read{{ collection.name | to_collection_name }}(query));
-      }],
+      [{{ collection.name | to_collection_name | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
 {% endif %}
 
 {% else %}
@@ -372,12 +353,13 @@ export const schema = () => {
       [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
       [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
 {% else %}
-      [{{ collection.name | to_collection_name | to_collection_string }}, (query: any) => {
-        return client.request(ItemBinding.read{{ collection.name | to_collection_name }}(query));
-      }],
+      [{{ collection.name | to_collection_name | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
 {% endif %}
 {% endif %}
 {% endfor %}
+
+{{ addons.schema | safe }}
+
     ]);
 
   };
