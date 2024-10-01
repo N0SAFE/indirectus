@@ -62,6 +62,12 @@ export const schema = `
 [
   'Safe',
   Object.fromEntries([
+    ...(() => {
+        const requests = new SafeSystemBinding.Requests(client as any) as any
+        return Object.getOwnPropertyNames(Object.getPrototypeOf(requests)).map(
+          (n) => [n, requests[n].bind(requests)],
+        );
+    })(),
     {% for collection in registry.collections | filter_untype_system_collections %}
     {% if collection.is_system %}
 

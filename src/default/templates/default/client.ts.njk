@@ -335,7 +335,12 @@ export const schema = () => {
     }
 
     return Object.fromEntries([
-      ...Object.entries(new SystemBinding.Requests(client as any)),
+      ...(() => {
+        const requests = new SystemBinding.Requests(client as any) as any
+        return Object.getOwnPropertyNames(Object.getPrototypeOf(requests)).map(
+          (n) => [n, requests[n].bind(requests)],
+        );
+      })(),
 
 {% for collection in registry.collections | filter_untype_system_collections %}
 {% if collection.is_system %}
