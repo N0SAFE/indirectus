@@ -15,6 +15,10 @@ export function has_system_collections(context: TemplateContext, collections: Co
   return collections.some((collection) => collection.is_system);
 }
 
+export function has_non_system_collections(context: TemplateContext, collections: Collection[]) {
+  return collections.some((collection) => !collection.is_system);
+}
+
 export function filter_untype_system_collections(
   context: TemplateContext,
   collections: Collection[],

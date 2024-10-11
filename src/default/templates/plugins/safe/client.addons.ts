@@ -1,6 +1,6 @@
 export const imports = `
 import * as SafeSystemBinding from './bindings/safe-system-binding/index'
-{% if registry.collections | has_system_collections %}
+{% if registry.collections | has_non_system_collections %}
 import * as SafeItemBinding from './bindings/safe-item-binding/index'
 {% endif %}`
 

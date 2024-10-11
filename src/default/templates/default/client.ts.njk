@@ -13,7 +13,7 @@ import * as DirectusSDK from "@directus/sdk";
 import { ApplyQueryFields } from './types/ApplyQueryFields';
 
 import * as SystemBinding from './bindings/system-binding/index'
-{% if registry.collections | has_system_collections %}
+{% if registry.collections | has_non_system_collections %}
 import * as ItemBinding from './bindings/item-binding/index'
 {% endif %}
 {{ addons.imports | safe }}
