@@ -11,6 +11,10 @@ import { split } from "./split";
 import { lower_case, pascal_case, space_case } from "./string_cases";
 import { isManyToOne, isOneToMany } from "../../../types/relationships";
 
+export function has_system_collections(context: TemplateContext, collections: Collection[]) {
+  return collections.some((collection) => collection.is_system);
+}
+
 export function filter_untype_system_collections(
   context: TemplateContext,
   collections: Collection[],

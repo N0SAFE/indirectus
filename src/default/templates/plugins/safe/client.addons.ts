@@ -1,6 +1,8 @@
 export const imports = `
 import * as SafeSystemBinding from './bindings/safe-system-binding/index'
-import * as SafeItemBinding from './bindings/safe-item-binding/index'`
+{% if registry.collections | has_system_collections %}
+import * as SafeItemBinding from './bindings/safe-item-binding/index'
+{% endif %}`
 
 export const TypedClient = `
 Safe: {

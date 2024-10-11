@@ -7,9 +7,9 @@ export const generate = (context: Context) => {
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../client";
+import { Collections, CollectionsType, Schema } from "../../client";
 
 export interface TypedCollectionSingletonWrapper<Collection extends object>
 {
