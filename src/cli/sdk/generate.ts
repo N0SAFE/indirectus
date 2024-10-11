@@ -6,7 +6,7 @@ import { Options } from "@wolfpkgs/core/options";
 import {
   Generator,
   GeneratorOptions,
-} from "../../types/generator";
+} from "../../types/generators/generator";
 import path from "node:path";
 
 (async function main() {

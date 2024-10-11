@@ -1,0 +1,407 @@
+import type * as Directus from '@directus/sdk'
+
+import * as DirectusSDK from '@directus/sdk'
+
+import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import {
+    Collections,
+    CollectionsType,
+    DirectusCommands,
+    Schema,
+} from '../../client'
+
+type DirectusSDK = typeof DirectusSDK
+
+
+/**
+ * Create many directus roles items.
+ */
+export function createDirectusRoleItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(items: Partial<Collections.DirectusRole>[], query?: Query) {
+    return DirectusSDK.createRoles<CollectionsType, Query>(items, query)
+}
+
+/**
+ * Create a single directus roles item.
+ */
+export function createDirectusRoleItem<
+    const Query extends DirectusSDK.Query<
+        CollectionsType,
+        Directus.DirectusRole<CollectionsType>
+    >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DirectusRole>, query?: Query) {
+    return DirectusSDK.createRole<CollectionsType, Query>(item, query)
+}
+
+/**
+ * Read many directus roles items.
+ */
+export function readDirectusRoleItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(query?: Query) {
+    return DirectusSDK.readRoles<CollectionsType, Query>(query)
+}
+
+/**
+ * Read many directus roles items.
+ */
+export const listDirectusRole = readDirectusRoleItems
+
+/**
+ * Gets a single known directus roles item by id.
+ */
+export function readDirectusRoleItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(
+    key: Collections.DirectusRole extends { id: number | string }
+        ? Collections.DirectusRole['id']
+        : string | number,
+    query?: Query
+) {
+    return DirectusSDK.readRole<CollectionsType, Query>(key, query)
+}
+
+/**
+ * Gets a single known directus roles item by id.
+ */
+export const readDirectusRole = readDirectusRoleItem
+
+/**
+ * Read many directus roles items.
+ */
+export function updateDirectusRoleItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(
+    keys: Collections.DirectusRole extends { id: number | string }
+        ? Collections.DirectusRole['id'][]
+        : string[] | number[],
+    patch: Partial<Collections.DirectusRole>,
+    query?: Query
+) {
+    return DirectusSDK.updateRoles<CollectionsType, Query>(keys, patch, query)
+}
+
+/**
+ * Gets a single known directus roles item by id.
+ */
+export function updateDirectusRoleItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(
+    key: Collections.DirectusRole extends { id: number | string }
+        ? Collections.DirectusRole['id']
+        : string | number,
+    patch: Partial<Collections.DirectusRole>,
+    query?: Query
+) {
+    return DirectusSDK.updateRole<CollectionsType, Query>(key, patch, query)
+}
+
+/**
+ * Deletes many directus roles items.
+ */
+export function deleteDirectusRoleItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(
+    keys: Collections.DirectusRole extends { id: number | string }
+        ? Collections.DirectusRole['id'][]
+        : string[] | number[]
+) {
+    return DirectusSDK.deleteRoles<CollectionsType>(keys)
+}
+
+/**
+ * Deletes a single known directus roles item by id.
+ */
+export function deleteDirectusRoleItem(
+    key: Collections.DirectusRole extends { id: number | string }
+        ? Collections.DirectusRole['id']
+        : string | number
+) {
+    return DirectusSDK.deleteRole<CollectionsType>(key)
+}
+
+export class DirectusRoleItems {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Creates many items in the collection.
+     */
+    async create<
+        const Query extends DirectusSDK.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        items: Partial<Collections.DirectusRole>[],
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusRole,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            createDirectusRoleItems(items, query as any)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read many items from the collection.
+     */
+    async query<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusRole,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(readDirectusRoleItems(query))) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read the first item from the collection matching the query.
+     */
+    async find<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusRole,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        const items = await this.client.request(
+            readDirectusRoleItems({
+                ...query,
+                limit: 1,
+            })
+        )
+        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Update many items in the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Directus.DirectusRole<CollectionsType>
+        >,
+    >(
+        keys: Collections.DirectusRole extends { id: number | string }
+            ? Collections.DirectusRole['id'][]
+            : string[] | number[],
+        patch: Partial<Collections.DirectusRole>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusRole,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            updateDirectusRoleItems(keys, patch, query)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        keys: Collections.DirectusRole extends { id: number | string }
+            ? Collections.DirectusRole['id'][]
+            : string[] | number[]
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusRoleItems(keys))
+    }
+}
+
+export class DirectusRoleItem {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Create a single item in the collection.
+     */
+    async create<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        item: Partial<Collections.DirectusRole>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusRole,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(
+            createDirectusRoleItem(item, query as any)
+        )) as any
+    }
+
+    /**
+     * Read a single item from the collection.
+     */
+    async get<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        key: Collections.DirectusRole extends { id: number | string }
+            ? Collections.DirectusRole['id']
+            : string | number,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusRole,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            readDirectusRoleItem(key, query)
+        )) as any
+    }
+
+    /**
+     * Update a single item from the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        key: Collections.DirectusRole extends { id: number | string }
+            ? Collections.DirectusRole['id']
+            : string | number,
+        patch: Partial<Collections.DirectusRole>,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusRole,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            updateDirectusRoleItem(key, patch, query as any)
+        )) as any
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        key: Collections.DirectusRole extends { id: number | string }
+            ? Collections.DirectusRole['id']
+            : string | number
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusRoleItem(key))
+    }
+}

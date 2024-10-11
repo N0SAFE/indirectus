@@ -1,0 +1,144 @@
+import type * as Directus from "@directus/sdk";
+
+import * as DirectusSDK from "@directus/sdk";
+
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+
+import { Collections, CollectionsType, Schema } from "../../client";
+
+import { toSafe } from "../../utils";
+
+type DirectusSDK = typeof DirectusSDK;
+
+/**
+ * Read many directus activity items.
+ */
+export function readDirectusActivityItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusActivity
+  >,
+>(query?: Query) {
+  return DirectusSDK.readActivities<CollectionsType, Query>(query);
+}
+
+/**
+ * Read many directus activity items.
+ */
+export const listDirectusActivity = readDirectusActivityItems;
+
+/**
+ * Gets a single known directus activity item by id.
+ */
+export function readDirectusActivityItem<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusActivity
+  >,
+>(
+  key: Collections.DirectusActivity extends { id: number | string }
+    ? Collections.DirectusActivity["id"]
+    : string | number,
+  query?: Query,
+) {
+  return DirectusSDK.readActivity<CollectionsType, Query>(key, query);
+}
+
+/**
+ * Gets a single known directus activity item by id.
+ */
+export const readDirectusActivity = readDirectusActivityItem;
+
+export class DirectusActivityItems {
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusActivity
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusActivity,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(readDirectusActivityItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusActivity
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusActivity,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusActivityItems({
+        ...query,
+        limit: 1,
+      }),
+    )
+    .then((items) => ({data: items?.[0], isError: false}) as any)
+    .catch((error) => ({error, isError: true}));
+  }
+}
+
+export class DirectusActivityItem {
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusActivity
+    >,
+  >(
+    key: Collections.DirectusActivity extends { id: number | string }
+      ? Collections.DirectusActivity["id"]
+      : string | number,
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusActivity,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusActivityItem(key, query),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+}

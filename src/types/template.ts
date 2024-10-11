@@ -37,6 +37,8 @@ export async function createRenderer(
         return filter(context, ...args);
       });
     });
+    
+    
 
     return new Promise<string>((resolve, reject) => {
       renderer.render(file, context, (err, result) => {

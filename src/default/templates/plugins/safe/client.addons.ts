@@ -1,6 +1,6 @@
 export const imports = `
-import * as SafeSystemBinding from './bindings/safe-system-binding'
-import * as SafeItemBinding from './bindings/safe-item-binding'`
+import * as SafeSystemBinding from './bindings/safe-system-binding/index'
+import * as SafeItemBinding from './bindings/safe-item-binding/index'`
 
 export const TypedClient = `
 Safe: {

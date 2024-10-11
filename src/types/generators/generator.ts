@@ -9,13 +9,16 @@ import EventEmitter, { Listener } from "eventemitter2";
 import prettier from "prettier";
 import { z } from "zod";
 
-import { Registry, createRegistry } from "./registry";
-import { Schema } from "./schema";
+import { Registry, createRegistry } from "../registry";
+import { Schema } from "../schema";
 
-import { fetchSchema } from "./schema";
-import { TemplateRenderer, createRenderer } from "./template";
-import { TemplateFile } from "./template-loader";
-import { PluginGenerator, createPlugin } from "./plugin";
+import { fetchSchema } from "../schema";
+import { TemplateRenderer, createRenderer } from "../template";
+import { TemplateFile } from "../template-loader";
+import { PluginGenerator } from "./generator.plugin";
+import { DirGenerator } from "./generator.dir";
+import { Context } from "../types";
+import { basePath, basePluginPath } from "../constant";
 
 export const GeneratorOptions = Options.for(() => {
   const e = env.loadSync(process.cwd(), {
@@ -121,7 +124,7 @@ export type GeneratorEvents = {
   ["generation.failure"]: (err: GeneratorError) => void;
   ["generation.error"]: (err: GeneratorError) => void;
   ["generation.end"]: () => void;
-  
+
   ["generation.plugins.begin"]: () => void;
   ["generation.plugins.success"]: () => void;
   ["generation.plugins.failure"]: (err: GeneratorError) => void;
@@ -135,8 +138,8 @@ export type GeneratorEvents = {
   ["file.output"]: (file: TemplateFile, output: string) => void;
   ["file.end"]: (file: TemplateFile) => void;
   ["error"]: (err: GeneratorError) => void;
-  
-  ['plugins']: (plugins: string[]) => void;
+
+  ["plugins"]: (plugins: string[]) => void;
 };
 
 export class Generator extends TypedEventEmitter<GeneratorEvents> {
@@ -161,6 +164,9 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
   // @ts-expect-error
   private pluginGenerator: PluginGenerator;
 
+  // @ts-expect-error
+  private dirGenerator: DirGenerator;
+
   private initialized: boolean = false;
 
   constructor(private options: CompleteGeneratorOptions) {
@@ -173,7 +179,7 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       ignorePermissionErrors: true,
     });
 
-    this.setMaxListeners(100);
+    this.setMaxListeners(1000);
   }
 
   async initialize() {
@@ -185,8 +191,8 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       if (this.schema.version) {
         return;
       }
-      
-      this.emit('plugins', this.options.plugins);
+
+      this.emit("plugins", this.options.plugins);
 
       await this.runTask("schema", async () => {
         this.schema = await fetchSchema(
@@ -200,7 +206,9 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           },
         );
         this.registry = createRegistry(this.schema);
-        this.pluginGenerator = createPlugin(this.schema, this.registry);
+        this.pluginGenerator = new PluginGenerator(this.schema, this.registry);
+        this.dirGenerator = new DirGenerator(this.schema, this.registry);
+
         this.addons = await this.options.plugins.reduce(
           async (acc, plugin) =>
             Object.assign(acc, await this.pluginGenerator.getAddonMap(plugin)),
@@ -220,13 +228,113 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     return this;
   }
 
+  async createContext<T extends {}>(
+    render: TemplateRenderer,
+    addedOptions: any = {},
+  ): Promise<Context<T>> {
+    return {
+      ...addedOptions,
+      schema: this.schema,
+      registry: this.registry,
+      addons: Object.fromEntries(
+        await Promise.all(
+          Object.entries(this.addons).map(async ([name, string]) => [
+            name,
+            await render.fromString(string, {
+              schema: this.schema,
+              registry: this.registry,
+            }),
+          ]),
+        ),
+      ),
+    };
+  }
+
+  async generateDir(
+    basePath: string,
+    dir: string,
+    render: TemplateRenderer,
+    addedOptions: any = {},
+  ) {
+    const dirName = dir.replace('.dir.js', '')
+    const { generate } = await import(dir);
+    await this.runTask("dir", async (emit) => {
+      const { files, variables } = (await generate(
+        await this.createContext(render, addedOptions),
+      )) as {
+        files: {
+          path: string;
+          template: string;
+          variables: Record<string, any>;
+        }[];
+        variables: Record<string, any>;
+      };
+      for (const file of files) {
+        await this.generateFile({
+          ...file,
+          output: path.isAbsolute(file.path) ? file.path : path.join(path.relative(basePath, dirName), file.path)
+        }, render, {
+          ...file.variables,
+          ...variables,
+          ...addedOptions,
+        });
+      }
+    });
+  }
+
+  async generateFile(
+    file: TemplateFile | { output: string; template: string },
+    render: TemplateRenderer,
+    addedOptions: any = {},
+  ) {
+    await this.runTask("file", async (emit) => {
+      let result: string;
+
+      await emit("render", file);
+
+      if ("template" in file) {
+        result = await render.fromString(
+          file.template,
+          await this.createContext(render, addedOptions),
+        );
+      } else {
+        result = await render(
+          file.input,
+          await this.createContext(render, addedOptions),
+        );
+      }
+
+      const info = await prettier.getFileInfo(file.output);
+      if (info.inferredParser) {
+        try {
+          result = await prettier.format(result, {
+            parser: info.inferredParser,
+          });
+        } catch (err) {
+          await this.emitAsync("file.format.error", file, this.makeError(err));
+          await this.emitAsync("generation.error", this.makeError(err));
+        }
+      }
+
+      const dir = path.dirname(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output));
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      await fsp.writeFile(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output), result, {
+        encoding: "utf-8",
+      });
+      await this.emitAsync("file.output", file, result);
+    });
+  }
+
   async generate() {
     await this.initialize();
 
     const templateName = this.options.template;
     const templateDirs = [
-      path.join(__dirname, "../default"),
       path.join(__dirname, "../../default"),
+      path.join(__dirname, "../../../default"),
       this.options.config,
     ].filter((dir) => fs.existsSync(dir));
 
@@ -256,58 +364,17 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       }
 
       for (const file of render.files) {
-        await this.runTask("file", async (emit) => {
-          let result: string;
-
-          await emit("render", file);
-
-          result = await render(file.input, {
-            schema: this.schema,
-            registry: this.registry,
-            addons: Object.fromEntries(
-              await Promise.all(
-                Object.entries(this.addons).map(async ([name, string]) => [
-                  name,
-                  await render.fromString(string, {
-                    schema: this.schema,
-                    registry: this.registry,
-                  }),
-                ]),
-              ),
-            ),
-          });
-
-          const info = await prettier.getFileInfo(file.output);
-          if (info.inferredParser) {
-            try {
-              result = await prettier.format(result, {
-                parser: info.inferredParser,
-              });
-            } catch (err) {
-              await this.emitAsync(
-                "file.format.error",
-                file,
-                this.makeError(err),
-              );
-              await this.emitAsync("generation.error", this.makeError(err));
-            }
-          }
-
-          const dir = path.dirname(path.join(this.options.output, file.output));
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
-          await fsp.writeFile(
-            path.join(this.options.output, file.output),
-            result,
-            {
-              encoding: "utf-8",
-            },
-          );
-          await this.emitAsync("file.output", file, result);
-        });
+        await this.generateFile(file, render);
       }
+
+      const dirsLocation = this.dirGenerator.getDirPaths(basePath);
+      await Promise.all(
+        dirsLocation
+          .map(async (dir) => {
+            return this.generateDir(basePath, dir, render);
+          })
+          .toArray(),
+      );
     });
 
     await this.runTask("generation.plugins", async (emit) => {
@@ -326,54 +393,20 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         for (const [file, p] of list) {
           const templateFile = {
             input: file,
-            output: path.join(this.options.output, ...p).replace(/.njk$/i, ""),
+            output: path.join(...p).replace(/.njk$/i, ""),
           } as TemplateFile;
 
-          let result: string;
-
-          await emit("render", templateFile);
-
-          result = await render(templateFile.input, {
-            schema: this.schema,
-            registry: this.registry,
-            addons: Object.fromEntries(
-              await Promise.all(
-                Object.entries(this.addons).map(async ([name, string]) => [
-                  name,
-                  await render.fromString(string, {
-                    schema: this.schema,
-                    registry: this.registry,
-                  }),
-                ]),
-              ),
-            ),
-          });
-
-          const info = await prettier.getFileInfo(templateFile.output);
-          if (info.inferredParser) {
-            try {
-              result = await prettier.format(result, {
-                parser: info.inferredParser,
-              });
-            } catch (err) {
-              await this.emitAsync(
-                "file.format.error",
-                templateFile,
-                this.makeError(err),
-              );
-              await this.emitAsync("generation.error", this.makeError(err));
-            }
-          }
-
-          const dir = path.dirname(templateFile.output);
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
-          await fsp.writeFile(templateFile.output, result, {
-            encoding: "utf-8",
-          });
+          await this.generateFile(templateFile, render);
         }
+        
+        const dirsLocation = this.dirGenerator.getDirPaths(path.resolve(basePluginPath, plugin));
+        await Promise.all(
+          dirsLocation
+            .map(async (dir) => {
+              return this.generateDir(path.resolve(basePluginPath, plugin), dir, render);
+            })
+            .toArray(),
+        );
       }
     });
 

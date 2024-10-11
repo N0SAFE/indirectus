@@ -1,0 +1,89 @@
+import type * as Directus from "@directus/sdk";
+
+import * as DirectusSDK from "@directus/sdk";
+
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+
+import { Collections, CollectionsType, Schema } from "../../client";
+
+import { toSafe } from "../../utils";
+
+/**
+ * Reads the directus settings singleton.
+ */
+export function readDirectusSettings<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusSettings
+  >,
+>(query?: Query) {
+  return DirectusSDK.readSettings<CollectionsType, Query>(query);
+}
+
+/**
+ * Reads the directus settings singleton.
+ */
+export const getDirectusSettings = readDirectusSettings;
+
+/**
+ * Updates the directus settings singleton.
+ */
+export function updateDirectusSettings<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusSettings
+  >,
+>(patch: Partial<Collections.DirectusSettings>, query?: Query) {
+  return DirectusSDK.updateSettings<CollectionsType, Query>(patch, query);
+}
+
+export class DirectusSettingsSingleton {
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+  
+  /**
+   * Read the singleton from the collection.
+   */
+  async read<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusSettings
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    {data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusSettings,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(readDirectusSettings(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+  
+  /**
+   * Update the singleton from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusSettings
+    >,
+  >(
+    patch: Partial<Collections.DirectusSettings>,
+    query?: Query,
+  ): Promise<
+    {data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusSettings,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(updateDirectusSettings(patch, query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+}

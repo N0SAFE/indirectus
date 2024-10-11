@@ -12,8 +12,8 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from './types/ApplyQueryFields';
 
-import * as SystemBinding from './bindings/system-binding'
-import * as ItemBinding from './bindings/item-binding'
+import * as SystemBinding from './bindings/system-binding/index'
+import * as ItemBinding from './bindings/item-binding/index'
 {{ addons.imports | safe }}
 
 type DirectusSDK = typeof DirectusSDK;

@@ -1,0 +1,142 @@
+import type * as Directus from "@directus/sdk";
+
+import * as DirectusSDK from "@directus/sdk";
+
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+
+import { Collections, CollectionsType, Schema } from "../../client";
+
+import { toSafe } from "../../utils";
+
+/**
+ * Read many directus revisions items.
+ */
+export function readDirectusRevisionItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusRevision
+  >,
+>(query?: Query) {
+  return DirectusSDK.readRevisions<CollectionsType, Query>(query);
+}
+
+/**
+ * Read many directus revisions items.
+ */
+export const listDirectusRevision = readDirectusRevisionItems;
+
+/**
+ * Gets a single known directus revisions item by id.
+ */
+export function readDirectusRevisionItem<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusRevision
+  >,
+>(
+  key: Collections.DirectusRevision extends { id: number | string }
+    ? Collections.DirectusRevision["id"]
+    : string | number,
+  query?: Query,
+) {
+  return DirectusSDK.readRevision<CollectionsType, Query>(key, query);
+}
+
+/**
+ * Gets a single known directus revisions item by id.
+ */
+export const readDirectusRevision = readDirectusRevisionItem;
+
+export class DirectusRevisionItems
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusRevision
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusRevision,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(readDirectusRevisionItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusRevision
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusRevision,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusRevisionItems({
+        ...query,
+        limit: 1,
+      }),
+    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+}
+
+export class DirectusRevisionItem
+{
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusRevision
+    >,
+  >(
+    key: Collections.DirectusRevision extends { id: number | string }
+      ? Collections.DirectusRevision["id"]
+      : string | number,
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusRevision,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusRevisionItem(key, query),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+}

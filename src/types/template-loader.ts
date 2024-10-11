@@ -20,7 +20,10 @@ import { grob } from "@wolfpkgs/core/grob";
 export type TemplateFile = {
   input: string;
   output: string;
-};
+} | {
+  output: string,
+  template: string
+}
 
 export class TemplateLoader extends Loader implements ILoaderAsync {
   public "async": true = true;
@@ -36,7 +39,7 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
   constructor(templateName: string, projectDirs: string[]) {
     super();
     
-    (this as any).setMaxListeners(100)
+    (this as any).setMaxListeners(1000)
 
     this.templateName = templateName;
 
@@ -113,10 +116,15 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
       );
     }
 
-    return files.map(({ input, output }) => ({
-      input: path.resolve(input),
-      output,
-    }));
+    return files.map((file) => {
+      if ('template' in file) {
+        return file
+      }
+      return {
+        input: path.resolve(file.input),
+        output: file.output,
+      }
+    });
   }
 
   async getFilterFiles(): Promise<string[]> {

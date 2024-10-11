@@ -1,0 +1,358 @@
+import type * as Directus from "@directus/sdk";
+
+import * as DirectusSDK from "@directus/sdk";
+
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+
+import { Collections, CollectionsType, Schema } from "../../client";
+
+import { toSafe } from "../../utils";
+
+/**
+ * Create many directus policies items.
+ */
+export function createDirectusPolicyItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(items: Partial<Collections.DirectusPolicy>[], query?: Query) {
+  return DirectusSDK.createPolicies<CollectionsType, Query>(items, query);
+}
+
+/**
+ * Create a single directus policies item.
+ */
+export function createDirectusPolicyItem<
+  const Query extends DirectusSDK.Query<
+    CollectionsType,
+    Directus.DirectusPolicy<CollectionsType>
+  >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DirectusPolicy>, query?: Query) {
+  return DirectusSDK.createPolicy<CollectionsType, Query>(item, query);
+}
+
+/**
+ * Read many directus policies items.
+ */
+export function readDirectusPolicyItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(query?: Query) {
+  return DirectusSDK.readPolicies<CollectionsType, Query>(query);
+}
+
+/**
+ * Read many directus policies items.
+ */
+export const listDirectusPolicy = readDirectusPolicyItems;
+
+/**
+ * Gets a single known directus policies item by id.
+ */
+export function readDirectusPolicyItem<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(
+  key: Collections.DirectusPolicy extends { id: number | string }
+    ? Collections.DirectusPolicy["id"]
+    : string | number,
+  query?: Query,
+) {
+  return DirectusSDK.readPolicy<CollectionsType, Query>(key, query);
+}
+
+/**
+ * Gets a single known directus policies item by id.
+ */
+export const readDirectusPolicy = readDirectusPolicyItem;
+
+/**
+ * Read many directus policies items.
+ */
+export function updateDirectusPolicyItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(
+  keys: Collections.DirectusPolicy extends { id: number | string }
+    ? Collections.DirectusPolicy["id"][]
+    : string[] | number[],
+  patch: Partial<Collections.DirectusPolicy>,
+  query?: Query,
+) {
+  return DirectusSDK.updatePolicies<CollectionsType, Query>(keys, patch, query);
+}
+
+/**
+ * Gets a single known directus policies item by id.
+ */
+export function updateDirectusPolicyItem<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(
+  key: Collections.DirectusPolicy extends { id: number | string }
+    ? Collections.DirectusPolicy["id"]
+    : string | number,
+  patch: Partial<Collections.DirectusPolicy>,
+  query?: Query,
+) {
+  return DirectusSDK.updatePolicy<CollectionsType, Query>(key, patch, query);
+}
+
+/**
+ * Deletes many directus policies items.
+ */
+export function deleteDirectusPolicyItems<
+  const Query extends Directus.Query<
+    CollectionsType,
+    Collections.DirectusPolicy
+  >,
+>(
+  keys: Collections.DirectusPolicy extends { id: number | string }
+    ? Collections.DirectusPolicy["id"][]
+    : string[] | number[],
+) {
+  return DirectusSDK.deletePolicies<CollectionsType>(keys);
+}
+
+/**
+ * Deletes a single known directus policies item by id.
+ */
+export function deleteDirectusPolicyItem(
+  key: Collections.DirectusPolicy extends { id: number | string }
+    ? Collections.DirectusPolicy["id"]
+    : string | number,
+) {
+  return DirectusSDK.deletePolicy<CollectionsType>(key);
+}
+
+export class DirectusPolicyItems {
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    items: Partial<Collections.DirectusPolicy>[],
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusPolicy,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      createDirectusPolicyItems(items, query as any),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusPolicy,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(readDirectusPolicyItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusPolicy,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusPolicyItems({
+        ...query,
+        limit: 1,
+      }),
+    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Directus.DirectusPolicy<CollectionsType>
+    >,
+  >(
+    keys: Collections.DirectusPolicy extends { id: number | string }
+      ? Collections.DirectusPolicy["id"][]
+      : string[] | number[],
+    patch: Partial<Collections.DirectusPolicy>,
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusPolicy,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      updateDirectusPolicyItems(keys, patch, query),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    keys: Collections.DirectusPolicy extends { id: number | string }
+      ? Collections.DirectusPolicy["id"][]
+      : string[] | number[],
+  ): Promise<void> {
+    return await this.client.request(deleteDirectusPolicyItems(keys));
+  }
+}
+
+export class DirectusPolicyItem {
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
+
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    item: Partial<Collections.DirectusPolicy>,
+    query?: Query,
+  ): Promise<
+  { data: ApplyQueryFields<
+      CollectionsType,
+      Collections.DirectusPolicy,
+      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+    >, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      createDirectusPolicyItem(item, query as any),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    key: Collections.DirectusPolicy extends { id: number | string }
+      ? Collections.DirectusPolicy["id"]
+      : string | number,
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusPolicy,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      readDirectusPolicyItem(key, query),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    key: Collections.DirectusPolicy extends { id: number | string }
+      ? Collections.DirectusPolicy["id"]
+      : string | number,
+    patch: Partial<Collections.DirectusPolicy>,
+    query?: Query,
+  ): Promise<
+    { data: ApplyQueryFields<
+        CollectionsType,
+        Collections.DirectusPolicy,
+        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
+      >
+    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+  > {
+    return this.client.request(
+      updateDirectusPolicyItem(key, patch, query as any),
+    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  }
+
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      CollectionsType,
+      Collections.DirectusPolicy
+    >,
+  >(
+    key: Collections.DirectusPolicy extends { id: number | string }
+      ? Collections.DirectusPolicy["id"]
+      : string | number,
+  ): Promise<void> {
+    return this.client.request(deleteDirectusPolicyItem(key)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}))
+  }
+}

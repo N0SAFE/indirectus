@@ -1,0 +1,536 @@
+import type * as Directus from '@directus/sdk'
+
+import * as DirectusSDK from '@directus/sdk'
+
+import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import {
+    Collections,
+    CollectionsType,
+    DirectusCommands,
+    Schema,
+} from '../../client'
+
+type DirectusSDK = typeof DirectusSDK
+
+
+/**
+ * read current user.
+ */
+export function readMeItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(query?: Query) {
+    return DirectusSDK.readMe<CollectionsType, Query>(query)
+}
+
+export const readMe = readMeItem
+
+/**
+ * read current user role.
+ */
+export function readMeRoleItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusRole
+    >,
+>(query?: Query) {
+    return DirectusSDK.readRolesMe<CollectionsType, Query>(query)
+}
+
+export const readMeRole = readMeRoleItem
+
+/**
+ * update current user.
+ */
+export function updateMeItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(patch: Partial<Collections.DirectusUser>, query?: Query) {
+    return DirectusSDK.updateMe<CollectionsType, Query>(patch, query)
+}
+
+export class DirectusMe {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * read current user.
+     */
+    async read<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(readMeItem(query))) as any
+    }
+
+    async readRoles<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusRole
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusRole,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(readMeRoleItem(query))) as any
+    }
+
+    /**
+     * update current user.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        patch: Partial<Collections.DirectusUser>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(updateMeItem(patch, query))) as any
+    }
+}
+
+/**
+ * Create many directus users items.
+ */
+export function createDirectusUserItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(items: Partial<Collections.DirectusUser>[], query?: Query) {
+    return DirectusSDK.createUsers<CollectionsType, Query>(items, query)
+}
+
+/**
+ * Create a single directus users item.
+ */
+export function createDirectusUserItem<
+    const Query extends DirectusSDK.Query<
+        CollectionsType,
+        Directus.DirectusUser<CollectionsType>
+    >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DirectusUser>, query?: Query) {
+    return DirectusSDK.createUser<CollectionsType, Query>(item, query)
+}
+
+/**
+ * Read many directus users items.
+ */
+export function readDirectusUserItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(query?: Query) {
+    return DirectusSDK.readUsers<CollectionsType, Query>(query)
+}
+
+/**
+ * Read many directus users items.
+ */
+export const listDirectusUser = readDirectusUserItems
+
+/**
+ * Gets a single known directus users item by id.
+ */
+export function readDirectusUserItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(
+    key: Collections.DirectusUser extends { id: number | string }
+        ? Collections.DirectusUser['id']
+        : string | number,
+    query?: Query
+) {
+    return DirectusSDK.readUser<CollectionsType, Query>(key, query)
+}
+
+/**
+ * Gets a single known directus users item by id.
+ */
+export const readDirectusUser = readDirectusUserItem
+
+/**
+ * Read many directus users items.
+ */
+export function updateDirectusUserItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(
+    keys: Collections.DirectusUser extends { id: number | string }
+        ? Collections.DirectusUser['id'][]
+        : string[] | number[],
+    patch: Partial<Collections.DirectusUser>,
+    query?: Query
+) {
+    return DirectusSDK.updateUsers<CollectionsType, Query>(keys, patch, query)
+}
+
+/**
+ * Gets a single known directus users item by id.
+ */
+export function updateDirectusUserItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(
+    key: Collections.DirectusUser extends { id: number | string }
+        ? Collections.DirectusUser['id']
+        : string | number,
+    patch: Partial<Collections.DirectusUser>,
+    query?: Query
+) {
+    return DirectusSDK.updateUser<CollectionsType, Query>(key, patch, query)
+}
+
+/**
+ * Deletes many directus users items.
+ */
+export function deleteDirectusUserItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusUser
+    >,
+>(
+    keys: Collections.DirectusUser extends { id: number | string }
+        ? Collections.DirectusUser['id'][]
+        : string[] | number[]
+) {
+    return DirectusSDK.deleteUsers<CollectionsType>(keys)
+}
+
+/**
+ * Deletes a single known directus users item by id.
+ */
+export function deleteDirectusUserItem(
+    key: Collections.DirectusUser extends { id: number | string }
+        ? Collections.DirectusUser['id']
+        : string | number
+) {
+    return DirectusSDK.deleteUser<CollectionsType>(key)
+}
+
+export class DirectusUserItems {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Creates many items in the collection.
+     */
+    async create<
+        const Query extends DirectusSDK.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        items: Partial<Collections.DirectusUser>[],
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            createDirectusUserItems(items, query as any)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read many items from the collection.
+     */
+    async query<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(readDirectusUserItems(query))) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read the first item from the collection matching the query.
+     */
+    async find<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusUser,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        const items = await this.client.request(
+            readDirectusUserItems({
+                ...query,
+                limit: 1,
+            })
+        )
+        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Update many items in the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Directus.DirectusUser<CollectionsType>
+        >,
+    >(
+        keys: Collections.DirectusUser extends { id: number | string }
+            ? Collections.DirectusUser['id'][]
+            : string[] | number[],
+        patch: Partial<Collections.DirectusUser>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            updateDirectusUserItems(keys, patch, query)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        keys: Collections.DirectusUser extends { id: number | string }
+            ? Collections.DirectusUser['id'][]
+            : string[] | number[]
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusUserItems(keys))
+    }
+}
+
+export class DirectusUserItem {
+    public Me: DirectusMe
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {
+        this.Me = new DirectusMe(client)
+    }
+
+    /**
+     * Create a single item in the collection.
+     */
+    async create<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        item: Partial<Collections.DirectusUser>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusUser,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(
+            createDirectusUserItem(item, query as any)
+        )) as any
+    }
+
+    /**
+     * Read a single item from the collection.
+     */
+    async get<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        key: Collections.DirectusUser extends { id: number | string }
+            ? Collections.DirectusUser['id']
+            : string | number,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusUser,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            readDirectusUserItem(key, query)
+        )) as any
+    }
+
+    /**
+     * Update a single item from the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        key: Collections.DirectusUser extends { id: number | string }
+            ? Collections.DirectusUser['id']
+            : string | number,
+        patch: Partial<Collections.DirectusUser>,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusUser,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            updateDirectusUserItem(key, patch, query as any)
+        )) as any
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusUser
+        >,
+    >(
+        key: Collections.DirectusUser extends { id: number | string }
+            ? Collections.DirectusUser['id']
+            : string | number
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusUserItem(key))
+    }
+}

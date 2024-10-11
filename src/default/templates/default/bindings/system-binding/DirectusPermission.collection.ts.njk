@@ -1,0 +1,417 @@
+import type * as Directus from '@directus/sdk'
+
+import * as DirectusSDK from '@directus/sdk'
+
+import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import {
+    Collections,
+    CollectionsType,
+    DirectusCommands,
+    Schema,
+} from '../../client'
+
+type DirectusSDK = typeof DirectusSDK
+
+
+/**
+ * Create many directus permissions items.
+ */
+export function createDirectusPermissionItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusPermission
+    >,
+>(items: Partial<Collections.DirectusPermission>[], query?: Query) {
+    return DirectusSDK.createPermissions<CollectionsType, Query>(items, query)
+}
+
+/**
+ * Create a single directus permissions item.
+ */
+export function createDirectusPermissionItem<
+    const Query extends DirectusSDK.Query<
+        CollectionsType,
+        Directus.DirectusPermission<CollectionsType>
+    >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DirectusPermission>, query?: Query) {
+    return DirectusSDK.createPermission<CollectionsType, Query>(item, query)
+}
+
+/**
+ * Read many directus permissions items.
+ */
+export function readDirectusPermissionItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusPermission
+    >,
+>(query?: Query) {
+    return DirectusSDK.readPermissions<CollectionsType, Query>(query)
+}
+
+/**
+ * Read many directus permissions items.
+ */
+export const listDirectusPermission = readDirectusPermissionItems
+
+/**
+ * Gets a single known directus permissions item by id.
+ */
+export function readDirectusPermissionItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusPermission
+    >,
+>(
+    key: Collections.DirectusPermission extends { id: number | string }
+        ? Collections.DirectusPermission['id']
+        : string | number,
+    query?: Query
+) {
+    return DirectusSDK.readPermission<CollectionsType, Query>(key, query)
+}
+
+/**
+ * Gets a single known directus permissions item by id.
+ */
+export const readDirectusPermission = readDirectusPermissionItem
+
+/**
+ * Read many directus permissions items.
+ */
+export function updateDirectusPermissionItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Directus.DirectusPermission<CollectionsType>
+    >,
+>(
+    keys: Collections.DirectusPermission extends { id: number | string }
+        ? Collections.DirectusPermission['id'][]
+        : string[] | number[],
+    patch: Partial<Collections.DirectusPermission>,
+    query?: Query
+) {
+    return DirectusSDK.updatePermissions<CollectionsType, Query>(
+        keys,
+        patch,
+        query
+    )
+}
+
+/**
+ * Gets a single known directus permissions item by id.
+ */
+export function updateDirectusPermissionItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusPermission
+    >,
+>(
+    key: Collections.DirectusPermission extends { id: number | string }
+        ? Collections.DirectusPermission['id']
+        : string | number,
+    patch: Partial<Collections.DirectusPermission>,
+    query?: Query
+) {
+    return DirectusSDK.updatePermission<CollectionsType, Query>(
+        key,
+        patch,
+        query
+    )
+}
+
+/**
+ * Deletes many directus permissions items.
+ */
+export function deleteDirectusPermissionItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusPermission
+    >,
+>(
+    keys: Collections.DirectusPermission extends { id: number | string }
+        ? Collections.DirectusPermission['id'][]
+        : string[] | number[]
+) {
+    return DirectusSDK.deletePermissions<CollectionsType>(keys)
+}
+
+/**
+ * Deletes a single known directus permissions item by id.
+ */
+export function deleteDirectusPermissionItem(
+    key: Collections.DirectusPermission extends { id: number | string }
+        ? Collections.DirectusPermission['id']
+        : string | number
+) {
+    return DirectusSDK.deletePermission<CollectionsType>(key)
+}
+
+export class DirectusPermissionItems {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Creates many items in the collection.
+     */
+    async create<
+        const Query extends DirectusSDK.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        items: Partial<Collections.DirectusPermission>[],
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusPermission,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            createDirectusPermissionItems(items, query as any)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read many items from the collection.
+     */
+    async query<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusPermission,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            readDirectusPermissionItems(query)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read the first item from the collection matching the query.
+     */
+    async find<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusPermission,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        const items = await this.client.request(
+            readDirectusPermissionItems({
+                ...query,
+                limit: 1,
+            })
+        )
+        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Update many items in the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Directus.DirectusPermission<CollectionsType>
+        >,
+    >(
+        keys: Collections.DirectusPermission extends { id: number | string }
+            ? Collections.DirectusPermission['id'][]
+            : string[] | number[],
+        patch: Partial<Collections.DirectusPermission>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusPermission,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            updateDirectusPermissionItems(keys, patch, query)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        keys: Collections.DirectusPermission extends { id: number | string }
+            ? Collections.DirectusPermission['id'][]
+            : string[] | number[]
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusPermissionItems(keys))
+    }
+}
+
+export class DirectusPermissionItem {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Create a single item in the collection.
+     */
+    async create<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        item: Partial<Collections.DirectusPermission>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusPermission,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(
+            createDirectusPermissionItem(item, query as any)
+        )) as any
+    }
+
+    /**
+     * Read a single item from the collection.
+     */
+    async get<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        key: Collections.DirectusPermission extends { id: number | string }
+            ? Collections.DirectusPermission['id']
+            : string | number,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusPermission,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            readDirectusPermissionItem(key, query)
+        )) as any
+    }
+
+    /**
+     * Update a single item from the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        key: Collections.DirectusPermission extends { id: number | string }
+            ? Collections.DirectusPermission['id']
+            : string | number,
+        patch: Partial<Collections.DirectusPermission>,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusPermission,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            updateDirectusPermissionItem(key, patch, query as any)
+        )) as any
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusPermission
+        >,
+    >(
+        key: Collections.DirectusPermission extends { id: number | string }
+            ? Collections.DirectusPermission['id']
+            : string | number
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusPermissionItem(key))
+    }
+}

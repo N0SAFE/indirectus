@@ -1,0 +1,407 @@
+import type * as Directus from '@directus/sdk'
+
+import * as DirectusSDK from '@directus/sdk'
+
+import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import {
+    Collections,
+    CollectionsType,
+    DirectusCommands,
+    Schema,
+} from '../../client'
+
+type DirectusSDK = typeof DirectusSDK
+
+
+/**
+ * Create many directus shares items.
+ */
+export function createDirectusShareItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(items: Partial<Collections.DirectusShare>[], query?: Query) {
+    return DirectusSDK.createShares<CollectionsType, Query>(items, query)
+}
+
+/**
+ * Create a single directus shares item.
+ */
+export function createDirectusShareItem<
+    const Query extends DirectusSDK.Query<
+        CollectionsType,
+        Directus.DirectusShare<CollectionsType>
+    >, // Is this a mistake? Why []?
+>(item: Partial<Collections.DirectusShare>, query?: Query) {
+    return DirectusSDK.createShare<CollectionsType, Query>(item, query)
+}
+
+/**
+ * Read many directus shares items.
+ */
+export function readDirectusShareItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(query?: Query) {
+    return DirectusSDK.readShares<CollectionsType, Query>(query)
+}
+
+/**
+ * Read many directus shares items.
+ */
+export const listDirectusShare = readDirectusShareItems
+
+/**
+ * Gets a single known directus shares item by id.
+ */
+export function readDirectusShareItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(
+    key: Collections.DirectusShare extends { id: number | string }
+        ? Collections.DirectusShare['id']
+        : string | number,
+    query?: Query
+) {
+    return DirectusSDK.readShare<CollectionsType, Query>(key, query)
+}
+
+/**
+ * Gets a single known directus shares item by id.
+ */
+export const readDirectusShare = readDirectusShareItem
+
+/**
+ * Read many directus shares items.
+ */
+export function updateDirectusShareItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(
+    keys: Collections.DirectusShare extends { id: number | string }
+        ? Collections.DirectusShare['id'][]
+        : string[] | number[],
+    patch: Partial<Collections.DirectusShare>,
+    query?: Query
+) {
+    return DirectusSDK.updateShares<CollectionsType, Query>(keys, patch, query)
+}
+
+/**
+ * Gets a single known directus shares item by id.
+ */
+export function updateDirectusShareItem<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(
+    key: Collections.DirectusShare extends { id: number | string }
+        ? Collections.DirectusShare['id']
+        : string | number,
+    patch: Partial<Collections.DirectusShare>,
+    query?: Query
+) {
+    return DirectusSDK.updateShare<CollectionsType, Query>(key, patch, query)
+}
+
+/**
+ * Deletes many directus shares items.
+ */
+export function deleteDirectusShareItems<
+    const Query extends Directus.Query<
+        CollectionsType,
+        Collections.DirectusShare
+    >,
+>(
+    keys: Collections.DirectusShare extends { id: number | string }
+        ? Collections.DirectusShare['id'][]
+        : string[] | number[]
+) {
+    return DirectusSDK.deleteShares<CollectionsType>(keys)
+}
+
+/**
+ * Deletes a single known directus shares item by id.
+ */
+export function deleteDirectusShareItem(
+    key: Collections.DirectusShare extends { id: number | string }
+        ? Collections.DirectusShare['id']
+        : string | number
+) {
+    return DirectusSDK.deleteShare<CollectionsType>(key)
+}
+
+export class DirectusShareItems {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Creates many items in the collection.
+     */
+    async create<
+        const Query extends DirectusSDK.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        items: Partial<Collections.DirectusShare>[],
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusShare,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            createDirectusShareItems(items, query as any)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read many items from the collection.
+     */
+    async query<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusShare,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(readDirectusShareItems(query))) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Read the first item from the collection matching the query.
+     */
+    async find<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusShare,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        const items = await this.client.request(
+            readDirectusShareItems({
+                ...query,
+                limit: 1,
+            })
+        )
+        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Update many items in the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Directus.DirectusShare<CollectionsType>
+        >,
+    >(
+        keys: Collections.DirectusShare extends { id: number | string }
+            ? Collections.DirectusShare['id'][]
+            : string[] | number[],
+        patch: Partial<Collections.DirectusShare>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusShare,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >[]
+    > {
+        return (await this.client.request(
+            updateDirectusShareItems(keys, patch, query)
+        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        keys: Collections.DirectusShare extends { id: number | string }
+            ? Collections.DirectusShare['id'][]
+            : string[] | number[]
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusShareItems(keys))
+    }
+}
+
+export class DirectusShareItem {
+    /**
+     *
+     */
+    constructor(
+        private client: Directus.DirectusClient<Schema> &
+            Directus.RestClient<Schema>
+    ) {}
+
+    /**
+     * Create a single item in the collection.
+     */
+    async create<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        item: Partial<Collections.DirectusShare>,
+        query?: Query
+    ): Promise<
+        ApplyQueryFields<
+            CollectionsType,
+            Collections.DirectusShare,
+            Query extends undefined
+                ? ['*']
+                : Query['fields'] extends undefined
+                  ? ['*']
+                  : Query['fields'] extends Readonly<any[]>
+                    ? Query['fields']
+                    : ['*']
+        >
+    > {
+        return (await this.client.request(
+            createDirectusShareItem(item, query as any)
+        )) as any
+    }
+
+    /**
+     * Read a single item from the collection.
+     */
+    async get<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        key: Collections.DirectusShare extends { id: number | string }
+            ? Collections.DirectusShare['id']
+            : string | number,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusShare,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            readDirectusShareItem(key, query)
+        )) as any
+    }
+
+    /**
+     * Update a single item from the collection.
+     */
+    async update<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        key: Collections.DirectusShare extends { id: number | string }
+            ? Collections.DirectusShare['id']
+            : string | number,
+        patch: Partial<Collections.DirectusShare>,
+        query?: Query
+    ): Promise<
+        | ApplyQueryFields<
+              CollectionsType,
+              Collections.DirectusShare,
+              Query extends undefined
+                  ? ['*']
+                  : Query['fields'] extends undefined
+                    ? ['*']
+                    : Query['fields'] extends Readonly<any[]>
+                      ? Query['fields']
+                      : ['*']
+          >
+        | undefined
+    > {
+        return (await this.client.request(
+            updateDirectusShareItem(key, patch, query as any)
+        )) as any
+    }
+
+    /**
+     * Remove many items in the collection.
+     */
+    async remove<
+        const Query extends Directus.Query<
+            CollectionsType,
+            Collections.DirectusShare
+        >,
+    >(
+        key: Collections.DirectusShare extends { id: number | string }
+            ? Collections.DirectusShare['id']
+            : string | number
+    ): Promise<void> {
+        return await this.client.request(deleteDirectusShareItem(key))
+    }
+}

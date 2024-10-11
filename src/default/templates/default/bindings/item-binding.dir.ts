@@ -1,4 +1,10 @@
-import type * as Directus from "@directus/sdk";
+import { to_collection_name } from "../../../../default/extensions/filters/directus";
+import { Context } from "../../../../types/types";
+
+const template = `import { Directive } from "@angular/core";`;
+export const generate = (context: Context) => {
+  const typesTemplate = `
+  import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
@@ -6,7 +12,7 @@ import { ApplyQueryFields } from "../types/ApplyQueryFields";
 
 import { Collections, CollectionsType, Schema } from "../client";
 
-export interface TypedCollectionSingletonWrapper<Collection extends object>
+  export interface TypedCollectionSingletonWrapper<Collection extends object>
 {
   /**
    * Reads the singleton.
@@ -73,17 +79,9 @@ export interface TypedCollectionItemWrapper<Collection extends object>
    * Remove many items in the collection.
    */
   remove<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number): Promise<void>;
-}
+}`;
 
-
-
-/**
- * Helper functions
- */
-
-{% for collection in registry.collections -%}
-
-{% set collectionName = collection.name | to_collection_name %}
+  const perCollection = `{% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}
 {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
 {% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
@@ -91,7 +89,6 @@ export interface TypedCollectionItemWrapper<Collection extends object>
 {% set applyType  = ["ApplyQueryFields<CollectionsType, ", collectionType, ", Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>"] | join %}
 
 
-{% if not collection.is_system %}
 {% if collection.is_singleton %}
 
 /**
@@ -344,6 +341,37 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
   }
 }
 
-{% endif %}
-{% endif %}
-{% endfor %}
+{% endif %}`;
+
+  return {
+    files: [
+      {
+        path: "./index.ts",
+        template: context.registry.collections
+          .filter((collection) => {
+            return !collection.is_system;
+          })
+          .reduce((acc, collection) => {
+            return `${acc}export * from './${to_collection_name(context, collection.name.toString())}.collection';\n`;
+          }, ""),
+      },
+      {
+        path: "./types.ts",
+        template: typesTemplate,
+      },
+      ...context.registry.collections
+        .filter((collection) => {
+          return !collection.is_system;
+        })
+        .map((collection) => {
+          return {
+            path: `./${to_collection_name(context, collection.name.toString())}.collection.ts`,
+            template: perCollection,
+            variables: {
+              collection,
+            },
+          };
+        }),
+    ],
+  };
+};

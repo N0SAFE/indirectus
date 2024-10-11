@@ -1,13 +1,16 @@
-import path from "node:path";
-import { Registry } from "./registry";
-import { Schema } from "./schema";
 import * as fs from "node:fs";
+import path from "node:path";
 
-class Tree<T> {
+export class Tree<T> {
   constructor() {}
   branches: Map<string, Tree<T> | T> = new Map();
   traverse(
-    cb: (value: Tree<T> | T, path: string[], isEnd: boolean, tree: Tree<T>) => void,
+    cb: (
+      value: Tree<T> | T,
+      path: string[],
+      isEnd: boolean,
+      tree: Tree<T>,
+    ) => void,
     parent: Tree<T> = this,
     path: string[] = [],
   ) {
@@ -30,16 +33,16 @@ class Tree<T> {
     }, this);
   }
 
-  map<R>(cb: (value: T, path: string[], isEnd: boolean, tree: Tree<T>) => R, path: string[] = []) {
+  map<R>(
+    cb: (value: T, path: string[], isEnd: boolean, tree: Tree<T>) => R,
+    path: string[] = [],
+  ) {
     const tree = new Tree<R>();
     this.branches.forEach((branch, key) => {
       if (branch instanceof Tree) {
         tree.branches.set(key, branch.map(cb));
       } else {
-        tree.branches.set(
-          key,
-          cb(branch, [...path, key], true, this),
-        );
+        tree.branches.set(key, cb(branch, [...path, key], true, this));
       }
     });
     return tree;
@@ -75,9 +78,25 @@ class Tree<T> {
     });
     return result;
   }
+  
+  toArrayWithMeta() {
+    const arr: {value: T, path: string[], isEnd: boolean}[] = [];
+    this.forEach((value, path, isEnd) => {
+      arr.push({value, path, isEnd});
+    });
+    return arr;
+  }
+  
+  toArray() {
+    const arr: T[] = [];
+    this.forEach((value) => {
+      arr.push(value);
+    });
+    return arr;
+  }
 }
 
-const fsDeepTree = (dir: string) => {
+export const fsDeepTree = (dir: string) => {
   const files = fs.readdirSync(dir);
   const tree = new Tree<string>();
   for (const file of files) {
@@ -91,45 +110,3 @@ const fsDeepTree = (dir: string) => {
   }
   return tree;
 };
-
-export const createPlugin = (schema: Schema, registry: Registry) => {
-  const defaultTree = fsDeepTree(path.join(__dirname, "../default/templates/default"));
-  return new PluginGenerator(schema, registry, defaultTree);
-};
-
-export class PluginGenerator {
-  public readonly basePluginPath = path.join(__dirname, `../default/templates/plugins`);
-  constructor(
-    public readonly schema: Schema,
-    public readonly registry: Registry,
-    public readonly defaultTree: Tree<string>,
-  ) {}
-  
-  public getPath(plugin: string) {
-    return path.join(this.basePluginPath, plugin);
-  }
-  
-  public generateAddonTree(plugin: string) {
-    if (!fs.existsSync(this.getPath(plugin))) {
-      throw new Error(`Plugin ${plugin} does not exist`);
-    }
-    return fsDeepTree(this.getPath(plugin));
-  }
-
-  public getAddonMap(plugin: string) {
-    const addonTree = this.generateAddonTree(plugin);
-    return addonTree
-      .filter((value, p, isEnd) => {
-        return path.extname(value) === ".js";
-      })
-      .reduce(async (acc, value, p, isEnd) => {
-        const pack = await import(
-          value
-        );
-        Object.entries(pack).forEach(([key, value]) => {
-          acc[key] = value;
-        });
-        return acc;
-      }, {} as Record<string, any>);
-  }
-}
