@@ -81,7 +81,24 @@ export interface TypedCollectionItemWrapper<Collection extends object>
   remove<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number): Promise<void>;
 }`;
 
-  const perCollection = `{% set collectionName = collection.name | to_collection_name %}
+  const perCollection = `import type * as Directus from '@directus/sdk'
+
+import * as DirectusSDK from '@directus/sdk'
+
+import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import {
+    Collections,
+    CollectionsType,
+    DirectusCommands,
+    Schema,
+} from '../../client'
+
+import { TypedCollectionItemsWrapper, TypedCollectionItemWrapper, TypedCollectionSingletonWrapper } from "./types";
+
+type DirectusSDK = typeof DirectusSDK
+
+{% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}
 {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
 {% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}

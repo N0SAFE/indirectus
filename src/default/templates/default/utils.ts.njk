@@ -120,11 +120,7 @@ export function getRelation<
 export function getStringDate<
   T extends Types.Date | Types.DateTime | null | undefined,
 >(date: T) {
-  if (date instanceof Date) {
-    return date.toISOString();
-  } else {
-    return date as Exclude<T, Date>;
-  }
+  return date as Exclude<T, Date>;
 }
 
 export namespace DirectusFileNamespace {
