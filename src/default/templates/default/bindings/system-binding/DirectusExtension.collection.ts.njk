@@ -1,162 +1,68 @@
-import type * as Directus from '@directus/sdk'
+import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from '@directus/sdk'
+import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-    Collections,
-    CollectionsType,
-    DirectusCommands,
-    Schema,
-} from '../../client'
+  readDirectusExtensionItems,
+  updateDirectusExtensionItem,
+} from "@/command/DirectusExtension.command";
 
-type DirectusSDK = typeof DirectusSDK
-
-
-/**
- * Read many directus extensions items.
- */
-export function readDirectusExtensionItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusExtension
-    >,
->(query?: Query) {
-    return DirectusSDK.readExtensions<CollectionsType>()
-}
-
-/**
- * Read many directus extensions items.
- */
-export const listDirectusExtension = readDirectusExtensionItems
-
-/**
- * Gets a single known directus extensions item by id.
- */
-export function updateDirectusExtensionItem<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusExtension
-    >,
->(
-    bundle: string | null,
-    name: string,
-    data: Directus.NestedPartial<Directus.DirectusExtension<CollectionsType>>
-) {
-    return DirectusSDK.updateExtension<CollectionsType>(bundle, name, data)
-}
+type DirectusSDK = typeof DirectusSDK;
 
 export class DirectusExtensionItems {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Read many items from the collection.
-     */
-    async query<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusExtension
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusExtension,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(
-            readDirectusExtensionItems(query)
-        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
-
-    /**
-     * Read the first item from the collection matching the query.
-     */
-    async find<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusExtension
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusExtension,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        const items = await this.client.request(
-            readDirectusExtensionItems({
-                ...query,
-                limit: 1,
-            })
-        )
-        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Read many items from the collection.
+   */
+  async query(): Promise<Collections.DirectusExtension[]> {
+    return (await this.client.request(readDirectusExtensionItems())) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 }
 
 export class DirectusExtensionItem {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Update a single item from the collection.
-     */
-    async update<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusExtension
-        >,
-    >(
-        bundle: string | null,
-        name: string,
-        data: Directus.NestedPartial<
-            Directus.DirectusExtension<CollectionsType>
-        >
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusExtension,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        return (await this.client.request(
-            updateDirectusExtensionItem(bundle, name, data)
-        )) as any
-    }
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<Schema, Collections.DirectusExtension>,
+  >(
+    bundle: string | null,
+    name: string,
+    data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusExtension,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateDirectusExtensionItem(bundle, name, data),
+    )) as any;
+  }
 }

@@ -4,135 +4,10 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../../client";
+import { Collections, Schema } from "../../client";
 
 import { toSafe } from "../../utils";
-
-/**
- * Create many directus presets items.
- */
-export function createDirectusPresetItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(items: Partial<Collections.DirectusPreset>[], query?: Query) {
-  return DirectusSDK.createPresets<CollectionsType, Query>(items, query);
-}
-
-/**
- * Create a single directus presets item.
- */
-export function createDirectusPresetItem<
-  const Query extends DirectusSDK.Query<
-    CollectionsType,
-    Directus.DirectusPreset<CollectionsType>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusPreset>, query?: Query) {
-  return DirectusSDK.createPreset<CollectionsType, Query>(item, query);
-}
-
-/**
- * Read many directus presets items.
- */
-export function readDirectusPresetItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(query?: Query) {
-  return DirectusSDK.readPresets<CollectionsType, Query>(query);
-}
-
-/**
- * Read many directus presets items.
- */
-export const listDirectusPreset = readDirectusPresetItems;
-
-/**
- * Gets a single known directus presets item by id.
- */
-export function readDirectusPresetItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(
-  key: Collections.DirectusPreset extends { id: number | string }
-    ? Collections.DirectusPreset["id"]
-    : string | number,
-  query?: Query,
-) {
-  return DirectusSDK.readPreset<CollectionsType, Query>(key, query);
-}
-
-/**
- * Gets a single known directus presets item by id.
- */
-export const readDirectusPreset = readDirectusPresetItem;
-
-/**
- * Read many directus presets items.
- */
-export function updateDirectusPresetItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(
-  keys: Collections.DirectusPreset extends { id: number | string }
-    ? Collections.DirectusPreset["id"][]
-    : string[] | number[],
-  patch: Partial<Collections.DirectusPreset>,
-  query?: Query,
-) {
-  return DirectusSDK.updatePresets<CollectionsType, Query>(keys, patch, query);
-}
-
-/**
- * Gets a single known directus presets item by id.
- */
-export function updateDirectusPresetItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(
-  key: Collections.DirectusPreset extends { id: number | string }
-    ? Collections.DirectusPreset["id"]
-    : string | number,
-  patch: Partial<Collections.DirectusPreset>,
-  query?: Query,
-) {
-  return DirectusSDK.updatePreset<CollectionsType, Query>(key, patch, query);
-}
-
-/**
- * Deletes many directus presets items.
- */
-export function deleteDirectusPresetItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusPreset
-  >,
->(
-  keys: Collections.DirectusPreset extends { id: number | string }
-    ? Collections.DirectusPreset["id"][]
-    : string[] | number[],
-) {
-  return DirectusSDK.deletePresets<CollectionsType>(keys);
-}
-
-/**
- * Deletes a single known directus presets item by id.
- */
-export function deleteDirectusPresetItem(
-  key: Collections.DirectusPreset extends { id: number | string }
-    ? Collections.DirectusPreset["id"]
-    : string | number,
-) {
-  return DirectusSDK.deletePreset<CollectionsType>(key);
-}
+import { createDirectusPresetItem, createDirectusPresetItems, deleteDirectusPresetItem, deleteDirectusPresetItems, readDirectusPresetItem, readDirectusPresetItems, updateDirectusPresetItem, updateDirectusPresetItems } from "../../command/DirectusPreset.command";
 
 export class DirectusPresetItems {
   /**
@@ -148,22 +23,34 @@ export class DirectusPresetItems {
    */
   async create<
     const Query extends DirectusSDK.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
     items: Partial<Collections.DirectusPreset>[],
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusPreset,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusPreset,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusPresetItems(items, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(createDirectusPresetItems(items, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -171,19 +58,33 @@ export class DirectusPresetItems {
    */
   async query<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusPreset,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusPreset,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusPresetItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(readDirectusPresetItems(query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -191,25 +92,40 @@ export class DirectusPresetItems {
    */
   async find<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusPreset,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusPreset,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusPresetItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(
+        readDirectusPresetItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => ({ data: items?.[0], isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -217,8 +133,8 @@ export class DirectusPresetItems {
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
-      Directus.DirectusPreset<CollectionsType>
+      Schema,
+      Directus.DirectusPreset<Schema>
     >,
   >(
     keys: Collections.DirectusPreset extends { id: number | string }
@@ -227,15 +143,27 @@ export class DirectusPresetItems {
     patch: Partial<Collections.DirectusPreset>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusPreset,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusPreset,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusPresetItems(keys, patch, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(updateDirectusPresetItems(keys, patch, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -243,7 +171,7 @@ export class DirectusPresetItems {
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
@@ -251,7 +179,10 @@ export class DirectusPresetItems {
       ? Collections.DirectusPreset["id"][]
       : string[] | number[],
   ): Promise<void> {
-    return this.client.request(deleteDirectusPresetItems(keys)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}))
+    return this.client
+      .request(deleteDirectusPresetItems(keys))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 }
 
@@ -269,22 +200,34 @@ export class DirectusPresetItem {
    */
   async create<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
     item: Partial<Collections.DirectusPreset>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusPreset,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusPreset,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusPresetItem(item, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(createDirectusPresetItem(item, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -292,7 +235,7 @@ export class DirectusPresetItem {
    */
   async get<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
@@ -301,16 +244,29 @@ export class DirectusPresetItem {
       : string | number,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusPreset,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusPreset,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusPresetItem(key, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(readDirectusPresetItem(key, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -318,7 +274,7 @@ export class DirectusPresetItem {
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
@@ -328,16 +284,29 @@ export class DirectusPresetItem {
     patch: Partial<Collections.DirectusPreset>,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusPreset,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusPreset,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusPresetItem(key, patch, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(updateDirectusPresetItem(key, patch, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -345,7 +314,7 @@ export class DirectusPresetItem {
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusPreset
     >,
   >(
@@ -353,6 +322,9 @@ export class DirectusPresetItem {
       ? Collections.DirectusPreset["id"]
       : string | number,
   ): Promise<void> {
-    return this.client.request(deleteDirectusPresetItem(key)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}))
+    return this.client
+      .request(deleteDirectusPresetItem(key))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 }

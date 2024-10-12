@@ -1,407 +1,277 @@
-import type * as Directus from '@directus/sdk'
+import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from '@directus/sdk'
+import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import {
-    Collections,
-    CollectionsType,
-    DirectusCommands,
-    Schema,
-} from '../../client'
+  Collections,
+  Schema,
+} from "../../client";
+import { createDirectusFlowItem, createDirectusFlowItems, deleteDirectusFlowItem, deleteDirectusFlowItems, readDirectusFlowItem, readDirectusFlowItems, updateDirectusFlowItem, updateDirectusFlowItems } from "@/command/DirectusFlow.command";
 
-type DirectusSDK = typeof DirectusSDK
-
-
-/**
- * Create many directus flows items.
- */
-export function createDirectusFlowItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(items: Partial<Collections.DirectusFlow>[], query?: Query) {
-    return DirectusSDK.createFlows<CollectionsType, Query>(items, query)
-}
-
-/**
- * Create a single directus flows item.
- */
-export function createDirectusFlowItem<
-    const Query extends DirectusSDK.Query<
-        CollectionsType,
-        Directus.DirectusFlow<CollectionsType>
-    >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusFlow>, query?: Query) {
-    return DirectusSDK.createFlow<CollectionsType, Query>(item, query)
-}
-
-/**
- * Read many directus flows items.
- */
-export function readDirectusFlowItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(query?: Query) {
-    return DirectusSDK.readFlows<CollectionsType, Query>(query)
-}
-
-/**
- * Read many directus flows items.
- */
-export const listDirectusFlow = readDirectusFlowItems
-
-/**
- * Gets a single known directus flows item by id.
- */
-export function readDirectusFlowItem<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(
-    key: Collections.DirectusFlow extends { id: number | string }
-        ? Collections.DirectusFlow['id']
-        : string | number,
-    query?: Query
-) {
-    return DirectusSDK.readFlow<CollectionsType, Query>(key, query)
-}
-
-/**
- * Gets a single known directus flows item by id.
- */
-export const readDirectusFlow = readDirectusFlowItem
-
-/**
- * Read many directus flows items.
- */
-export function updateDirectusFlowItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(
-    keys: Collections.DirectusFlow extends { id: number | string }
-        ? Collections.DirectusFlow['id'][]
-        : string[] | number[],
-    patch: Partial<Collections.DirectusFlow>,
-    query?: Query
-) {
-    return DirectusSDK.updateFlows<CollectionsType, Query>(keys, patch, query)
-}
-
-/**
- * Gets a single known directus flows item by id.
- */
-export function updateDirectusFlowItem<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(
-    key: Collections.DirectusFlow extends { id: number | string }
-        ? Collections.DirectusFlow['id']
-        : string | number,
-    patch: Partial<Collections.DirectusFlow>,
-    query?: Query
-) {
-    return DirectusSDK.updateFlow<CollectionsType, Query>(key, patch, query)
-}
-
-/**
- * Deletes many directus flows items.
- */
-export function deleteDirectusFlowItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusFlow
-    >,
->(
-    keys: Collections.DirectusFlow extends { id: number | string }
-        ? Collections.DirectusFlow['id'][]
-        : string[] | number[]
-) {
-    return DirectusSDK.deleteFlows<CollectionsType>(keys)
-}
-
-/**
- * Deletes a single known directus flows item by id.
- */
-export function deleteDirectusFlowItem(
-    key: Collections.DirectusFlow extends { id: number | string }
-        ? Collections.DirectusFlow['id']
-        : string | number
-) {
-    return DirectusSDK.deleteFlow<CollectionsType>(key)
-}
+type DirectusSDK = typeof DirectusSDK;
 
 export class DirectusFlowItems {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Creates many items in the collection.
-     */
-    async create<
-        const Query extends DirectusSDK.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        items: Partial<Collections.DirectusFlow>[],
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFlow,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(
-            createDirectusFlowItems(items, query as any)
-        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    items: Partial<Collections.DirectusFlow>[],
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusFlow,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(
+      createDirectusFlowItems(items, query as any),
+    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Read many items from the collection.
-     */
-    async query<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFlow,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(readDirectusFlowItems(query))) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusFlow,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(readDirectusFlowItems(query))) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Read the first item from the collection matching the query.
-     */
-    async find<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusFlow,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        const items = await this.client.request(
-            readDirectusFlowItems({
-                ...query,
-                limit: 1,
-            })
-        )
-        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusFlow,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readDirectusFlowItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Update many items in the collection.
-     */
-    async update<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Directus.DirectusFlow<CollectionsType>
-        >,
-    >(
-        keys: Collections.DirectusFlow extends { id: number | string }
-            ? Collections.DirectusFlow['id'][]
-            : string[] | number[],
-        patch: Partial<Collections.DirectusFlow>,
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFlow,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(
-            updateDirectusFlowItems(keys, patch, query)
-        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Directus.DirectusFlow<Schema>
+    >,
+  >(
+    keys: Collections.DirectusFlow extends { id: number | string }
+      ? Collections.DirectusFlow["id"][]
+      : string[] | number[],
+    patch: Partial<Collections.DirectusFlow>,
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusFlow,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(
+      updateDirectusFlowItems(keys, patch, query),
+    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Remove many items in the collection.
-     */
-    async remove<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        keys: Collections.DirectusFlow extends { id: number | string }
-            ? Collections.DirectusFlow['id'][]
-            : string[] | number[]
-    ): Promise<void> {
-        return await this.client.request(deleteDirectusFlowItems(keys))
-    }
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    keys: Collections.DirectusFlow extends { id: number | string }
+      ? Collections.DirectusFlow["id"][]
+      : string[] | number[],
+  ): Promise<void> {
+    return await this.client.request(deleteDirectusFlowItems(keys));
+  }
 }
 
 export class DirectusFlowItem {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Create a single item in the collection.
-     */
-    async create<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        item: Partial<Collections.DirectusFlow>,
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFlow,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >
-    > {
-        return (await this.client.request(
-            createDirectusFlowItem(item, query as any)
-        )) as any
-    }
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    item: Partial<Collections.DirectusFlow>,
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusFlow,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >
+  > {
+    return (await this.client.request(
+      createDirectusFlowItem(item, query as any),
+    )) as any;
+  }
 
-    /**
-     * Read a single item from the collection.
-     */
-    async get<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        key: Collections.DirectusFlow extends { id: number | string }
-            ? Collections.DirectusFlow['id']
-            : string | number,
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusFlow,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        return (await this.client.request(
-            readDirectusFlowItem(key, query)
-        )) as any
-    }
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    key: Collections.DirectusFlow extends { id: number | string }
+      ? Collections.DirectusFlow["id"]
+      : string | number,
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusFlow,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(readDirectusFlowItem(key, query))) as any;
+  }
 
-    /**
-     * Update a single item from the collection.
-     */
-    async update<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        key: Collections.DirectusFlow extends { id: number | string }
-            ? Collections.DirectusFlow['id']
-            : string | number,
-        patch: Partial<Collections.DirectusFlow>,
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusFlow,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        return (await this.client.request(
-            updateDirectusFlowItem(key, patch, query as any)
-        )) as any
-    }
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    key: Collections.DirectusFlow extends { id: number | string }
+      ? Collections.DirectusFlow["id"]
+      : string | number,
+    patch: Partial<Collections.DirectusFlow>,
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusFlow,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateDirectusFlowItem(key, patch, query as any),
+    )) as any;
+  }
 
-    /**
-     * Remove many items in the collection.
-     */
-    async remove<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusFlow
-        >,
-    >(
-        key: Collections.DirectusFlow extends { id: number | string }
-            ? Collections.DirectusFlow['id']
-            : string | number
-    ): Promise<void> {
-        return await this.client.request(deleteDirectusFlowItem(key))
-    }
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusFlow
+    >,
+  >(
+    key: Collections.DirectusFlow extends { id: number | string }
+      ? Collections.DirectusFlow["id"]
+      : string | number,
+  ): Promise<void> {
+    return await this.client.request(deleteDirectusFlowItem(key));
+  }
 }

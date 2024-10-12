@@ -4,120 +4,12 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../../client";
+import { Collections, Schema } from "../../client";
 
 import { toSafe } from "../../utils";
+import { createDirectusRoleItem, createDirectusRoleItems, deleteDirectusRoleItem, deleteDirectusRoleItems, readDirectusRoleItem, readDirectusRoleItems, updateDirectusRoleItem, updateDirectusRoleItems } from "../../command/DirectusRole.command";
 
-/**
- * Create many directus roles items.
- */
-export function createDirectusRoleItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(items: Partial<Collections.DirectusRole>[], query?: Query) {
-  return DirectusSDK.createRoles<CollectionsType, Query>(items, query);
-}
-
-/**
- * Create a single directus roles item.
- */
-export function createDirectusRoleItem<
-  const Query extends DirectusSDK.Query<
-    CollectionsType,
-    Directus.DirectusRole<CollectionsType>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusRole>, query?: Query) {
-  return DirectusSDK.createRole<CollectionsType, Query>(item, query);
-}
-
-/**
- * Read many directus roles items.
- */
-export function readDirectusRoleItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(query?: Query) {
-  return DirectusSDK.readRoles<CollectionsType, Query>(query);
-}
-
-/**
- * Read many directus roles items.
- */
-export const listDirectusRole = readDirectusRoleItems;
-
-/**
- * Gets a single known directus roles item by id.
- */
-export function readDirectusRoleItem<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(
-  key: Collections.DirectusRole extends { id: number | string }
-    ? Collections.DirectusRole["id"]
-    : string | number,
-  query?: Query,
-) {
-  return DirectusSDK.readRole<CollectionsType, Query>(key, query);
-}
-
-/**
- * Gets a single known directus roles item by id.
- */
-export const readDirectusRole = readDirectusRoleItem;
-
-/**
- * Read many directus roles items.
- */
-export function updateDirectusRoleItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(
-  keys: Collections.DirectusRole extends { id: number | string }
-    ? Collections.DirectusRole["id"][]
-    : string[] | number[],
-  patch: Partial<Collections.DirectusRole>,
-  query?: Query,
-) {
-  return DirectusSDK.updateRoles<CollectionsType, Query>(keys, patch, query);
-}
-
-/**
- * Gets a single known directus roles item by id.
- */
-export function updateDirectusRoleItem<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(
-  key: Collections.DirectusRole extends { id: number | string }
-    ? Collections.DirectusRole["id"]
-    : string | number,
-  patch: Partial<Collections.DirectusRole>,
-  query?: Query,
-) {
-  return DirectusSDK.updateRole<CollectionsType, Query>(key, patch, query);
-}
-
-/**
- * Deletes many directus roles items.
- */
-export function deleteDirectusRoleItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusRole>,
->(
-  keys: Collections.DirectusRole extends { id: number | string }
-    ? Collections.DirectusRole["id"][]
-    : string[] | number[],
-) {
-  return DirectusSDK.deleteRoles<CollectionsType>(keys);
-}
-
-/**
- * Deletes a single known directus roles item by id.
- */
-export function deleteDirectusRoleItem(
-  key: Collections.DirectusRole extends { id: number | string }
-    ? Collections.DirectusRole["id"]
-    : string | number,
-) {
-  return DirectusSDK.deleteRole<CollectionsType>(key);
-}
-
-export class DirectusRoleItems
-{
+export class DirectusRoleItems {
   /**
    *
    */
@@ -131,22 +23,34 @@ export class DirectusRoleItems
    */
   async create<
     const Query extends DirectusSDK.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
     items: Partial<Collections.DirectusRole>[],
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusRole,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusRole,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusRoleItems(items, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(createDirectusRoleItems(items, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -154,19 +58,33 @@ export class DirectusRoleItems
    */
   async query<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusRole,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusRole,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusRoleItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(readDirectusRoleItems(query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -174,25 +92,40 @@ export class DirectusRoleItems
    */
   async find<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusRole,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusRole,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusRoleItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(
+        readDirectusRoleItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => ({ data: items?.[0], isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -200,8 +133,8 @@ export class DirectusRoleItems
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
-      Directus.DirectusRole<CollectionsType>
+      Schema,
+      Directus.DirectusRole<Schema>
     >,
   >(
     keys: Collections.DirectusRole extends { id: number | string }
@@ -210,15 +143,27 @@ export class DirectusRoleItems
     patch: Partial<Collections.DirectusRole>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusRole,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusRole,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusRoleItems(keys, patch, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(updateDirectusRoleItems(keys, patch, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -226,7 +171,7 @@ export class DirectusRoleItems
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
@@ -234,12 +179,14 @@ export class DirectusRoleItems
       ? Collections.DirectusRole["id"][]
       : string[] | number[],
   ): Promise<void> {
-    return this.client.request(deleteDirectusRoleItems(keys)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}))
+    return this.client
+      .request(deleteDirectusRoleItems(keys))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 }
 
-export class DirectusRoleItem
-{
+export class DirectusRoleItem {
   /**
    *
    */
@@ -253,18 +200,34 @@ export class DirectusRoleItem
    */
   async create<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
     item: Partial<Collections.DirectusRole>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<CollectionsType, Collections.DirectusRole, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusRole,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusRoleItem(item, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(createDirectusRoleItem(item, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -272,7 +235,7 @@ export class DirectusRoleItem
    */
   async get<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
@@ -281,14 +244,29 @@ export class DirectusRoleItem
       : string | number,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusRole,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusRole,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusRoleItem(key, query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(readDirectusRoleItem(key, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -296,7 +274,7 @@ export class DirectusRoleItem
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
@@ -306,16 +284,29 @@ export class DirectusRoleItem
     patch: Partial<Collections.DirectusRole>,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusRole,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusRole,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusRoleItem(key, patch, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(updateDirectusRoleItem(key, patch, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -323,7 +314,7 @@ export class DirectusRoleItem
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusRole
     >,
   >(
@@ -331,6 +322,9 @@ export class DirectusRoleItem
       ? Collections.DirectusRole["id"]
       : string | number,
   ): Promise<void> {
-    return this.client.request(deleteDirectusRoleItem(key)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}))
+    return this.client
+      .request(deleteDirectusRoleItem(key))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 }

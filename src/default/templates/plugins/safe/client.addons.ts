@@ -77,9 +77,7 @@ export const schema = `
           [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new SafeSystemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
           [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new SafeSystemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
     {% else %}
-          [{{ collection.name | to_collection_name | to_collection_string }}, (query: any) => {
-            return client.request(SafeSystemBinding.read{{ collection.name | to_collection_name }}(query));
-          }],
+          [{{ collection.name | to_collection_name | to_collection_string }}, new SafeSystemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
     {% endif %}
 
     {% else %}
@@ -88,9 +86,7 @@ export const schema = `
           [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new SafeItemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
           [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new SafeItemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
     {% else %}
-          [{{ collection.name | to_collection_name | to_collection_string }}, (query: any) => {
-            return client.request(SafeItemBinding.read{{ collection.name | to_collection_name }}(query));
-          }],
+          [{{ collection.name | to_collection_name | to_collection_string }}, new SafeItemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
     {% endif %}
     {% endif %}
     {% endfor %}

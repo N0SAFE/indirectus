@@ -6,43 +6,10 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, CollectionsType, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils";
+import { readDirectusExtensionItems, updateDirectusExtensionItem } from "../../command/DirectusExtension.command";
 
-/**
- * Read many directus extensions items.
- */
-export function readDirectusExtensionItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusExtension
-  >,
->(query?: Query) {
-  return DirectusSDK.readExtensions<CollectionsType>();
-}
-
-/**
- * Read many directus extensions items.
- */
-export const listDirectusExtension = readDirectusExtensionItems;
-
-/**
- * Gets a single known directus extensions item by id.
- */
-export function updateDirectusExtensionItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusExtension
-  >,
->(
-  bundle: string | null,
-  name: string,
-  data: Directus.NestedPartial<Directus.DirectusExtension<CollectionsType>>,
-) {
-  return DirectusSDK.updateExtension<CollectionsType>(bundle, name, data);
-}
-
-export class DirectusExtensionItems
-{
+export class DirectusExtensionItems {
   /**
    *
    */
@@ -52,51 +19,16 @@ export class DirectusExtensionItems
   ) {}
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
-  async query<
-    const Query extends Directus.Query<
-      CollectionsType,
-      Collections.DirectusExtension
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusExtension,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+  async query<Output extends Collections.DirectusExtension[]>(): Promise<
+    ToSafeOutput<Output>
   > {
-    return this.client.request(
-      readDirectusExtensionItems(query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
-  }
-
-  /**
-   * Read the first item from the collection matching the query.
-   */
-  async find<
-    const Query extends Directus.Query<
-      CollectionsType,
-      Collections.DirectusExtension
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusExtension,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      readDirectusExtensionItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    return toSafe(
+      this.client.request(
+        readDirectusExtensionItems(),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
@@ -114,23 +46,23 @@ export class DirectusExtensionItem {
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusExtension
+    >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusExtension,
+      Query["fields"]
     >,
   >(
     bundle: string | null,
     name: string,
-    data: Directus.NestedPartial<Directus.DirectusExtension<CollectionsType>>,
-  ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusExtension,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      updateDirectusExtensionItem(bundle, name, data),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusExtensionItem(bundle, name, data),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

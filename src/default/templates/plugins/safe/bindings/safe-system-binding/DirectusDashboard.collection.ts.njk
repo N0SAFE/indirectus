@@ -6,140 +6,10 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, CollectionsType, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils";
+import { createDirectusDashboardItem, createDirectusDashboardItems, deleteDirectusDashboardItem, deleteDirectusDashboardItems, readDirectusDashboardItem, readDirectusDashboardItems, updateDirectusDashboardItem, updateDirectusDashboardItems } from "../../command/DirectusDashboard.command";
 
-/**
- * Create many directus dashboards items.
- */
-export function createDirectusDashboardItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(items: Partial<Collections.DirectusDashboard>[], query?: Query) {
-  return DirectusSDK.createDashboards<CollectionsType, Query>(items, query);
-}
-
-/**
- * Create a single directus dashboards item.
- */
-export function createDirectusDashboardItem<
-  const Query extends DirectusSDK.Query<
-    CollectionsType,
-    Directus.DirectusDashboard<CollectionsType>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusDashboard>, query?: Query) {
-  return DirectusSDK.createDashboard<CollectionsType, Query>(item, query);
-}
-
-/**
- * Read many directus dashboards items.
- */
-export function readDirectusDashboardItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(query?: Query) {
-  return DirectusSDK.readDashboards<CollectionsType, Query>(query);
-}
-
-/**
- * Read many directus dashboards items.
- */
-export const listDirectusDashboard = readDirectusDashboardItems;
-
-/**
- * Gets a single known directus dashboards item by id.
- */
-export function readDirectusDashboardItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(
-  key: Collections.DirectusDashboard extends { id: number | string }
-    ? Collections.DirectusDashboard["id"]
-    : string | number,
-  query?: Query,
-) {
-  return DirectusSDK.readDashboard<CollectionsType, Query>(key, query);
-}
-
-/**
- * Gets a single known directus dashboards item by id.
- */
-export const readDirectusDashboard = readDirectusDashboardItem;
-
-/**
- * Read many directus dashboards items.
- */
-export function updateDirectusDashboardItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(
-  keys: Collections.DirectusDashboard extends { id: number | string }
-    ? Collections.DirectusDashboard["id"][]
-    : string[] | number[],
-  patch: Partial<Collections.DirectusDashboard>,
-  query?: Query,
-) {
-  return DirectusSDK.updateDashboards<CollectionsType, Query>(
-    keys,
-    patch,
-    query,
-  );
-}
-
-/**
- * Gets a single known directus dashboards item by id.
- */
-export function updateDirectusDashboardItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(
-  key: Collections.DirectusDashboard extends { id: number | string }
-    ? Collections.DirectusDashboard["id"]
-    : string | number,
-  patch: Partial<Collections.DirectusDashboard>,
-  query?: Query,
-) {
-  return DirectusSDK.updateDashboard<CollectionsType, Query>(key, patch, query);
-}
-
-/**
- * Deletes many directus dashboards items.
- */
-export function deleteDirectusDashboardItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusDashboard
-  >,
->(
-  keys: Collections.DirectusDashboard extends { id: number | string }
-    ? Collections.DirectusDashboard["id"][]
-    : string[] | number[],
-) {
-  return DirectusSDK.deleteDashboards<CollectionsType>(keys);
-}
-
-/**
- * Deletes a single known directus dashboards item by id.
- */
-export function deleteDirectusDashboardItem(
-  key: Collections.DirectusDashboard extends { id: number | string }
-    ? Collections.DirectusDashboard["id"]
-    : string | number,
-) {
-  return DirectusSDK.deleteDashboard<CollectionsType>(key);
-}
-
-export class DirectusDashboardItems
-{
+export class DirectusDashboardItems {
   /**
    *
    */
@@ -149,48 +19,48 @@ export class DirectusDashboardItems
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
     const Query extends DirectusSDK.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
+    >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
     >,
   >(
     items: Partial<Collections.DirectusDashboard>[],
     query?: Query,
-  ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusDashboard,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      createDirectusDashboardItems(items, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusDashboardItems(items, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
     >,
-  >(
-    query?: Query,
-  ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
+    Output extends ApplyQueryFields<
+      Schema,
       Collections.DirectusDashboard,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      readDirectusDashboardItems(query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusDashboardItems(query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -198,62 +68,58 @@ export class DirectusDashboardItems
    */
   async find<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusDashboard,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      readDirectusDashboardItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
+    > | undefined,
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client
+        .request(
+          readDirectusDashboardItems({
+            ...query,
+            limit: 1,
+          }),
+        )
+        .then((res) => res?.[0]) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
-      Directus.DirectusDashboard<CollectionsType>
+      Schema,
+      Directus.DirectusDashboard<Schema>
     >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusDashboard>,
     query?: Query,
-  ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusDashboard,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      updateDirectusDashboardItems(keys, patch, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusDashboardItems(keys, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      CollectionsType,
-      Collections.DirectusDashboard
-    >,
-  >(
+  async remove(
     keys: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"][]
       : string[] | number[],
@@ -262,8 +128,7 @@ export class DirectusDashboardItems
   }
 }
 
-export class DirectusDashboardItem
-{
+export class DirectusDashboardItem {
   /**
    *
    */
@@ -277,22 +142,23 @@ export class DirectusDashboardItem
    */
   async create<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
+    >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
     >,
   >(
     item: Partial<Collections.DirectusDashboard>,
     query?: Query,
-  ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusDashboard,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      createDirectusDashboardItem(item, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusDashboardItem(item, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -300,25 +166,25 @@ export class DirectusDashboardItem
    */
   async get<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
+    >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusDashboard,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      readDirectusDashboardItem(key, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusDashboardItem(key, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -326,8 +192,13 @@ export class DirectusDashboardItem
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusDashboard
+    >,
+    Output extends ApplyQueryFields<
+      Schema,
+      Collections.DirectusDashboard,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusDashboard extends { id: number | string }
@@ -335,32 +206,22 @@ export class DirectusDashboardItem
       : string | number,
     patch: Partial<Collections.DirectusDashboard>,
     query?: Query,
-  ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusDashboard,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
-  > {
-    return this.client.request(
-      updateDirectusDashboardItem(key, patch, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusDashboardItem(key, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      CollectionsType,
-      Collections.DirectusDashboard
-    >,
-  >(
+  async remove(
     key: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"]
       : string | number,
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusDashboardItem(key));
+  ): Promise<ToSafeOutput<void>> {
+    return toSafe(this.client.request(deleteDirectusDashboardItem(key)));
   }
 }

@@ -4,120 +4,12 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../../client";
+import { Collections, Schema } from "../../client";
 
 import { toSafe } from "../../utils";
+import { createDirectusUserItem, createDirectusUserItems, deleteDirectusUserItem, deleteDirectusUserItems, readDirectusUserItem, readDirectusUserItems, updateDirectusUserItem, updateDirectusUserItems } from "../../command/DirectusUser.command";
 
-/**
- * Create many directus users items.
- */
-export function createDirectusUserItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(items: Partial<Collections.DirectusUser>[], query?: Query) {
-  return DirectusSDK.createUsers<CollectionsType, Query>(items, query);
-}
-
-/**
- * Create a single directus users item.
- */
-export function createDirectusUserItem<
-  const Query extends DirectusSDK.Query<
-    CollectionsType,
-    Directus.DirectusUser<CollectionsType>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusUser>, query?: Query) {
-  return DirectusSDK.createUser<CollectionsType, Query>(item, query);
-}
-
-/**
- * Read many directus users items.
- */
-export function readDirectusUserItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(query?: Query) {
-  return DirectusSDK.readUsers<CollectionsType, Query>(query);
-}
-
-/**
- * Read many directus users items.
- */
-export const listDirectusUser = readDirectusUserItems;
-
-/**
- * Gets a single known directus users item by id.
- */
-export function readDirectusUserItem<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(
-  key: Collections.DirectusUser extends { id: number | string }
-    ? Collections.DirectusUser["id"]
-    : string | number,
-  query?: Query,
-) {
-  return DirectusSDK.readUser<CollectionsType, Query>(key, query);
-}
-
-/**
- * Gets a single known directus users item by id.
- */
-export const readDirectusUser = readDirectusUserItem;
-
-/**
- * Read many directus users items.
- */
-export function updateDirectusUserItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(
-  keys: Collections.DirectusUser extends { id: number | string }
-    ? Collections.DirectusUser["id"][]
-    : string[] | number[],
-  patch: Partial<Collections.DirectusUser>,
-  query?: Query,
-) {
-  return DirectusSDK.updateUsers<CollectionsType, Query>(keys, patch, query);
-}
-
-/**
- * Gets a single known directus users item by id.
- */
-export function updateDirectusUserItem<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(
-  key: Collections.DirectusUser extends { id: number | string }
-    ? Collections.DirectusUser["id"]
-    : string | number,
-  patch: Partial<Collections.DirectusUser>,
-  query?: Query,
-) {
-  return DirectusSDK.updateUser<CollectionsType, Query>(key, patch, query);
-}
-
-/**
- * Deletes many directus users items.
- */
-export function deleteDirectusUserItems<
-  const Query extends Directus.Query<CollectionsType, Collections.DirectusUser>,
->(
-  keys: Collections.DirectusUser extends { id: number | string }
-    ? Collections.DirectusUser["id"][]
-    : string[] | number[],
-) {
-  return DirectusSDK.deleteUsers<CollectionsType>(keys);
-}
-
-/**
- * Deletes a single known directus users item by id.
- */
-export function deleteDirectusUserItem(
-  key: Collections.DirectusUser extends { id: number | string }
-    ? Collections.DirectusUser["id"]
-    : string | number,
-) {
-  return DirectusSDK.deleteUser<CollectionsType>(key);
-}
-
-export class DirectusUserItems
-{
+export class DirectusUserItems {
   /**
    *
    */
@@ -131,22 +23,34 @@ export class DirectusUserItems
    */
   async create<
     const Query extends DirectusSDK.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
     items: Partial<Collections.DirectusUser>[],
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusUser,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusUser,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusUserItems(items, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(createDirectusUserItems(items, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -154,19 +58,33 @@ export class DirectusUserItems
    */
   async query<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusUser,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusUser,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusUserItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(readDirectusUserItems(query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -174,25 +92,40 @@ export class DirectusUserItems
    */
   async find<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusUser,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusUser,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusUserItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(
+        readDirectusUserItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => ({ data: items?.[0], isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -200,8 +133,8 @@ export class DirectusUserItems
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
-      Directus.DirectusUser<CollectionsType>
+      Schema,
+      Directus.DirectusUser<Schema>
     >,
   >(
     keys: Collections.DirectusUser extends { id: number | string }
@@ -210,15 +143,27 @@ export class DirectusUserItems
     patch: Partial<Collections.DirectusUser>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusUser,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusUser,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusUserItems(keys, patch, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(updateDirectusUserItems(keys, patch, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -226,7 +171,7 @@ export class DirectusUserItems
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
@@ -238,8 +183,7 @@ export class DirectusUserItems
   }
 }
 
-export class DirectusUserItem
-{
+export class DirectusUserItem {
   /**
    *
    */
@@ -253,18 +197,34 @@ export class DirectusUserItem
    */
   async create<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
     item: Partial<Collections.DirectusUser>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<CollectionsType, Collections.DirectusUser, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusUser,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusUserItem(item, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(createDirectusUserItem(item, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -272,7 +232,7 @@ export class DirectusUserItem
    */
   async get<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
@@ -281,14 +241,29 @@ export class DirectusUserItem
       : string | number,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusUser,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusUser,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusUserItem(key, query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(readDirectusUserItem(key, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -296,7 +271,7 @@ export class DirectusUserItem
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(
@@ -306,16 +281,29 @@ export class DirectusUserItem
     patch: Partial<Collections.DirectusUser>,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusUser,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusUser,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusUserItem(key, patch, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(updateDirectusUserItem(key, patch, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -323,7 +311,7 @@ export class DirectusUserItem
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusUser
     >,
   >(

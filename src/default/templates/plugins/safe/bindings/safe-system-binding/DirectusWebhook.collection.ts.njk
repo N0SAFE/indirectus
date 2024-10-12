@@ -4,138 +4,12 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../../client";
+import { Collections, Schema } from "../../client";
 
 import { toSafe } from "../../utils";
+import { createDirectusWebhookItem, createDirectusWebhookItems, deleteDirectusWebhookItem, deleteDirectusWebhookItems, readDirectusWebhookItem, readDirectusWebhookItems, updateDirectusWebhookItem, updateDirectusWebhookItems } from "../../command/DirectusWebhook.command";
 
-/**
- * Create many directus webhooks items.
- */
-export function createDirectusWebhookItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(items: Partial<Collections.DirectusWebhook>[], query?: Query) {
-  return DirectusSDK.createWebhooks<CollectionsType, Query>(items, query);
-}
-
-/**
- * Create a single directus webhooks item.
- */
-export function createDirectusWebhookItem<
-  const Query extends DirectusSDK.Query<
-    CollectionsType,
-    Directus.DirectusWebhook<CollectionsType>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusWebhook>, query?: Query) {
-  return DirectusSDK.createWebhook<CollectionsType, Query>(item, query);
-}
-
-/**
- * Read many directus webhooks items.
- */
-export function readDirectusWebhookItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(query?: Query) {
-  return DirectusSDK.readWebhooks<CollectionsType, Query>(query);
-}
-
-/**
- * Read many directus webhooks items.
- */
-export const listDirectusWebhook = readDirectusWebhookItems;
-
-/**
- * Gets a single known directus webhooks item by id.
- */
-export function readDirectusWebhookItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(
-  key: Collections.DirectusWebhook extends { id: number | string }
-    ? Collections.DirectusWebhook["id"]
-    : string | number,
-  query?: Query,
-) {
-  return DirectusSDK.readWebhook<CollectionsType, Query>(key, query);
-}
-
-/**
- * Gets a single known directus webhooks item by id.
- */
-export const readDirectusWebhook = readDirectusWebhookItem;
-
-/**
- * Read many directus webhooks items.
- */
-export function updateDirectusWebhookItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(
-  keys: Collections.DirectusWebhook extends { id: number | string }
-    ? Collections.DirectusWebhook["id"][]
-    : string[] | number[],
-  patch: Partial<Collections.DirectusWebhook>,
-  query?: Query,
-) {
-  return DirectusSDK.updateWebhooks<CollectionsType, Query>(keys, patch, query);
-}
-
-/**
- * Gets a single known directus webhooks item by id.
- */
-export function updateDirectusWebhookItem<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(
-  key: Collections.DirectusWebhook extends { id: number | string }
-    ? Collections.DirectusWebhook["id"]
-    : string | number,
-  patch: Partial<Collections.DirectusWebhook>,
-  query?: Query,
-) {
-  return DirectusSDK.updateWebhook<CollectionsType, Query>(key, patch, query);
-}
-
-/**
- * Deletes many directus webhooks items.
- */
-export function deleteDirectusWebhookItems<
-  const Query extends Directus.Query<
-    CollectionsType,
-    Collections.DirectusWebhook
-  >,
->(
-  keys: Collections.DirectusWebhook extends { id: number | string }
-    ? Collections.DirectusWebhook["id"][]
-    : string[] | number[],
-) {
-  return DirectusSDK.deleteWebhooks<CollectionsType>(keys);
-}
-
-/**
- * Deletes a single known directus webhooks item by id.
- */
-export function deleteDirectusWebhookItem(
-  key: Collections.DirectusWebhook extends { id: number | string }
-    ? Collections.DirectusWebhook["id"]
-    : string | number,
-) {
-  return DirectusSDK.deleteWebhook<CollectionsType>(key);
-}
-
-export class DirectusWebhookItems
-{
+export class DirectusWebhookItems {
   /**
    *
    */
@@ -149,22 +23,34 @@ export class DirectusWebhookItems
    */
   async create<
     const Query extends DirectusSDK.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
     items: Partial<Collections.DirectusWebhook>[],
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusWebhook,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusWebhook,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusWebhookItems(items, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(createDirectusWebhookItems(items, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -172,19 +58,33 @@ export class DirectusWebhookItems
    */
   async query<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusWebhook,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusWebhook,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(readDirectusWebhookItems(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(readDirectusWebhookItems(query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -192,25 +92,40 @@ export class DirectusWebhookItems
    */
   async find<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusWebhook,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusWebhook,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusWebhookItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => ({data: items?.[0], isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(
+        readDirectusWebhookItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => ({ data: items?.[0], isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -218,8 +133,8 @@ export class DirectusWebhookItems
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
-      Directus.DirectusWebhook<CollectionsType>
+      Schema,
+      Directus.DirectusWebhook<Schema>
     >,
   >(
     keys: Collections.DirectusWebhook extends { id: number | string }
@@ -228,15 +143,27 @@ export class DirectusWebhookItems
     patch: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusWebhook,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >[], isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusWebhook,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >[];
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusWebhookItems(keys, patch, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return this.client
+      .request(updateDirectusWebhookItems(keys, patch, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
   }
 
   /**
@@ -244,7 +171,7 @@ export class DirectusWebhookItems
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
@@ -256,8 +183,7 @@ export class DirectusWebhookItems
   }
 }
 
-export class DirectusWebhookItem
-{
+export class DirectusWebhookItem {
   /**
    *
    */
@@ -271,22 +197,34 @@ export class DirectusWebhookItem
    */
   async create<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
     item: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<
-  { data: ApplyQueryFields<
-      CollectionsType,
-      Collections.DirectusWebhook,
-      Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-    >, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data: ApplyQueryFields<
+          Schema,
+          Collections.DirectusWebhook,
+          Query extends undefined
+            ? ["*"]
+            : Query["fields"] extends undefined
+              ? ["*"]
+              : Query["fields"] extends Readonly<any[]>
+                ? Query["fields"]
+                : ["*"]
+        >;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      createDirectusWebhookItem(item, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(createDirectusWebhookItem(item, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -294,7 +232,7 @@ export class DirectusWebhookItem
    */
   async get<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
@@ -303,16 +241,29 @@ export class DirectusWebhookItem
       : string | number,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusWebhook,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusWebhook,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      readDirectusWebhookItem(key, query),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(readDirectusWebhookItem(key, query))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -320,7 +271,7 @@ export class DirectusWebhookItem
    */
   async update<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(
@@ -330,16 +281,29 @@ export class DirectusWebhookItem
     patch: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<
-    { data: ApplyQueryFields<
-        CollectionsType,
-        Collections.DirectusWebhook,
-        Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']
-      >
-    | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}
+    | {
+        data:
+          | ApplyQueryFields<
+              Schema,
+              Collections.DirectusWebhook,
+              Query extends undefined
+                ? ["*"]
+                : Query["fields"] extends undefined
+                  ? ["*"]
+                  : Query["fields"] extends Readonly<any[]>
+                    ? Query["fields"]
+                    : ["*"]
+            >
+          | undefined;
+        isError: false;
+        error: never;
+      }
+    | { error: Error; isError: true; data: never }
   > {
-    return this.client.request(
-      updateDirectusWebhookItem(key, patch, query as any),
-    ).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true}));
+    return this.client
+      .request(updateDirectusWebhookItem(key, patch, query as any))
+      .then((data) => ({ data, isError: false }) as any)
+      .catch((error) => ({ error, isError: true }));
   }
 
   /**
@@ -347,7 +311,7 @@ export class DirectusWebhookItem
    */
   async remove<
     const Query extends Directus.Query<
-      CollectionsType,
+      Schema,
       Collections.DirectusWebhook
     >,
   >(

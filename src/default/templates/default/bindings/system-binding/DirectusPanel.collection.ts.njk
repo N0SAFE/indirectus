@@ -1,407 +1,279 @@
-import type * as Directus from '@directus/sdk'
+import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from '@directus/sdk'
+import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import {
-    Collections,
-    CollectionsType,
-    DirectusCommands,
-    Schema,
-} from '../../client'
+  Collections,
+  Schema,
+} from "../../client";
+import { createDirectusPanelItem, createDirectusPanelItems, deleteDirectusPanelItem, deleteDirectusPanelItems, readDirectusPanelItem, readDirectusPanelItems, updateDirectusPanelItem, updateDirectusPanelItems } from "@/command/DirectusPanel.command";
 
-type DirectusSDK = typeof DirectusSDK
-
-
-/**
- * Create many directus panels items.
- */
-export function createDirectusPanelItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(items: Partial<Collections.DirectusPanel>[], query?: Query) {
-    return DirectusSDK.createPanels<CollectionsType, Query>(items, query)
-}
-
-/**
- * Create a single directus panels item.
- */
-export function createDirectusPanelItem<
-    const Query extends DirectusSDK.Query<
-        CollectionsType,
-        Directus.DirectusPanel<CollectionsType>
-    >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusPanel>, query?: Query) {
-    return DirectusSDK.createPanel<CollectionsType, Query>(item, query)
-}
-
-/**
- * Read many directus panels items.
- */
-export function readDirectusPanelItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(query?: Query) {
-    return DirectusSDK.readPanels<CollectionsType, Query>(query)
-}
-
-/**
- * Read many directus panels items.
- */
-export const listDirectusPanel = readDirectusPanelItems
-
-/**
- * Gets a single known directus panels item by id.
- */
-export function readDirectusPanelItem<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(
-    key: Collections.DirectusPanel extends { id: number | string }
-        ? Collections.DirectusPanel['id']
-        : string | number,
-    query?: Query
-) {
-    return DirectusSDK.readPanel<CollectionsType, Query>(key, query)
-}
-
-/**
- * Gets a single known directus panels item by id.
- */
-export const readDirectusPanel = readDirectusPanelItem
-
-/**
- * Read many directus panels items.
- */
-export function updateDirectusPanelItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(
-    keys: Collections.DirectusPanel extends { id: number | string }
-        ? Collections.DirectusPanel['id'][]
-        : string[] | number[],
-    patch: Partial<Collections.DirectusPanel>,
-    query?: Query
-) {
-    return DirectusSDK.updatePanels<CollectionsType, Query>(keys, patch, query)
-}
-
-/**
- * Gets a single known directus panels item by id.
- */
-export function updateDirectusPanelItem<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(
-    key: Collections.DirectusPanel extends { id: number | string }
-        ? Collections.DirectusPanel['id']
-        : string | number,
-    patch: Partial<Collections.DirectusPanel>,
-    query?: Query
-) {
-    return DirectusSDK.updatePanel<CollectionsType, Query>(key, patch, query)
-}
-
-/**
- * Deletes many directus panels items.
- */
-export function deleteDirectusPanelItems<
-    const Query extends Directus.Query<
-        CollectionsType,
-        Collections.DirectusPanel
-    >,
->(
-    keys: Collections.DirectusPanel extends { id: number | string }
-        ? Collections.DirectusPanel['id'][]
-        : string[] | number[]
-) {
-    return DirectusSDK.deletePanels<CollectionsType>(keys)
-}
-
-/**
- * Deletes a single known directus panels item by id.
- */
-export function deleteDirectusPanelItem(
-    key: Collections.DirectusPanel extends { id: number | string }
-        ? Collections.DirectusPanel['id']
-        : string | number
-) {
-    return DirectusSDK.deletePanel<CollectionsType>(key)
-}
+type DirectusSDK = typeof DirectusSDK;
 
 export class DirectusPanelItems {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Creates many items in the collection.
-     */
-    async create<
-        const Query extends DirectusSDK.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        items: Partial<Collections.DirectusPanel>[],
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusPanel,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(
-            createDirectusPanelItems(items, query as any)
-        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Creates many items in the collection.
+   */
+  async create<
+    const Query extends DirectusSDK.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    items: Partial<Collections.DirectusPanel>[],
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusPanel,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(
+      createDirectusPanelItems(items, query as any),
+    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Read many items from the collection.
-     */
-    async query<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusPanel,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(readDirectusPanelItems(query))) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Read many items from the collection.
+   */
+  async query<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusPanel,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(readDirectusPanelItems(query))) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Read the first item from the collection matching the query.
-     */
-    async find<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusPanel,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        const items = await this.client.request(
-            readDirectusPanelItems({
-                ...query,
-                limit: 1,
-            })
-        )
-        return items?.[0] as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Read the first item from the collection matching the query.
+   */
+  async find<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusPanel,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    const items = await this.client.request(
+      readDirectusPanelItems({
+        ...query,
+        limit: 1,
+      }),
+    );
+    return items?.[0] as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Update many items in the collection.
-     */
-    async update<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Directus.DirectusPanel<CollectionsType>
-        >,
-    >(
-        keys: Collections.DirectusPanel extends { id: number | string }
-            ? Collections.DirectusPanel['id'][]
-            : string[] | number[],
-        patch: Partial<Collections.DirectusPanel>,
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusPanel,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >[]
-    > {
-        return (await this.client.request(
-            updateDirectusPanelItems(keys, patch, query)
-        )) as any // the any type is here because we transform the type through or custom ApplyQueryFields type.
-    }
+  /**
+   * Update many items in the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Directus.DirectusPanel<Schema>
+    >,
+  >(
+    keys: Collections.DirectusPanel extends { id: number | string }
+      ? Collections.DirectusPanel["id"][]
+      : string[] | number[],
+    patch: Partial<Collections.DirectusPanel>,
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusPanel,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >[]
+  > {
+    return (await this.client.request(
+      updateDirectusPanelItems(keys, patch, query),
+    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  }
 
-    /**
-     * Remove many items in the collection.
-     */
-    async remove<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        keys: Collections.DirectusPanel extends { id: number | string }
-            ? Collections.DirectusPanel['id'][]
-            : string[] | number[]
-    ): Promise<void> {
-        return await this.client.request(deleteDirectusPanelItems(keys))
-    }
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    keys: Collections.DirectusPanel extends { id: number | string }
+      ? Collections.DirectusPanel["id"][]
+      : string[] | number[],
+  ): Promise<void> {
+    return await this.client.request(deleteDirectusPanelItems(keys));
+  }
 }
 
 export class DirectusPanelItem {
-    /**
-     *
-     */
-    constructor(
-        private client: Directus.DirectusClient<Schema> &
-            Directus.RestClient<Schema>
-    ) {}
+  /**
+   *
+   */
+  constructor(
+    private client: Directus.DirectusClient<Schema> &
+      Directus.RestClient<Schema>,
+  ) {}
 
-    /**
-     * Create a single item in the collection.
-     */
-    async create<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        item: Partial<Collections.DirectusPanel>,
-        query?: Query
-    ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusPanel,
-            Query extends undefined
-                ? ['*']
-                : Query['fields'] extends undefined
-                  ? ['*']
-                  : Query['fields'] extends Readonly<any[]>
-                    ? Query['fields']
-                    : ['*']
-        >
-    > {
-        return (await this.client.request(
-            createDirectusPanelItem(item, query as any)
-        )) as any
-    }
+  /**
+   * Create a single item in the collection.
+   */
+  async create<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    item: Partial<Collections.DirectusPanel>,
+    query?: Query,
+  ): Promise<
+    ApplyQueryFields<
+      Schema,
+      Collections.DirectusPanel,
+      Query extends undefined
+        ? ["*"]
+        : Query["fields"] extends undefined
+          ? ["*"]
+          : Query["fields"] extends Readonly<any[]>
+            ? Query["fields"]
+            : ["*"]
+    >
+  > {
+    return (await this.client.request(
+      createDirectusPanelItem(item, query as any),
+    )) as any;
+  }
 
-    /**
-     * Read a single item from the collection.
-     */
-    async get<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        key: Collections.DirectusPanel extends { id: number | string }
-            ? Collections.DirectusPanel['id']
-            : string | number,
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusPanel,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        return (await this.client.request(
-            readDirectusPanelItem(key, query)
-        )) as any
-    }
+  /**
+   * Read a single item from the collection.
+   */
+  async get<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    key: Collections.DirectusPanel extends { id: number | string }
+      ? Collections.DirectusPanel["id"]
+      : string | number,
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusPanel,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      readDirectusPanelItem(key, query),
+    )) as any;
+  }
 
-    /**
-     * Update a single item from the collection.
-     */
-    async update<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        key: Collections.DirectusPanel extends { id: number | string }
-            ? Collections.DirectusPanel['id']
-            : string | number,
-        patch: Partial<Collections.DirectusPanel>,
-        query?: Query
-    ): Promise<
-        | ApplyQueryFields<
-              CollectionsType,
-              Collections.DirectusPanel,
-              Query extends undefined
-                  ? ['*']
-                  : Query['fields'] extends undefined
-                    ? ['*']
-                    : Query['fields'] extends Readonly<any[]>
-                      ? Query['fields']
-                      : ['*']
-          >
-        | undefined
-    > {
-        return (await this.client.request(
-            updateDirectusPanelItem(key, patch, query as any)
-        )) as any
-    }
+  /**
+   * Update a single item from the collection.
+   */
+  async update<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    key: Collections.DirectusPanel extends { id: number | string }
+      ? Collections.DirectusPanel["id"]
+      : string | number,
+    patch: Partial<Collections.DirectusPanel>,
+    query?: Query,
+  ): Promise<
+    | ApplyQueryFields<
+        Schema,
+        Collections.DirectusPanel,
+        Query extends undefined
+          ? ["*"]
+          : Query["fields"] extends undefined
+            ? ["*"]
+            : Query["fields"] extends Readonly<any[]>
+              ? Query["fields"]
+              : ["*"]
+      >
+    | undefined
+  > {
+    return (await this.client.request(
+      updateDirectusPanelItem(key, patch, query as any),
+    )) as any;
+  }
 
-    /**
-     * Remove many items in the collection.
-     */
-    async remove<
-        const Query extends Directus.Query<
-            CollectionsType,
-            Collections.DirectusPanel
-        >,
-    >(
-        key: Collections.DirectusPanel extends { id: number | string }
-            ? Collections.DirectusPanel['id']
-            : string | number
-    ): Promise<void> {
-        return await this.client.request(deleteDirectusPanelItem(key))
-    }
+  /**
+   * Remove many items in the collection.
+   */
+  async remove<
+    const Query extends Directus.Query<
+      Schema,
+      Collections.DirectusPanel
+    >,
+  >(
+    key: Collections.DirectusPanel extends { id: number | string }
+      ? Collections.DirectusPanel["id"]
+      : string | number,
+  ): Promise<void> {
+    return await this.client.request(deleteDirectusPanelItem(key));
+  }
 }

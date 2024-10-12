@@ -1,4 +1,14 @@
-export const utils = `export const toSafe = <Output>(promise: Promise<Output>) => {
+export const utils = `export type ToSafeOutput<Output> = {
+  data: Output;
+  isError: false;
+  error: never;
+} | {
+  error: Error;
+  isError: true;
+  data: never;
+};
+
+export const toSafe = <Output>(promise: Promise<Output>): Promise<ToSafeOutput<Output>> => {
   return promise
     .then(
       (data) =>
