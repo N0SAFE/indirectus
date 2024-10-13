@@ -10,8 +10,6 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from './types/ApplyQueryFields';
-
 import * as SystemBinding from './bindings/system-binding/index'
 {% if registry.collections | has_non_system_collections %}
 import * as ItemBinding from './bindings/item-binding/index'
@@ -201,9 +199,6 @@ export type TypedClient = {
 {%- for collection in registry.collections | filter_untype_system_collections %}
 
 {% set collectionName = collection.name | to_collection_name %}
-{% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
-{% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
-{% set applyType  = ["ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>"] | join %}
 
 {% if collection.is_system %}
 
