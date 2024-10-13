@@ -145,9 +145,6 @@ export function delete{{ collectionName }}Item(key: Collections.{{collectionName
       {
         path: "./index.ts",
         template: context.registry.collections
-          .filter((collection) => {
-            return !collection.is_system;
-          })
           .reduce((acc, collection) => {
             return `${acc}export * from './${to_collection_name(context, collection.name.toString())}.commands';\n`;
           }, ""),
