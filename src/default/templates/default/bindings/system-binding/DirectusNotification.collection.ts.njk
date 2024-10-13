@@ -4,11 +4,17 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-  Collections,
-  Schema,
-} from "../../client";
-import { createDirectusNotificationItem, createDirectusNotificationItems, deleteDirectusNotificationItem, deleteDirectusNotificationItems, readDirectusNotificationItem, readDirectusNotificationItems, updateDirectusNotificationItem, updateDirectusNotificationItems } from "@/command/DirectusNotification.command";
+  createDirectusNotificationItem,
+  createDirectusNotificationItems,
+  deleteDirectusNotificationItem,
+  deleteDirectusNotificationItems,
+  readDirectusNotificationItem,
+  readDirectusNotificationItems,
+  updateDirectusNotificationItem,
+  updateDirectusNotificationItems,
+} from "@/commands/DirectusNotification.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -22,60 +28,44 @@ export class DirectusNotificationItems {
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
     const Query extends DirectusSDK.Query<
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >[],
   >(
     items: Partial<Collections.DirectusNotification>[],
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusNotification,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
-      createDirectusNotificationItems(items, query as any),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<Output> {
+    return this.client.request(
+      createDirectusNotificationItems(items, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
     const Query extends Directus.Query<
       Schema,
       Collections.DirectusNotification
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusNotification,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<Output> {
+    return this.client.request(
       readDirectusNotificationItems(query),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -86,77 +76,54 @@ export class DirectusNotificationItems {
       Schema,
       Collections.DirectusNotification
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusNotification,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    const items = await this.client.request(
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
+  >(query?: Query): Promise<Output | undefined> {
+    return this.client.request(
       readDirectusNotificationItems({
         ...query,
         limit: 1,
       }),
-    );
-    return items?.[0] as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
     const Query extends Directus.Query<
       Schema,
       Directus.DirectusNotification<Schema>
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusNotification,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       updateDirectusNotificationItems(keys, patch, query),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusNotification
-    >,
-  >(
+  async remove<Output = void>(
     keys: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusNotificationItems(keys));
+  ): Promise<Output> {
+    return this.client.request(deleteDirectusNotificationItems(keys)) as unknown as Promise<Output>;
   }
 }
 
@@ -177,25 +144,18 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     item: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusNotification,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >
-  > {
-    return (await this.client.request(
-      createDirectusNotificationItem(item, query as any),
-    )) as any;
+  ): Promise<Output> {
+    return this.client.request(
+      createDirectusNotificationItem(item, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -206,28 +166,20 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusNotification,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       readDirectusNotificationItem(key, query),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -238,44 +190,31 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusNotification,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
-      updateDirectusNotificationItem(key, patch, query as any),
-    )) as any;
+  ): Promise<Output> {
+    return this.client.request(
+      updateDirectusNotificationItem(key, patch, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusNotification
-    >,
-  >(
+  async remove<Output = void>(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusNotificationItem(key));
+  ): Promise<Output> {
+    return this.client.request(deleteDirectusNotificationItem(key)) as unknown as Promise<Output>;
   }
 }

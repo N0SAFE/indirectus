@@ -8,7 +8,7 @@ import { Collections, Schema } from "../../client";
 import {
   readDirectusExtensionItems,
   updateDirectusExtensionItem,
-} from "@/command/DirectusExtension.command";
+} from "@/commands/DirectusExtension.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -22,10 +22,12 @@ export class DirectusExtensionItems {
   ) {}
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
-  async query(): Promise<Collections.DirectusExtension[]> {
-    return (await this.client.request(readDirectusExtensionItems())) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  async query<Output = Collections.DirectusExtension[]>(): Promise<Output> {
+    return this.client.request(
+      readDirectusExtensionItems(),
+    ) as unknown as Promise<Output>;
   }
 }
 
@@ -43,26 +45,18 @@ export class DirectusExtensionItem {
    */
   async update<
     const Query extends Directus.Query<Schema, Collections.DirectusExtension>,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusExtension,
+      Query["fields"]
+    >,
   >(
     bundle: string | null,
     name: string,
     data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusExtension,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       updateDirectusExtensionItem(bundle, name, data),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 }

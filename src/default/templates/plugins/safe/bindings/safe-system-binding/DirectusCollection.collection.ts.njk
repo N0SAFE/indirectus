@@ -7,7 +7,14 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
-import { createDirectusCollectionItem, deleteDirectusCollectionItem, readDirectusCollectionItem, readDirectusCollectionItems, updateBatchDirectusCollectionItems, updateDirectusCollectionItem } from "../../command/DirectusCollection.command";
+import {
+  createDirectusCollectionItem,
+  deleteDirectusCollectionItem,
+  readDirectusCollectionItem,
+  readDirectusCollectionItems,
+  updateBatchDirectusCollectionItems,
+  updateDirectusCollectionItem,
+} from "../../commands/DirectusCollection.commands";
 
 export class DirectusCollectionItems {
   /**
@@ -21,7 +28,7 @@ export class DirectusCollectionItems {
   /**
    * Read munknown items from the collection.
    */
-  async query<Output extends Collections.DirectusCollection[]>(): Promise<
+  async query<Output = Collections.DirectusCollection[]>(): Promise<
     ToSafeOutput<Output>
   > {
     return toSafe(
@@ -32,11 +39,8 @@ export class DirectusCollectionItems {
   }
 
   async updateBatch<
-    const Query extends Directus.Query<
-      Schema,
-      Directus.DirectusCollection
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Directus.DirectusCollection>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusCollection,
       Query["fields"]
@@ -66,11 +70,8 @@ export class DirectusCollectionItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusCollection
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusCollection>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusCollection,
       Query["fields"]
@@ -89,7 +90,7 @@ export class DirectusCollectionItem {
   /**
    * Read a single item from the collection.
    */
-  async get<Output extends Collections.DirectusCollection>(
+  async get<Output = Collections.DirectusCollection>(
     collection: keyof Schema,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
@@ -103,11 +104,8 @@ export class DirectusCollectionItem {
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusCollection
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusCollection>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusCollection,
       Query["fields"]
@@ -127,9 +125,9 @@ export class DirectusCollectionItem {
   /**
    * Remove munknown items in the collection.
    */
-  async remove(collection: keyof Schema): Promise<ToSafeOutput<void>> {
+  async remove<Output = void>(collection: keyof Schema): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(deleteDirectusCollectionItem(collection)),
-    );
+      this.client.request(deleteDirectusCollectionItem(collection)) as unknown as Promise<Output>,
+    )
   }
 }

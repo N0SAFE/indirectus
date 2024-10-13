@@ -7,7 +7,10 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, CollectionsType, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
-import { readDirectusExtensionItems, updateDirectusExtensionItem } from "../../command/DirectusExtension.command";
+import {
+  readDirectusExtensionItems,
+  updateDirectusExtensionItem,
+} from "../../commands/DirectusExtension.commands";
 
 export class DirectusExtensionItems {
   /**
@@ -21,7 +24,7 @@ export class DirectusExtensionItems {
   /**
    * Read munknown items from the collection.
    */
-  async query<Output extends Collections.DirectusExtension[]>(): Promise<
+  async query<Output = Collections.DirectusExtension[]>(): Promise<
     ToSafeOutput<Output>
   > {
     return toSafe(
@@ -45,11 +48,8 @@ export class DirectusExtensionItem {
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusExtension
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusExtension>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusExtension,
       Query["fields"]

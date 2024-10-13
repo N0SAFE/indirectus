@@ -7,7 +7,16 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
-import { createDirectusFlowItem, createDirectusFlowItems, deleteDirectusFlowItem, deleteDirectusFlowItems, readDirectusFlowItem, readDirectusFlowItems, updateDirectusFlowItem, updateDirectusFlowItems } from "../../command/DirectusFlow.command";
+import {
+  createDirectusFlowItem,
+  createDirectusFlowItems,
+  deleteDirectusFlowItem,
+  deleteDirectusFlowItems,
+  readDirectusFlowItem,
+  readDirectusFlowItems,
+  updateDirectusFlowItem,
+  updateDirectusFlowItems,
+} from "../../commands/DirectusFlow.commands";
 
 export class DirectusFlowItems {
   /**
@@ -23,7 +32,7 @@ export class DirectusFlowItems {
    */
   async create<
     const Query extends DirectusSDK.Query<Schema, Collections.DirectusFlow>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -44,7 +53,7 @@ export class DirectusFlowItems {
    */
   async query<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -62,10 +71,9 @@ export class DirectusFlowItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output extends
+    Output =
       | ApplyQueryFields<Schema, Collections.DirectusFlow, Query["fields"]>
-      | undefined,
-  >(query?: Query): Promise<ToSafeOutput<Output>> {
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
         .request(
@@ -74,7 +82,7 @@ export class DirectusFlowItems {
             limit: 1,
           }),
         )
-        .then((items) => items?.[0]) as unknown as Promise<Output>,
+        .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
     );
   }
 
@@ -83,7 +91,7 @@ export class DirectusFlowItems {
    */
   async update<
     const Query extends Directus.Query<Schema, Directus.DirectusFlow<Schema>>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -105,12 +113,12 @@ export class DirectusFlowItems {
   /**
    * Remove many items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     keys: Collections.DirectusFlow extends { id: number | string }
       ? Collections.DirectusFlow["id"][]
       : string[] | number[],
-  ): Promise<ToSafeOutput<void>> {
-    return toSafe(this.client.request(deleteDirectusFlowItems(keys)));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusFlowItems(keys)) as unknown as Promise<Output>);
   }
 }
 
@@ -128,7 +136,7 @@ export class DirectusFlowItem {
    */
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -149,7 +157,7 @@ export class DirectusFlowItem {
    */
   async get<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -172,7 +180,7 @@ export class DirectusFlowItem {
    */
   async update<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFlow,
       Query["fields"]
@@ -194,11 +202,11 @@ export class DirectusFlowItem {
   /**
    * Remove many items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     key: Collections.DirectusFlow extends { id: number | string }
       ? Collections.DirectusFlow["id"]
       : string | number,
-  ): Promise<ToSafeOutput<void>> {
-    return toSafe(this.client.request(deleteDirectusFlowItem(key)));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusFlowItem(key)) as unknown as Promise<Output>);
   }
 }

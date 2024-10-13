@@ -4,11 +4,11 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-  Collections,
-  Schema,
-} from "../../client";
-import { readDirectusRevisionItem, readDirectusRevisionItems } from "@/command/DirectusRevision.command";
+  readDirectusRevisionItem,
+  readDirectusRevisionItems,
+} from "@/commands/DirectusRevision.commands";
 
 export class DirectusRevisionItems {
   /**
@@ -20,62 +20,36 @@ export class DirectusRevisionItems {
   ) {}
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusRevision
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusRevision>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusRevision,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(readDirectusRevisionItems(query))) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<Output> {
+    return this.client.request(readDirectusRevisionItems(query)) as unknown as Promise<Output>;
   }
 
   /**
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusRevision>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusRevision
+      Collections.DirectusRevision,
+      Query["fields"]
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusRevision,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    const items = await this.client.request(
+  >(query?: Query): Promise<Output | undefined> {
+    return this.client.request(
       readDirectusRevisionItems({
         ...query,
         limit: 1,
       }),
-    );
-    return items?.[0] as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 }
 
@@ -92,31 +66,20 @@ export class DirectusRevisionItem {
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusRevision>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusRevision
+      Collections.DirectusRevision,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusRevision extends { id: number | string }
       ? Collections.DirectusRevision["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusRevision,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       readDirectusRevisionItem(key, query),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 }

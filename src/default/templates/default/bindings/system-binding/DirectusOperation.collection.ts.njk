@@ -4,11 +4,17 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-  Collections,
-  Schema,
-} from "../../client";
-import { createDirectusOperationItem, createDirectusOperationItems, deleteDirectusOperationItem, deleteDirectusOperationItems, readDirectusOperationItem, readDirectusOperationItems, updateDirectusOperationItem, updateDirectusOperationItems } from "@/command/DirectusOperation.command";
+  createDirectusOperationItem,
+  createDirectusOperationItems,
+  deleteDirectusOperationItem,
+  deleteDirectusOperationItems,
+  readDirectusOperationItem,
+  readDirectusOperationItems,
+  updateDirectusOperationItem,
+  updateDirectusOperationItems,
+} from "@/commands/DirectusOperation.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -22,141 +28,96 @@ export class DirectusOperationItems {
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
     const Query extends DirectusSDK.Query<
       Schema,
       Collections.DirectusOperation
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusOperation,
+      Query["fields"]
+    >[],
   >(
     items: Partial<Collections.DirectusOperation>[],
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusOperation,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
-      createDirectusOperationItems(items, query as any),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<Output> {
+    return this.client.request(
+      createDirectusOperationItems(items, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusOperation,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<Output> {
+    return this.client.request(
       readDirectusOperationItems(query),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ) as unknown as Promise<Output>;
   }
 
   /**
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusOperation,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    const items = await this.client.request(
+  >(query?: Query): Promise<Output | undefined> {
+    return this.client.request(
       readDirectusOperationItems({
         ...query,
         limit: 1,
       }),
-    );
-    return items?.[0] as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
     const Query extends Directus.Query<
       Schema,
       Directus.DirectusOperation<Schema>
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusOperation,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusOperation,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >[]
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       updateDirectusOperationItems(keys, patch, query),
-    )) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
+  async remove<Output = void>(
     keys: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusOperationItems(keys));
+  ): Promise<Output> {
+    return await this.client.request(deleteDirectusOperationItems(keys)) as unknown as Promise<Output>;
   }
 }
 
@@ -173,70 +134,51 @@ export class DirectusOperationItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     item: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusOperation,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >
-  > {
-    return (await this.client.request(
-      createDirectusOperationItem(item, query as any),
-    )) as any;
+  ): Promise<Output> {
+    return this.client.request(
+      createDirectusOperationItem(item, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusOperation,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       readDirectusOperationItem(key, query),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 
   /**
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusOperation extends { id: number | string }
@@ -244,38 +186,20 @@ export class DirectusOperationItem {
       : string | number,
     patch: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusOperation,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
-      updateDirectusOperationItem(key, patch, query as any),
-    )) as any;
+  ): Promise<Output> {
+    return this.client.request(
+      updateDirectusOperationItem(key, patch, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
+  async remove<Output = void>(
     key: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"]
       : string | number,
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusOperationItem(key));
+  ): Promise<Output> {
+    return this.client.request(deleteDirectusOperationItem(key)) as unknown as Promise<Output>;
   }
 }

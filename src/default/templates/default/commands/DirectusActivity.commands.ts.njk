@@ -14,7 +14,7 @@ type DirectusSDK = typeof DirectusSDK;
 export function readDirectusActivityItems<
   const Query extends Directus.Query<
     Schema,
-    Collections.DirectusActivity
+    DirectusSDK.DirectusActivity<Schema>
   >,
 >(
   query?: Query,
@@ -33,7 +33,7 @@ export const listDirectusActivity = readDirectusActivityItems;
 export function readDirectusActivityItem<
   const Query extends Directus.Query<
     Schema,
-    Collections.DirectusActivity
+    DirectusSDK.DirectusActivity<Schema>
   >,
 >(
   key: Collections.DirectusActivity extends { id: number | string }

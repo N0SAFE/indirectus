@@ -4,11 +4,14 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-  Collections,
-  Schema,
-} from "../../client";
-import { createDirectusRelationItem, deleteDirectusRelationItem, readDirectusRelationItem, readDirectusRelationItems, updateDirectusRelationItem } from "@/command/DirectusRelation.command";
+  createDirectusRelationItem,
+  deleteDirectusRelationItem,
+  readDirectusRelationItem,
+  readDirectusRelationItems,
+  updateDirectusRelationItem,
+} from "@/commands/DirectusRelation.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -22,11 +25,10 @@ export class DirectusRelationItems {
   ) {}
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
-  async query(): Promise<Collections.DirectusRelation[]
-  > {
-    return (await this.client.request(readDirectusRelationItems())) as any; // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  async query<Output = Collections.DirectusRelation[]>(): Promise<Output> {
+    return this.client.request(readDirectusRelationItems()) as unknown as Promise<Output>;
   }
 }
 
@@ -42,12 +44,12 @@ export class DirectusRelationItem {
   /**
    * Create a single item in the collection.
    */
-  async create(
-    item: Partial<Collections.DirectusRelation>,): Promise<Collections.DirectusRelation
-  > {
-    return (await this.client.request(
+  async create<Output = Collections.DirectusRelation>(
+    item: Partial<Collections.DirectusRelation>,
+  ): Promise<Output> {
+    return this.client.request(
       createDirectusRelationItem(item),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -58,6 +60,11 @@ export class DirectusRelationItem {
       Schema,
       Directus.DirectusRelation<Schema>
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusRelation,
+      Query["fields"]
+    >,
   >(
     key: Collections.DirectusRelation extends {
       collection: number | string;
@@ -65,66 +72,42 @@ export class DirectusRelationItem {
       ? Collections.DirectusRelation["collection"]
       : string | number,
     field: Directus.DirectusRelation<Schema>["field"],
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusRelation,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       readDirectusRelationItem(key, field),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 
   /**
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusRelation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusRelation
+      Collections.DirectusRelation,
+      Query["fields"]
     >,
   >(
     collection: Directus.DirectusRelation<Schema>["collection"],
     field: Directus.DirectusRelation<Schema>["field"],
     patch: Partial<Collections.DirectusRelation>,
     query?: Query,
-  ): Promise<
-    | ApplyQueryFields<
-        Schema,
-        Collections.DirectusRelation,
-        Query extends undefined
-          ? ["*"]
-          : Query["fields"] extends undefined
-            ? ["*"]
-            : Query["fields"] extends Readonly<any[]>
-              ? Query["fields"]
-              : ["*"]
-      >
-    | undefined
-  > {
-    return (await this.client.request(
-      updateDirectusRelationItem(collection, field, patch, query as any),
-    )) as any;
+  ): Promise<Output> {
+    return this.client.request(
+      updateDirectusRelationItem(collection, field, patch, query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     collection: Directus.DirectusRelation<Schema>["collection"],
     field: Directus.DirectusRelation<Schema>["field"],
-  ): Promise<void> {
-    return await this.client.request(
+  ): Promise<Output> {
+    return this.client.request(
       deleteDirectusRelationItem(collection, field),
-    );
+    ) as unknown as Promise<Output>;
   }
 }

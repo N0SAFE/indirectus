@@ -8,7 +8,18 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
 
-import { deleteDirectusFileItem, deleteDirectusFileItems, readDirectusFileArrayBuffer, readDirectusFileBlob, readDirectusFileItem, readDirectusFileItems, readDirectusFileStream, updateBatchDirectusFileItems, updateDirectusFileItem, updateDirectusFileItems } from "../../command/DirectusFile.command";
+import {
+  deleteDirectusFileItem,
+  deleteDirectusFileItems,
+  readDirectusFileArrayBuffer,
+  readDirectusFileBlob,
+  readDirectusFileItem,
+  readDirectusFileItems,
+  readDirectusFileStream,
+  updateBatchDirectusFileItems,
+  updateDirectusFileItem,
+  updateDirectusFileItems,
+} from "../../commands/DirectusFile.commands";
 
 export class DirectusFileItems {
   /**
@@ -20,14 +31,11 @@ export class DirectusFileItems {
   ) {}
 
   async create<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >[],
   >(
     items: (Partial<Collections.DirectusFile> & { file: File })[],
@@ -108,14 +116,11 @@ export class DirectusFileItems {
    * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
@@ -129,16 +134,10 @@ export class DirectusFileItems {
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
-      Schema,
-      Collections.DirectusFile,
-      Query['fields']
-    > | undefined,
-  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output =
+      | ApplyQueryFields<Schema, Collections.DirectusFile, Query["fields"]>
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
         .request(
@@ -147,7 +146,7 @@ export class DirectusFileItems {
             limit: 1,
           }),
         )
-        .then((items) => items?.[0]) as unknown as Promise<Output>,
+        .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
     );
   }
 
@@ -155,14 +154,11 @@ export class DirectusFileItems {
    * Update munknown items in the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Directus.DirectusFile<Schema>
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Directus.DirectusFile<Schema>>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >[],
   >(
     keys: Collections.DirectusFile extends { id: number | string }
@@ -182,14 +178,11 @@ export class DirectusFileItems {
    * Update munknown items in the collection with batch.
    */
   async updateBatch<
-    const Query extends Directus.Query<
-      Schema,
-      Directus.DirectusFile<Schema>
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Directus.DirectusFile<Schema>>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >[],
   >(
     items: Directus.NestedPartial<Collections.DirectusFile>[],
@@ -205,12 +198,12 @@ export class DirectusFileItems {
   /**
    * Remove munknown items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     keys: Collections.DirectusFile extends { id: number | string }
       ? Collections.DirectusFile["id"][]
       : string[] | number[],
-  ): Promise<ToSafeOutput<void>> {
-    return toSafe(this.client.request(deleteDirectusFileItems(keys)));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusFileItems(keys)) as unknown as Promise<Output>);
   }
 }
 
@@ -224,14 +217,11 @@ export class DirectusFileItem {
   ) {}
 
   async create<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >,
   >(
     item: Partial<Collections.DirectusFile> & { file: File },
@@ -310,14 +300,11 @@ export class DirectusFileItem {
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusFile extends { id: number | string }
@@ -376,14 +363,11 @@ export class DirectusFileItem {
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusFile
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusFile>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusFile,
-      Query['fields']
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusFile extends { id: number | string }
@@ -402,11 +386,11 @@ export class DirectusFileItem {
   /**
    * Remove munknown items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     key: Collections.DirectusFile extends { id: number | string }
       ? Collections.DirectusFile["id"]
       : string | number,
-  ): Promise<ToSafeOutput<void>> {
-    return toSafe(this.client.request(deleteDirectusFileItem(key)));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusFileItem(key)) as unknown as Promise<Output>);
   }
 }

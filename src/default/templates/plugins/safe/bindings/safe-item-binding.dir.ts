@@ -2,133 +2,168 @@ import { to_collection_name } from "../../../../../default/extensions/filters/di
 import { Context } from "../../../../../types/types";
 
 export const generate = (context: Context) => {
-  const typesTemplate = `
-  import type * as Directus from "@directus/sdk";
+  const typesTemplate = `import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
+import { ToSafeOutput } from "../../utils";
+
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, CollectionsType, Schema } from "../../client";
+import { CollectionsType } from "../../client";
 
-export interface TypedCollectionSingletonWrapper<Collection extends object>
-{
+export interface TypedCollectionSingletonWrapper<Collection extends object> {
   /**
    * Reads the singleton.
    */
-  read<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  read<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Updates the singleton.
    */
-  update<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(patch: Partial<Collection>, query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  update<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    patch: Partial<Collection>,
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 }
 
-export interface TypedCollectionItemsWrapper<Collection extends object>
-{
+export interface TypedCollectionItemsWrapper<Collection extends object> {
   /**
    * Creates many items in the collection.
    */
-  create<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(items: Partial<Collection>[], query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>[], isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  create<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection[]>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+  >(
+    items: Partial<Collection>[],
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Read many items from the collection.
    */
-  query<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>[], isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  query<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+  >(
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Read the first item from the collection matching the query.
    */
-  find<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']> | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  find<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    query?: Query,
+  ): Promise<ToSafeOutput<Output | undefined>>;
 
   /**
    * Update many items in the collection.
    */
-  update<const Query extends DirectusSDK.Query<CollectionsType, Collection[]>>(keys: string[] | number[], patch: Partial<Collection>, query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>[], isError: false, error: never} | {error: Error, isError: true, data: never}>;
-    
+  update<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection[]>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+  >(
+    keys: string[] | number[],
+    patch: Partial<Collection>,
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
+
   /**
    * update many items with batch
    */
-  updateBatch<const Query extends Directus.Query<CollectionsType, Collection[]>>(items: Partial<Directus.UnpackList<Collection>>[], query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ["*"] : Query["fields"] extends undefined ? ["*"] : Query["fields"] extends Readonly<any[]> ? Query["fields"] : ["*"]>[], isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  updateBatch<
+    const Query extends Directus.Query<CollectionsType, Collection[]>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+  >(
+    items: Partial<Directus.UnpackList<Collection>>[],
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Remove many items in the collection.
    */
-  remove<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(keys: string[] | number[]): Promise<{data: void, isError: false, error: never} | {error: Error, isError: true, data: never} >;
+  remove<Output = void>(keys: string[] | number[]): Promise<ToSafeOutput<Output>>;
 }
 
-export interface TypedCollectionItemWrapper<Collection extends object>
-{
+export interface TypedCollectionItemWrapper<Collection extends object> {
   /**
    * Create a single item in the collection.
    */
-  create<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(item: Partial<Collection>, query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  create<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    item: Partial<Collection>,
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Read a single item from the collection.
    */
-  get<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number, query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']> | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  get<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    key: string | number,
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Update a single item from the collection.
    */
-  update<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number, patch: Partial<Collection>, query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collection, Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']> | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  update<
+    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
+    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+  >(
+    key: string | number,
+    patch: Partial<Collection>,
+    query?: Query,
+  ): Promise<ToSafeOutput<Output>>;
 
   /**
    * Remove many items in the collection.
    */
-  remove<const Query extends DirectusSDK.Query<CollectionsType, Collection>>(key: string | number): Promise<{data: void, isError: false, error: never} | {error: Error, isError: true, data: never}>;
+  remove<Output = void>(key: string | number): Promise<ToSafeOutput<Output>>;
 }`;
 
-  const perCollection = `import type * as Directus from '@directus/sdk'
+  const perCollection = `{% set collectionName = collection.name | to_collection_name %}
+{% set collectionString = collection.name | to_collection_string %}
+{% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
+{% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
+{% set genericQueryArray = ["const Query extends Directus.Query<CollectionsType, ", collectionType, "[]>"] | join %}
+{% set genericOutput = ["Output = ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>"] | join %}
+{% set genericOutputArray = ["Output = ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>[]"] | join %}
+{% set genericOutputVoid = "Output = void" %}
+{% set applyType  = "ToSafeOutput<Output>" %}
+{% set applyTypeUndefined  = "ToSafeOutput<Output | undefined>" %}
 
-import * as DirectusSDK from '@directus/sdk'
+import type * as Directus from '@directus/sdk'
+
+import { toSafe, ToSafeOutput } from "../../utils";
 
 import { ApplyQueryFields } from '../../types/ApplyQueryFields'
 
 import {
     Collections,
     CollectionsType,
-    DirectusCommands,
     Schema,
 } from '../../client'
 
-import { TypedCollectionItemsWrapper, TypedCollectionItemWrapper, TypedCollectionSingletonWrapper } from "./types";
-
-type DirectusSDK = typeof DirectusSDK
-
-{% set collectionName = collection.name | to_collection_name %}
-{% set collectionString = collection.name | to_collection_string %}
-{% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
-{% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
-{% set genericQueryArray = ["const Query extends Directus.Query<CollectionsType, ", collectionType, "[]>"] | join %}
-{% set applyType  = ["ApplyQueryFields<CollectionsType, ", collectionType, ", Query extends undefined ? ['*'] : Query['fields'] extends undefined ? ['*'] : Query['fields'] extends Readonly<any[]> ? Query['fields'] : ['*']>"] | join %}
-
-
 {% if collection.is_singleton %}
+import { TypedCollectionSingletonWrapper } from "./types";
 
-/**
- * Reads the {{ collection.name | to_collection_text }} singleton.
- */
-export function read{{ collectionName }}<
-  {{ genericQuery }},
->(query?: Query) {
-  return DirectusSDK.readSingleton<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", query);
-}
-
-/**
- * Reads the {{ collection.name | to_collection_text }} singleton.
- */
-export const get{{ collectionName }} = read{{ collectionName }};
-
-/**
- * Updates the {{ collection.name | to_collection_text }} singleton.
- */
-export function update{{ collectionName }}<
-  {{ genericQuery }},
->(patch: Partial<{{ collectionType }}>, query?: Query) {
-  return DirectusSDK.updateSingleton<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", patch, query);
-}
+import { read{{ collectionName }}, update{{ collectionName }} } from '../../commands/{{ collectionName }}.commands'
 
 export class {{ collectionName }}Singleton implements TypedCollectionSingletonWrapper<{{ collectionType }}>
 {
@@ -142,110 +177,24 @@ export class {{ collectionName }}Singleton implements TypedCollectionSingletonWr
   /**
    * Reads the {{ collection.name | to_collection_text }} singleton.
    */
-  async read<{{ genericQuery }}>(query?: Query): Promise<{data: {{ applyType }}, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async read<{{ genericQuery }}, {{ genericOutput }}>(query?: Query): Promise<{{ applyType }}>
   {
-    return this.client.request(read{{ collectionName }}(query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(read{{ collectionName }}(query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Updates the {{ collection.name | to_collection_text }} singleton.
    */
-  async update<{{ genericQuery }}>(patch: Partial<{{ collectionType }}>, query?: Query): Promise<{data: {{ applyType }}, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async update<{{ genericQuery }}, {{ genericOutput }}>(patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(update{{ collectionName }}(patch, query)).then((data) => ({data, isError: false}) as any).catch((error) => ({error, isError: true})); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(update{{ collectionName }}(patch, query))) as unknown as Promise<{{ applyType }}>;
   }
 }
 
 {% else %}
+import { TypedCollectionItemsWrapper, TypedCollectionItemWrapper } from "./types";
 
-/**
- * Create many {{ collection.name | to_collection_text }} items.
- */
-export function create{{ collectionName }}Items<
-  {{ genericQueryArray}}
->(items: Partial<{{ collectionType }}>[], query?: Query) {
-  return DirectusSDK.createItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
-}
-
-/**
- * Create a single {{ collection.name | to_collection_text }} item.
- */
-export function create{{ collectionName }}Item<
-  const Query extends DirectusSDK.Query<CollectionsType, {{ collectionType }}[]> // Is this a mistake? Why []?
->(item: Partial<{{ collectionType }}>, query?: Query) {
-  return DirectusSDK.createItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", item, query);
-}
-
-/**
- * Read many {{ collection.name | to_collection_text }} items.
- */
-export function read{{ collectionName }}Items<
-  {{ genericQuery }},
->(query?: Query) {
-  return DirectusSDK.readItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", query);
-}
-
-/**
- * Read many {{ collection.name | to_collection_text }} items.
- */
-export const list{{ collectionName }} = read{{ collectionName }}Items;
-
-/**
- * Gets a single known {{ collection.name | to_collection_text }} item by id.
- */
-export function read{{ collectionName }}Item<
-  {{ genericQuery }},
->(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query) {
-  return DirectusSDK.readItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", key, query);
-}
-
-/**
- * Gets a single known {{ collection.name | to_collection_text }} item by id.
- */
-export const read{{ collectionName }} = read{{ collectionName }}Item;
-
-/**
- * Read many {{ collection.name | to_collection_text }} items.
- */
-export function update{{ collectionName }}Items<
-  {{ genericQueryArray }},
->(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query) {
-  return DirectusSDK.updateItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", keys, patch, query);
-}
-
-/**
- * Update many {{ collection.name | to_collection_text }} items with batch
- */
-export function update{{ collectionName }}ItemsBatch<
-{{ genericQueryArray }},
-> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query) {
-  return DirectusSDK.updateItemsBatch<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
-}
-
-/**
- * Gets a single known {{ collection.name | to_collection_text }} item by id.
- */
-export function update{{ collectionName }}Item<
-  {{ genericQueryArray }},
->(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query) {
-  return DirectusSDK.updateItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", key, patch, query);
-}
-
-/**
- * Deletes many {{ collection.name | to_collection_text }} items.
- */
-export function delete{{ collectionName }}Items<
-  {{ genericQueryArray }},
->(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]) {
-  return DirectusSDK.deleteItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", keys);
-}
-
-/**
- * Deletes a single known {{ collection.name | to_collection_text }} item by id.
- */
-export function delete{{ collectionName }}Item(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number) {
-  return DirectusSDK.deleteItem<CollectionsType, {{ collectionString }}>("{{ collection.name }}", key);
-}
+import { create{{ collectionName }}Item, create{{ collectionName }}Items, delete{{ collectionName }}Item, delete{{ collectionName }}Items, read{{ collectionName }}Item, read{{ collectionName }}Items, update{{ collectionName }}Item, update{{ collectionName }}Items, update{{ collectionName }}ItemsBatch } from '../../commands/{{ collectionName }}.commands'
 
 export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{ collectionType }}>
 {
@@ -260,93 +209,57 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    * Creates many items in the collection.
    */
   async create<
-    const Query extends DirectusSDK.Query<CollectionsType, {{ collectionType }}>
+    {{ genericQueryArray }}, {{ genericOutputArray }}
   >(
       items: Partial<{{ collectionType }}>[],
       query?: Query
   ): Promise<
-      {data: {{ applyType }}[], isError: false, error: never} | {error: Error, isError: true, data: never}
+      {{ applyType }}
   > {
-    return await this.client.request(create{{ collectionName }}Items(items, query as any)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(create{{ collectionName }}Items(items, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Read many items from the collection.
    */
-  async query<{{ genericQuery }}>(query?: Query): Promise<{data: {{ applyType }}[], isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async query<{{ genericQuery }}, {{ genericOutputArray }}>(query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(read{{ collectionName }}Items(query)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(read{{ collectionName }}Items(query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Read the first item from the collection matching the query.
    */
-  async find<{{ genericQuery }}>(query?: Query): Promise<{data: {{ applyType }} | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async find<{{ genericQuery }}, {{ genericOutput }}>(query?: Query): Promise<{{ applyTypeUndefined }}>
   {
-    return this.client.request(read{{ collectionName }}Items({
+    return toSafe(this.client.request(read{{ collectionName }}Items({
       ...query,
       limit: 1,
-    })).then((items) => ({
-      data: items?.[0], // the any type is here because we transform the type through or custom ApplyQueryFields type.
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    })).then(items => items?.[0])) as unknown as Promise<{{ applyTypeUndefined }}>;
   }
 
   /**
    * Update many items in the collection.
    */
-  async update<{{ genericQueryArray }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): Promise<{data: {{ applyType }}[], isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async update<{{ genericQueryArray }}, {{ genericOutputArray }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(update{{ collectionName }}Items(keys, patch, query)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(update{{ collectionName }}Items(keys, patch, query))) as unknown as Promise<{{ applyType }}>;
   }
   
   /**
    * update many items in the collection with batch
    */
-  async updateBatch<{{ genericQueryArray }}> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): Promise<{data: ApplyQueryFields<CollectionsType, Collections.{{collectionName}}[], Query extends undefined ? ["*"] : Query["fields"] extends undefined ? ["*"] : Query["fields"] extends Readonly<any[]> ? Query["fields"] : ["*"]>[], isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async updateBatch<{{ genericQueryArray }}, {{ genericOutputArray }}> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(update{{ collectionName }}ItemsBatch(items, query)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    return toSafe(this.client.request(update{{ collectionName }}ItemsBatch(items, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Remove many items in the collection.
    */
-  async remove<{{ genericQuery }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): Promise<{data: void, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async remove<{{ genericOutputVoid }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): Promise<{{ applyType }}>
   {
-    return await this.client.request(delete{{ collectionName }}Items(keys)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    return toSafe(this.client.request(delete{{ collectionName }}Items(keys))) as unknown as Promise<{{ applyType }}>;
   }
 }
 
@@ -362,57 +275,33 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
   /**
    * Create a single item in the collection.
    */
-  async create<{{ genericQuery }}>(item: Partial<{{ collectionType }}>, query?: Query): Promise<{data: {{ applyType }}, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async create<{{ genericQuery }}, {{ genericOutput }}>(item: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(create{{ collectionName }}Item(item, query as any)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    return toSafe(this.client.request(create{{ collectionName }}Item(item, query as any))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Read a single item from the collection.
    */
-  async get<{{ genericQuery }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query): Promise<{data: {{ applyType }} | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async get<{{ genericQuery }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(read{{ collectionName }}Item(key, query)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    return toSafe(this.client.request(read{{ collectionName }}Item(key, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Update a single item from the collection.
    */
-  async update<{{ genericQuery }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): Promise<{data: {{ applyType }} | undefined, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async update<{{ genericQuery }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return await this.client.request(update{{ collectionName }}Item(key, patch, query as any)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    return toSafe(this.client.request(update{{ collectionName }}Item(key, patch, query as any))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
    * Remove many items in the collection.
    */
-  async remove<{{ genericQuery }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number): Promise<{data: void, isError: false, error: never} | {error: Error, isError: true, data: never}>
+  async remove<{{ genericOutputVoid }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number): Promise<{{ applyType }}>
   {
-    return await this.client.request(delete{{ collectionName }}Item(key)).then((data) => ({
-      data,
-      isError: false,
-    }) as any).catch((error) => ({
-      error,
-      isError: true,
-    }));
+    return toSafe(this.client.request(delete{{ collectionName }}Item(key))) as unknown as Promise<{{ applyType }}>;
   }
 }
 

@@ -6,8 +6,17 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
-import { createDirectusShareItem, createDirectusShareItems, deleteDirectusShareItem, deleteDirectusShareItems, readDirectusShareItem, readDirectusShareItems, updateDirectusShareItem, updateDirectusShareItems } from "../../command/DirectusShare.command";
+import { toSafe, ToSafeOutput } from "../../utils";
+import {
+  createDirectusShareItem,
+  createDirectusShareItems,
+  deleteDirectusShareItem,
+  deleteDirectusShareItems,
+  readDirectusShareItem,
+  readDirectusShareItems,
+  updateDirectusShareItem,
+  updateDirectusShareItems,
+} from "../../commands/DirectusShare.commands";
 
 export class DirectusShareItems {
   /**
@@ -19,167 +28,97 @@ export class DirectusShareItems {
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
-    const Query extends DirectusSDK.Query<
+    const Query extends DirectusSDK.Query<Schema, Collections.DirectusShare>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusShare
-    >,
+      Collections.DirectusShare,
+      Query["fields"]
+    >[],
   >(
     items: Partial<Collections.DirectusShare>[],
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusShare,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusShareItems(items, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusShareItems(items, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusShare>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusShare
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusShare,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusShareItems(query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+      Collections.DirectusShare,
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusShareItems(query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusShare
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusShare,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(
-        readDirectusShareItems({
-          ...query,
-          limit: 1,
-        }),
-      )
-      .then((items) => ({ data: items?.[0], isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+    const Query extends Directus.Query<Schema, Collections.DirectusShare>,
+    Output =
+      | ApplyQueryFields<Schema, Collections.DirectusShare, Query["fields"]>
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
+    return toSafe(
+      this.client
+        .request(
+          readDirectusShareItems({
+            ...query,
+            limit: 1,
+          }),
+        )
+        .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
+    );
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Directus.DirectusShare<Schema>>,
+    Output = ApplyQueryFields<
       Schema,
-      Directus.DirectusShare<Schema>
-    >,
+      Collections.DirectusShare,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusShare extends { id: number | string }
       ? Collections.DirectusShare["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusShare>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusShare,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusShareItems(keys, patch, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusShareItems(keys, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusShare
-    >,
-  >(
+  async remove<Output = void>(
     keys: Collections.DirectusShare extends { id: number | string }
       ? Collections.DirectusShare["id"][]
       : string[] | number[],
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusShareItems(keys));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusShareItems(keys)) as unknown as Promise<Output>);
   }
 }
 
@@ -196,83 +135,55 @@ export class DirectusShareItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusShare>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusShare
+      Collections.DirectusShare,
+      Query["fields"]
     >,
   >(
     item: Partial<Collections.DirectusShare>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusShare,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusShareItem(item, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusShareItem(item, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusShare>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusShare
+      Collections.DirectusShare,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusShare extends { id: number | string }
       ? Collections.DirectusShare["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusShare,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusShareItem(key, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusShareItem(key, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusShare>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusShare
+      Collections.DirectusShare,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusShare extends { id: number | string }
@@ -280,45 +191,22 @@ export class DirectusShareItem {
       : string | number,
     patch: Partial<Collections.DirectusShare>,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusShare,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusShareItem(key, patch, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusShareItem(key, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusShare
-    >,
-  >(
+  async remove<Output = void>(
     key: Collections.DirectusShare extends { id: number | string }
       ? Collections.DirectusShare["id"]
       : string | number,
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusShareItem(key));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusShareItem(key)) as unknown as Promise<Output>);
   }
 }

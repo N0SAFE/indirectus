@@ -8,7 +8,10 @@ import { Collections, Schema } from "../../client";
 
 import { ApplyFields, toSafe, ToSafeOutput } from "../../utils";
 
-import { readDirectusActivityItem, readDirectusActivityItems } from "../../command/DirectusActivity.command";
+import {
+  readDirectusActivityItem,
+  readDirectusActivityItems,
+} from "../../commands/DirectusActivity.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -25,11 +28,8 @@ export class DirectusActivityItems {
    * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusActivity
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusActivity>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusActivity,
       Query["fields"]
@@ -46,18 +46,10 @@ export class DirectusActivityItems {
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusActivity
-    >,
-    Output extends
-      | ApplyQueryFields<
-          Schema,
-          Collections.DirectusActivity,
-          Query["fields"]
-        >
-      | undefined,
-  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    const Query extends Directus.Query<Schema, Collections.DirectusActivity>,
+    Output =
+      | ApplyQueryFields<Schema, Collections.DirectusActivity, Query["fields"]>
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
         .request(
@@ -66,7 +58,7 @@ export class DirectusActivityItems {
             limit: 1,
           }),
         )
-        .then((items) => items?.[0]) as unknown as Promise<Output>,
+        .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
     );
   }
 }
@@ -84,11 +76,8 @@ export class DirectusActivityItem {
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusActivity
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusActivity>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusActivity,
       Query["fields"]

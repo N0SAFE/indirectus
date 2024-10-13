@@ -7,7 +7,16 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, CollectionsType, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
-import { createDirectusDashboardItem, createDirectusDashboardItems, deleteDirectusDashboardItem, deleteDirectusDashboardItems, readDirectusDashboardItem, readDirectusDashboardItems, updateDirectusDashboardItem, updateDirectusDashboardItems } from "../../command/DirectusDashboard.command";
+import {
+  createDirectusDashboardItem,
+  createDirectusDashboardItems,
+  deleteDirectusDashboardItem,
+  deleteDirectusDashboardItems,
+  readDirectusDashboardItem,
+  readDirectusDashboardItems,
+  updateDirectusDashboardItem,
+  updateDirectusDashboardItems,
+} from "../../commands/DirectusDashboard.commands";
 
 export class DirectusDashboardItems {
   /**
@@ -26,7 +35,7 @@ export class DirectusDashboardItems {
       Schema,
       Collections.DirectusDashboard
     >,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -46,11 +55,8 @@ export class DirectusDashboardItems {
    * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusDashboard
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -67,16 +73,10 @@ export class DirectusDashboardItems {
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusDashboard
-    >,
-    Output extends ApplyQueryFields<
-      Schema,
-      Collections.DirectusDashboard,
-      Query["fields"]
-    > | undefined,
-  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+    Output =
+      | ApplyQueryFields<Schema, Collections.DirectusDashboard, Query["fields"]>
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
         .request(
@@ -85,7 +85,7 @@ export class DirectusDashboardItems {
             limit: 1,
           }),
         )
-        .then((res) => res?.[0]) as unknown as Promise<Output>,
+        .then((res) => res?.[0]) as unknown as Promise<Output | undefined>,
     );
   }
 
@@ -97,7 +97,7 @@ export class DirectusDashboardItems {
       Schema,
       Directus.DirectusDashboard<Schema>
     >,
-    Output extends ApplyQueryFields<
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -119,7 +119,7 @@ export class DirectusDashboardItems {
   /**
    * Remove munknown items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     keys: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"][]
       : string[] | number[],
@@ -141,11 +141,8 @@ export class DirectusDashboardItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusDashboard
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -165,11 +162,8 @@ export class DirectusDashboardItem {
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusDashboard
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -191,11 +185,8 @@ export class DirectusDashboardItem {
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusDashboard
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusDashboard,
       Query["fields"]
@@ -217,11 +208,11 @@ export class DirectusDashboardItem {
   /**
    * Remove munknown items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     key: Collections.DirectusDashboard extends { id: number | string }
       ? Collections.DirectusDashboard["id"]
       : string | number,
-  ): Promise<ToSafeOutput<void>> {
-    return toSafe(this.client.request(deleteDirectusDashboardItem(key)));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusDashboardItem(key)) as unknown as Promise<Output>);
   }
 }

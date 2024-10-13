@@ -7,7 +7,13 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils";
-import { createDirectusFieldItem, deleteDirectusFieldItem, readDirectusFieldItem, readDirectusFieldItems, updateDirectusFieldItem } from "../../command/DirectusField.command";
+import {
+  createDirectusFieldItem,
+  deleteDirectusFieldItem,
+  readDirectusFieldItem,
+  readDirectusFieldItems,
+  updateDirectusFieldItem,
+} from "../../commands/DirectusField.commands";
 
 export class DirectusFieldItems {
   /**
@@ -21,7 +27,7 @@ export class DirectusFieldItems {
   /**
    * Read any items from the collection.
    */
-  async query<Output extends Collections.DirectusField[]>(): Promise<
+  async query<Output = Collections.DirectusField[]>(): Promise<
     ToSafeOutput<Output>
   > {
     return toSafe(
@@ -45,11 +51,8 @@ export class DirectusFieldItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusField
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusField>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusField,
       Query["fields"]
@@ -84,11 +87,8 @@ export class DirectusFieldItem {
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusField
-    >,
-    Output extends ApplyQueryFields<
+    const Query extends Directus.Query<Schema, Collections.DirectusField>,
+    Output = ApplyQueryFields<
       Schema,
       Collections.DirectusField,
       Query["fields"]
@@ -111,12 +111,12 @@ export class DirectusFieldItem {
   /**
    * Remove any items in the collection.
    */
-  async remove(
+  async remove<Output = void>(
     collection: Directus.DirectusField<Schema>["collection"],
     field: Directus.DirectusField<Schema>["field"],
-  ): Promise<ToSafeOutput<void>> {
+  ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(deleteDirectusFieldItem(collection, field)),
+      this.client.request(deleteDirectusFieldItem(collection, field)) as unknown as Promise<Output>,
     );
   }
 }

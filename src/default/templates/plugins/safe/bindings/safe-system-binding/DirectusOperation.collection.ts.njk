@@ -6,8 +6,17 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
-import { createDirectusOperationItem, createDirectusOperationItems, deleteDirectusOperationItem, deleteDirectusOperationItems, readDirectusOperationItem, readDirectusOperationItems, updateDirectusOperationItem, updateDirectusOperationItems } from "../../command/DirectusOperation.command";
+import { toSafe, ToSafeOutput } from "../../utils";
+import {
+  createDirectusOperationItem,
+  createDirectusOperationItems,
+  deleteDirectusOperationItem,
+  deleteDirectusOperationItems,
+  readDirectusOperationItem,
+  readDirectusOperationItems,
+  updateDirectusOperationItem,
+  updateDirectusOperationItems,
+} from "../../commands/DirectusOperation.commands";
 
 export class DirectusOperationItems {
   /**
@@ -19,162 +28,98 @@ export class DirectusOperationItems {
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
     const Query extends DirectusSDK.Query<
       Schema,
       Collections.DirectusOperation
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusOperation,
+      Query["fields"]
+    >[],
   >(
     items: Partial<Collections.DirectusOperation>[],
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusOperation,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusOperationItems(items, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusOperationItems(items, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusOperation,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusOperationItems(query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+      Collections.DirectusOperation,
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusOperationItems(query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Read the first item from the collection matching the query.
    */
   async find<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusOperation,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(
-        readDirectusOperationItems({
-          ...query,
-          limit: 1,
-        }),
-      )
-      .then((items) => ({ data: items?.[0], isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output =
+      | ApplyQueryFields<Schema, Collections.DirectusOperation, Query["fields"]>
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
+    return toSafe(
+      this.client
+        .request(
+          readDirectusOperationItems({
+            ...query,
+            limit: 1,
+          }),
+        )
+        .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
+    );
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
     const Query extends Directus.Query<
       Schema,
       Directus.DirectusOperation<Schema>
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusOperation,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusOperation,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusOperationItems(keys, patch, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusOperationItems(keys, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
+  async remove<Output = void>(
     keys: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
@@ -196,83 +141,55 @@ export class DirectusOperationItem {
    * Create a single item in the collection.
    */
   async create<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     item: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusOperation,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusOperationItem(item, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusOperationItem(item, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Read a single item from the collection.
    */
   async get<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusOperation,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusOperationItem(key, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusOperationItem(key, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Update a single item from the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusOperation
+      Collections.DirectusOperation,
+      Query["fields"]
     >,
   >(
     key: Collections.DirectusOperation extends { id: number | string }
@@ -280,41 +197,18 @@ export class DirectusOperationItem {
       : string | number,
     patch: Partial<Collections.DirectusOperation>,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusOperation,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusOperationItem(key, patch, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusOperationItem(key, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusOperation
-    >,
-  >(
+  async remove<Output = void>(
     key: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"]
       : string | number,

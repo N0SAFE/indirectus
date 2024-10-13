@@ -6,8 +6,11 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
-import { readDirectusSettings, updateDirectusSettings } from "../../command/DirectusSettings.command";
+import { toSafe, ToSafeOutput } from "../../utils";
+import {
+  readDirectusSettings,
+  updateDirectusSettings,
+} from "../../commands/DirectusSettings.commands";
 
 export class DirectusSettingsSingleton {
   /**
@@ -22,68 +25,38 @@ export class DirectusSettingsSingleton {
    * Read the singleton from the collection.
    */
   async read<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusSettings>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusSettings
+      Collections.DirectusSettings,
+      Query["fields"]
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusSettings,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusSettings(query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusSettings(query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
    * Update the singleton from the collection.
    */
   async update<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusSettings>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusSettings
+      Collections.DirectusSettings,
+      Query["fields"]
     >,
   >(
     patch: Partial<Collections.DirectusSettings>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusSettings,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusSettings(patch, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusSettings(patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

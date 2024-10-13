@@ -6,8 +6,17 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe } from "../../utils";
-import { createDirectusNotificationItem, createDirectusNotificationItems, deleteDirectusNotificationItem, deleteDirectusNotificationItems, readDirectusNotificationItem, readDirectusNotificationItems, updateDirectusNotificationItem, updateDirectusNotificationItems } from "../../command/DirectusNotification.command";
+import { toSafe, ToSafeOutput } from "../../utils";
+import {
+  createDirectusNotificationItem,
+  createDirectusNotificationItems,
+  deleteDirectusNotificationItem,
+  deleteDirectusNotificationItems,
+  readDirectusNotificationItem,
+  readDirectusNotificationItems,
+  updateDirectusNotificationItem,
+  updateDirectusNotificationItems,
+} from "../../commands/DirectusNotification.commands";
 
 export class DirectusNotificationItems {
   /**
@@ -19,72 +28,48 @@ export class DirectusNotificationItems {
   ) {}
 
   /**
-   * Creates many items in the collection.
+   * Creates munknown items in the collection.
    */
   async create<
     const Query extends DirectusSDK.Query<
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >[],
   >(
     items: Partial<Collections.DirectusNotification>[],
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusNotification,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusNotificationItems(items, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusNotificationItems(items, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Read many items from the collection.
+   * Read munknown items from the collection.
    */
   async query<
     const Query extends Directus.Query<
       Schema,
       Collections.DirectusNotification
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusNotification,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusNotificationItems(query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >[],
+  >(query?: Query): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusNotificationItems(query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -95,91 +80,62 @@ export class DirectusNotificationItems {
       Schema,
       Collections.DirectusNotification
     >,
-  >(
-    query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusNotification,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(
-        readDirectusNotificationItems({
-          ...query,
-          limit: 1,
-        }),
-      )
-      .then((items) => ({ data: items?.[0], isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+    Output =
+      | ApplyQueryFields<
+          Schema,
+          Collections.DirectusNotification,
+          Query["fields"]
+        >
+      | undefined,
+  >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
+    return toSafe(
+      this.client
+        .request(
+          readDirectusNotificationItems({
+            ...query,
+            limit: 1,
+          }),
+        )
+        .then((items) => items?.[0] as unknown as Promise<Output | undefined>),
+    );
   }
 
   /**
-   * Update many items in the collection.
+   * Update munknown items in the collection.
    */
   async update<
     const Query extends Directus.Query<
       Schema,
       Directus.DirectusNotification<Schema>
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >[],
   >(
     keys: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusNotification,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >[];
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusNotificationItems(keys, patch, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true })); // the any type is here because we transform the type through or custom ApplyQueryFields type.
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusNotificationItems(keys, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusNotification
-    >,
-  >(
+  async remove<Output = void>(
     keys: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusNotificationItems(keys));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusNotificationItems(keys)) as unknown as Promise<Output>);
   }
 }
 
@@ -200,31 +156,20 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     item: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    | {
-        data: ApplyQueryFields<
-          Schema,
-          Collections.DirectusNotification,
-          Query extends undefined
-            ? ["*"]
-            : Query["fields"] extends undefined
-              ? ["*"]
-              : Query["fields"] extends Readonly<any[]>
-                ? Query["fields"]
-                : ["*"]
-        >;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(createDirectusNotificationItem(item, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        createDirectusNotificationItem(item, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -235,35 +180,22 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusNotification,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(readDirectusNotificationItem(key, query))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        readDirectusNotificationItem(key, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
@@ -274,51 +206,33 @@ export class DirectusNotificationItem {
       Schema,
       Collections.DirectusNotification
     >,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusNotification,
+      Query["fields"]
+    >,
   >(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
-  ): Promise<
-    | {
-        data:
-          | ApplyQueryFields<
-              Schema,
-              Collections.DirectusNotification,
-              Query extends undefined
-                ? ["*"]
-                : Query["fields"] extends undefined
-                  ? ["*"]
-                  : Query["fields"] extends Readonly<any[]>
-                    ? Query["fields"]
-                    : ["*"]
-            >
-          | undefined;
-        isError: false;
-        error: never;
-      }
-    | { error: Error; isError: true; data: never }
-  > {
-    return this.client
-      .request(updateDirectusNotificationItem(key, patch, query as any))
-      .then((data) => ({ data, isError: false }) as any)
-      .catch((error) => ({ error, isError: true }));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.client.request(
+        updateDirectusNotificationItem(key, patch, query),
+      ) as unknown as Promise<Output>,
+    );
   }
 
   /**
-   * Remove many items in the collection.
+   * Remove munknown items in the collection.
    */
-  async remove<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusNotification
-    >,
-  >(
+  async remove<Output = void>(
     key: Collections.DirectusNotification extends { id: number | string }
       ? Collections.DirectusNotification["id"]
       : string | number,
-  ): Promise<void> {
-    return await this.client.request(deleteDirectusNotificationItem(key));
+  ): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.client.request(deleteDirectusNotificationItem(key)) as unknown as Promise<Output>);
   }
 }

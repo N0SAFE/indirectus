@@ -4,11 +4,11 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
+import { Collections, Schema } from "../../client";
 import {
-  Collections,
-  Schema,
-} from "../../client";
-import { readDirectusSettings, updateDirectusSettings } from "@/command/DirectusSettings.command";
+  readDirectusSettings,
+  updateDirectusSettings,
+} from "@/commands/DirectusSettings.commands";
 
 type DirectusSDK = typeof DirectusSDK;
 
@@ -25,54 +25,37 @@ export class DirectusSettingsSingleton {
    * Read the singleton from the collection.
    */
   async read<
-    const Query extends Directus.Query<
+    const Query extends Directus.Query<Schema, Collections.DirectusSettings>,
+    Output = ApplyQueryFields<
       Schema,
-      Collections.DirectusSettings
+      Collections.DirectusSettings,
+      Query["fields"]
     >,
   >(
     query?: Query,
   ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusSettings,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >
+    Output
   > {
-    return (await this.client.request(readDirectusSettings(query))) as any;
+    return this.client.request(readDirectusSettings(query)) as unknown as Promise<Output>;
   }
 
   /**
    * Update the singleton from the collection.
    */
   async update<
-    const Query extends Directus.Query<
-      Schema,
-      Collections.DirectusSettings
-    >,
+    const Query extends Directus.Query<Schema, Collections.DirectusSettings>,Output = ApplyQueryFields<
+    Schema,
+    Collections.DirectusSettings,
+    Query["fields"]
+  >
   >(
     patch: Partial<Collections.DirectusSettings>,
     query?: Query,
   ): Promise<
-    ApplyQueryFields<
-      Schema,
-      Collections.DirectusSettings,
-      Query extends undefined
-        ? ["*"]
-        : Query["fields"] extends undefined
-          ? ["*"]
-          : Query["fields"] extends Readonly<any[]>
-            ? Query["fields"]
-            : ["*"]
-    >
+  Output
   > {
-    return (await this.client.request(
+    return this.client.request(
       updateDirectusSettings(patch, query),
-    )) as any;
+    ) as unknown as Promise<Output>;
   }
 }

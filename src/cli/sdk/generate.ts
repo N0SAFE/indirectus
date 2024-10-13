@@ -33,7 +33,6 @@ export default defineCommand({
     },
     token: {
       type: "string",
-      required: true,
       description: "An static token with admin role assigned.",
       default: process.env.DIRECTUS_TOKEN ?? undefined,
       valueHint: "static-token",

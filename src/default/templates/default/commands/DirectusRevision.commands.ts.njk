@@ -12,7 +12,7 @@ import { Collections, Schema } from "../client";
 export function readDirectusRevisionItems<
   const Query extends Directus.Query<
     Schema,
-    Collections.DirectusRevision
+    DirectusSDK.DirectusRevision<Schema>
   >,
 >(query?: Query): ReturnType<typeof DirectusSDK.readRevisions<Schema, Query>> {
   return DirectusSDK.readRevisions<Schema, Query>(query);
@@ -29,7 +29,7 @@ export const listDirectusRevision = readDirectusRevisionItems;
 export function readDirectusRevisionItem<
   const Query extends Directus.Query<
     Schema,
-    Collections.DirectusRevision
+    DirectusSDK.DirectusRevision<Schema>
   >,
 >(
   key: Collections.DirectusRevision extends { id: number | string }
