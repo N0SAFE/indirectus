@@ -96,7 +96,7 @@ export namespace Collections {
   {% filter comment -%}
   The resolved {{ collection.name | to_collection_text }} collection type.
   {% endfilter %}
-  export type {{ collection.name | to_collection_name }} = Directus.{{ collection.name | to_collection_name }}<System>;
+  export type {{ collection.name | to_collection_name }} = Directus.{{ collection.name | to_collection_name }}<Schema>;
 {% endif %}
 {% endfor %}
 
