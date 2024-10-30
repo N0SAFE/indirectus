@@ -1,45 +1,61 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
-
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusRelationItems,
   createDirectusRelationItem,
   deleteDirectusRelationItem,
   readDirectusRelationItem,
   readDirectusRelationItems,
   updateDirectusRelationItem,
 } from "../../commands/DirectusRelation.commands";
+import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
-export class DirectusRelationItems {
+export class DirectusRelationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read munknown items from the collection.
    */
   async query<Output = Collections.DirectusRelation[]>(): Promise<Output> {
-    return this.client.request(readDirectusRelationItems()) as unknown as Promise<Output>;
+    return this.request(
+      readDirectusRelationItems(),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_relations">,
+    Output = Directus.AggregationOutput<Schema, "directus_relations", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusRelationItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusRelationItem {
+export class DirectusRelationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -47,7 +63,7 @@ export class DirectusRelationItem {
   async create<Output = Collections.DirectusRelation>(
     item: Partial<Collections.DirectusRelation>,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusRelationItem(item),
     ) as unknown as Promise<Output>;
   }
@@ -73,7 +89,7 @@ export class DirectusRelationItem {
       : string | number,
     field: Directus.DirectusRelation<Schema>["field"],
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusRelationItem(key, field),
     ) as unknown as Promise<Output>;
   }
@@ -94,7 +110,7 @@ export class DirectusRelationItem {
     patch: Partial<Collections.DirectusRelation>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusRelationItem(collection, field, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -106,7 +122,7 @@ export class DirectusRelationItem {
     collection: Directus.DirectusRelation<Schema>["collection"],
     field: Directus.DirectusRelation<Schema>["field"],
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusRelationItem(collection, field),
     ) as unknown as Promise<Output>;
   }

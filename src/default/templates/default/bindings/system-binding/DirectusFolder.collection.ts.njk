@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusFolderItems,
   createDirectusFolderItem,
   createDirectusFolderItems,
   deleteDirectusFolderItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusFolderItem,
   updateDirectusFolderItems,
 } from "../../commands/DirectusFolder.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusFolderItems {
+export class DirectusFolderItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -40,10 +44,8 @@ export class DirectusFolderItems {
   >(
     items: Partial<Collections.DirectusFolder>[],
     query?: Query,
-  ): Promise<
-    Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       createDirectusFolderItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -58,12 +60,10 @@ export class DirectusFolderItems {
       Collections.DirectusFolder,
       Query["fields"]
     >[],
-  >(
-    query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(readDirectusFolderItems(query)) as unknown as Promise<Output>;
+  >(query?: Query): Promise<Output> {
+    return this.request(
+      readDirectusFolderItems(query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -76,18 +76,15 @@ export class DirectusFolderItems {
       Collections.DirectusFolder,
       Query["fields"]
     >,
-  >(
-    query?: Query,
-  ): Promise<
-  Output
-    | undefined
-  > {
-    return this.client.request(
-      readDirectusFolderItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+  >(query?: Query): Promise<Output | undefined> {
+    return this.client
+      .request(
+        readDirectusFolderItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
@@ -106,10 +103,8 @@ export class DirectusFolderItems {
       : string[] | number[],
     patch: Partial<Collections.DirectusFolder>,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       updateDirectusFolderItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -122,18 +117,34 @@ export class DirectusFolderItems {
       ? Collections.DirectusFolder["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(deleteDirectusFolderItems(keys)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusFolderItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_folders">,
+    Output = Directus.AggregationOutput<Schema, "directus_folders", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusFolderItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusFolderItem {
+export class DirectusFolderItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -145,13 +156,8 @@ export class DirectusFolderItem {
       Collections.DirectusFolder,
       Query["fields"]
     >,
-  >(
-    item: Partial<Collections.DirectusFolder>,
-    query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  >(item: Partial<Collections.DirectusFolder>, query?: Query): Promise<Output> {
+    return this.request(
       createDirectusFolderItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -171,10 +177,8 @@ export class DirectusFolderItem {
       ? Collections.DirectusFolder["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       readDirectusFolderItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -195,10 +199,8 @@ export class DirectusFolderItem {
       : string | number,
     patch: Partial<Collections.DirectusFolder>,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       updateDirectusFolderItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -211,6 +213,8 @@ export class DirectusFolderItem {
       ? Collections.DirectusFolder["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(deleteDirectusFolderItem(key)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusFolderItem(key),
+    ) as unknown as Promise<Output>;
   }
 }

@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusShareItems,
   createDirectusShareItem,
   createDirectusShareItems,
   deleteDirectusShareItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusShareItem,
   updateDirectusShareItems,
 } from "../../commands/DirectusShare.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusShareItems {
+export class DirectusShareItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -41,7 +45,7 @@ export class DirectusShareItems {
     items: Partial<Collections.DirectusShare>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusShareItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -57,7 +61,7 @@ export class DirectusShareItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusShareItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -100,7 +104,7 @@ export class DirectusShareItems {
     patch: Partial<Collections.DirectusShare>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusShareItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -113,20 +117,34 @@ export class DirectusShareItems {
       ? Collections.DirectusShare["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusShareItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_shares">,
+    Output = Directus.AggregationOutput<Schema, "directus_shares", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusShareItems<Options>(options),
     ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusShareItem {
+export class DirectusShareItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -139,7 +157,7 @@ export class DirectusShareItem {
       Query["fields"]
     >,
   >(item: Partial<Collections.DirectusShare>, query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusShareItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -160,7 +178,7 @@ export class DirectusShareItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusShareItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -182,7 +200,7 @@ export class DirectusShareItem {
     patch: Partial<Collections.DirectusShare>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusShareItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -195,7 +213,7 @@ export class DirectusShareItem {
       ? Collections.DirectusShare["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusShareItem(key),
     ) as unknown as Promise<Output>;
   }

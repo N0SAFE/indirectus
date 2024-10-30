@@ -2,19 +2,17 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create many directus permissions items.
  */
 export function createDirectusPermissionItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPermission
-  >,
->(items: Partial<Collections.DirectusPermission>[], query?: Query): ReturnType<typeof DirectusSDK.createPermissions<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusPermission>,
+>(
+  items: Partial<Collections.DirectusPermission>[],
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPermissions<Schema, Query>> {
   return DirectusSDK.createPermissions<Schema, Query>(items, query);
 }
 
@@ -26,7 +24,10 @@ export function createDirectusPermissionItem<
     Schema,
     Directus.DirectusPermission<Schema>
   >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusPermission>, query?: Query): ReturnType<typeof DirectusSDK.createPermission<Schema, Query>> {
+>(
+  item: Partial<Collections.DirectusPermission>,
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPermission<Schema, Query>> {
   return DirectusSDK.createPermission<Schema, Query>(item, query);
 }
 
@@ -34,11 +35,10 @@ export function createDirectusPermissionItem<
  * Read many directus permissions items.
  */
 export function readDirectusPermissionItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPermission
-  >,
->(query?: Query): ReturnType<typeof DirectusSDK.readPermissions<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusPermission>,
+>(
+  query?: Query,
+): ReturnType<typeof DirectusSDK.readPermissions<Schema, Query>> {
   return DirectusSDK.readPermissions<Schema, Query>(query);
 }
 
@@ -51,10 +51,7 @@ export const listDirectusPermission = readDirectusPermissionItems;
  * Gets a single known directus permissions item by id.
  */
 export function readDirectusPermissionItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPermission
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPermission>,
 >(
   key: Collections.DirectusPermission extends { id: number | string }
     ? Collections.DirectusPermission["id"]
@@ -84,21 +81,14 @@ export function updateDirectusPermissionItems<
   patch: Partial<Collections.DirectusPermission>,
   query?: Query,
 ): ReturnType<typeof DirectusSDK.updatePermissions<Schema, Query>> {
-  return DirectusSDK.updatePermissions<Schema, Query>(
-    keys,
-    patch,
-    query,
-  );
+  return DirectusSDK.updatePermissions<Schema, Query>(keys, patch, query);
 }
 
 /**
  * Gets a single known directus permissions item by id.
  */
 export function updateDirectusPermissionItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPermission
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPermission>,
 >(
   key: Collections.DirectusPermission extends { id: number | string }
     ? Collections.DirectusPermission["id"]
@@ -106,11 +96,7 @@ export function updateDirectusPermissionItem<
   patch: Partial<Collections.DirectusPermission>,
   query?: Query,
 ): ReturnType<typeof DirectusSDK.updatePermission<Schema, Query>> {
-  return DirectusSDK.updatePermission<Schema, Query>(
-    key,
-    patch,
-    query,
-  );
+  return DirectusSDK.updatePermission<Schema, Query>(key, patch, query);
 }
 
 /**
@@ -133,4 +119,20 @@ export function deleteDirectusPermissionItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deletePermission<Schema>> {
   return DirectusSDK.deletePermission<Schema>(key);
+}
+
+/**
+ * Aggregates directus permissions items.
+ */
+export function aggregateDirectusPermissionItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_permissions">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_permissions", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_permissions", Options>(
+    "directus_permissions",
+    option,
+  );
 }

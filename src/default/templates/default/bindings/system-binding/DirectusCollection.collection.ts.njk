@@ -4,6 +4,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusCollectionItems,
   createDirectusCollectionItem,
   deleteDirectusCollectionItem,
   readDirectusCollectionItem,
@@ -11,58 +12,85 @@ import {
   updateBatchDirectusCollectionItems,
   updateDirectusCollectionItem,
 } from "../../commands/DirectusCollection.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusCollectionItems {
+export class DirectusCollectionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read munknown items from the collection.
    */
   async query<Output = Collections.DirectusCollection[]>(): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusCollectionItems(),
     ) as unknown as Promise<Output>;
   }
 
   async updateBatch<
     const Query extends Directus.Query<Schema, Directus.DirectusCollection>,
-    Output = ApplyQueryFields<Schema, Collections.DirectusCollection, Query["fields"]>[],
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusCollection,
+      Query["fields"]
+    >[],
   >(
     items: Directus.NestedPartial<Collections.DirectusCollection>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateBatchDirectusCollectionItems(items, query),
     ) as unknown as Promise<Output>;
   }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_collections">,
+    Output = Directus.AggregationOutput<Schema, 'directus_collections', Options>,
+  >(
+    options: Options,
+  ): Promise<
+    Output
+  > {
+    return this.request(aggregateDirectusCollectionItems<Options>(options)) as unknown as Promise<Output>;
+  }
 }
 
-export class DirectusCollectionItem {
+export class DirectusCollectionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
    */
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusCollection>,
-    Output = ApplyQueryFields<Schema, Collections.DirectusCollection, Query["fields"]>,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusCollection,
+      Query["fields"]
+    >,
   >(
     item: Partial<Collections.DirectusCollection>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusCollectionItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -73,7 +101,7 @@ export class DirectusCollectionItem {
   async get<Output = ApplyQueryFields<Schema, Collections.DirectusCollection>>(
     collection: keyof Schema,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusCollectionItem(collection),
     ) as unknown as Promise<Output>;
   }
@@ -83,13 +111,17 @@ export class DirectusCollectionItem {
    */
   async update<
     const Query extends Directus.Query<Schema, Collections.DirectusCollection>,
-    Output = ApplyQueryFields<Schema, Collections.DirectusCollection, Query["fields"]>,
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusCollection,
+      Query["fields"]
+    >,
   >(
     collection: keyof Schema,
     patch: Partial<Collections.DirectusCollection>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusCollectionItem(collection, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -98,7 +130,7 @@ export class DirectusCollectionItem {
    * Remove munknown items in the collection.
    */
   async remove<Output = void>(collection: keyof Schema): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusCollectionItem(collection),
     ) as unknown as Promise<Output>;
   }

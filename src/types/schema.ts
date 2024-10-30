@@ -40,6 +40,7 @@ const ignoredCollections = [
   "directus_migrations",
   "directus_sessions",
   "directus_access",
+  "directus_comments",
 ];
 
 export async function fetchSchema(

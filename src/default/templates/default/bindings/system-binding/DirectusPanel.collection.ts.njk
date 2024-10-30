@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusPanelItems,
   createDirectusPanelItem,
   createDirectusPanelItems,
   deleteDirectusPanelItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusPanelItem,
   updateDirectusPanelItems,
 } from "../../commands/DirectusPanel.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusPanelItems {
+export class DirectusPanelItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -40,10 +44,8 @@ export class DirectusPanelItems {
   >(
     items: Partial<Collections.DirectusPanel>[],
     query?: Query,
-  ): Promise<
-    Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       createDirectusPanelItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -58,12 +60,10 @@ export class DirectusPanelItems {
       Collections.DirectusPanel,
       Query["fields"]
     >[],
-  >(
-    query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(readDirectusPanelItems(query)) as unknown as Promise<Output>;
+  >(query?: Query): Promise<Output> {
+    return this.request(
+      readDirectusPanelItems(query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -76,18 +76,15 @@ export class DirectusPanelItems {
       Collections.DirectusPanel,
       Query["fields"]
     >,
-  >(
-    query?: Query,
-  ): Promise<
-  Output
-    | undefined
-  > {
-    return this.client.request(
-      readDirectusPanelItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+  >(query?: Query): Promise<Output | undefined> {
+    return this.client
+      .request(
+        readDirectusPanelItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
@@ -106,10 +103,8 @@ export class DirectusPanelItems {
       : string[] | number[],
     patch: Partial<Collections.DirectusPanel>,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       updateDirectusPanelItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -122,18 +117,34 @@ export class DirectusPanelItems {
       ? Collections.DirectusPanel["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(deleteDirectusPanelItems(keys)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusPanelItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_panels">,
+    Output = Directus.AggregationOutput<Schema, "directus_panels", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusPanelItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusPanelItem {
+export class DirectusPanelItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -145,13 +156,8 @@ export class DirectusPanelItem {
       Collections.DirectusPanel,
       Query["fields"]
     >,
-  >(
-    item: Partial<Collections.DirectusPanel>,
-    query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  >(item: Partial<Collections.DirectusPanel>, query?: Query): Promise<Output> {
+    return this.request(
       createDirectusPanelItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -171,10 +177,8 @@ export class DirectusPanelItem {
       ? Collections.DirectusPanel["id"]
       : string | number,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       readDirectusPanelItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -195,10 +199,8 @@ export class DirectusPanelItem {
       : string | number,
     patch: Partial<Collections.DirectusPanel>,
     query?: Query,
-  ): Promise<
-  Output
-  > {
-    return this.client.request(
+  ): Promise<Output> {
+    return this.request(
       updateDirectusPanelItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -211,6 +213,8 @@ export class DirectusPanelItem {
       ? Collections.DirectusPanel["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(deleteDirectusPanelItem(key)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusPanelItem(key),
+    ) as unknown as Promise<Output>;
   }
 }

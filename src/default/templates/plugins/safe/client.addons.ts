@@ -10,8 +10,8 @@ Safe: {
 
   {% set collectionName = collection.name | to_collection_name %}
   {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
-  {% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
-  {% set applyType  = ["ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>"] | join %}
+  {% set genericQuery = ["const Query extends Directus.Query<Schema, ", collectionType, ">"] | join %}
+  {% set applyType  = ["ApplyQueryFields<Schema, ", collectionType, ", Query['fields']>"] | join %}
 
   {% if collection.is_system %}
 

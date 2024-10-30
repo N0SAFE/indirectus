@@ -2,8 +2,6 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
@@ -44,3 +42,19 @@ export function readDirectusRevisionItem<
  * Gets a single known directus revisions item by id.
  */
 export const readDirectusRevision = readDirectusRevisionItem;
+
+/**
+ * Aggregates directus revisions items.
+ */
+export function aggregateDirectusRevisionItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_revisions">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_revisions", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_revisions", Options>(
+    "directus_revisions",
+    option,
+  );
+}

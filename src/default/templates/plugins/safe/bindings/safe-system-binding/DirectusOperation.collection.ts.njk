@@ -123,7 +123,7 @@ export class DirectusOperationItems {
     keys: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
-  ): Promise<void> {
+  ): Promise<ToSafeOutput<Output>> {
     return await this.client.request(deleteDirectusOperationItems(keys));
   }
 }
@@ -212,7 +212,7 @@ export class DirectusOperationItem {
     key: Collections.DirectusOperation extends { id: number | string }
       ? Collections.DirectusOperation["id"]
       : string | number,
-  ): Promise<void> {
+  ): Promise<ToSafeOutput<Output>> {
     return await this.client.request(deleteDirectusOperationItem(key));
   }
 }

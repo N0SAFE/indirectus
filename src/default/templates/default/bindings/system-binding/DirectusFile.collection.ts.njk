@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusFileItems,
   deleteDirectusFileItem,
   deleteDirectusFileItems,
   readDirectusFileArrayBuffer,
@@ -17,17 +18,20 @@ import {
   updateDirectusFileItem,
   updateDirectusFileItems,
 } from "../../commands/DirectusFile.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusFileItems {
+export class DirectusFileItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusFile>,
@@ -104,7 +108,7 @@ export class DirectusFileItems {
       populateFormData(item);
     });
 
-    return this.client.request(
+    return this.request(
       DirectusSDK.uploadFiles<Schema, Query>(formData, query),
     ) as unknown as Promise<Output>;
   }
@@ -120,7 +124,9 @@ export class DirectusFileItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(readDirectusFileItems(query)) as unknown as Promise<Output>
+    return this.request(
+      readDirectusFileItems(query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -134,12 +140,14 @@ export class DirectusFileItems {
       Query["fields"]
     >,
   >(query?: Query): Promise<Output | undefined> {
-    return this.client.request(
-      readDirectusFileItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+    return this.client
+      .request(
+        readDirectusFileItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
@@ -159,7 +167,7 @@ export class DirectusFileItems {
     patch: Partial<Collections.DirectusFile>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusFileItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -178,7 +186,7 @@ export class DirectusFileItems {
     items: Directus.NestedPartial<Collections.DirectusFile>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateBatchDirectusFileItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -191,18 +199,36 @@ export class DirectusFileItems {
       ? Collections.DirectusFile["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(deleteDirectusFileItems(keys)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusFileItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_files">,
+    Output = Directus.AggregationOutput<Schema, 'directus_files', Options>,
+  >(
+    options: Options,
+  ): Promise<
+    Output
+  > {
+    return this.request(aggregateDirectusFileItems<Options>(options)) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusFileItem {
+export class DirectusFileItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusFile>,
@@ -277,7 +303,7 @@ export class DirectusFileItem {
 
     populateFormData(item);
 
-    return this.client.request(
+    return this.request(
       DirectusSDK.uploadFiles<Schema, Query>(formData, query),
     ) as unknown as Promise<Output>;
   }
@@ -298,7 +324,7 @@ export class DirectusFileItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusFileItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -312,7 +338,7 @@ export class DirectusFileItem {
       : string | number,
     query?: Directus.AssetsQuery,
   ) {
-    return await this.client.request(readDirectusFileArrayBuffer(key, query));
+    return await this.request(readDirectusFileArrayBuffer(key, query));
   }
 
   /**
@@ -324,7 +350,7 @@ export class DirectusFileItem {
       : string | number,
     query?: Directus.AssetsQuery,
   ) {
-    return await this.client.request(readDirectusFileBlob(key, query));
+    return await this.request(readDirectusFileBlob(key, query));
   }
 
   /**
@@ -336,7 +362,7 @@ export class DirectusFileItem {
       : string | number,
     query?: Directus.AssetsQuery,
   ) {
-    return await this.client.request(readDirectusFileStream(key, query));
+    return await this.request(readDirectusFileStream(key, query));
   }
 
   /**
@@ -356,7 +382,7 @@ export class DirectusFileItem {
     patch: Partial<Collections.DirectusFile>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusFileItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -369,6 +395,8 @@ export class DirectusFileItem {
       ? Collections.DirectusFile["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(deleteDirectusFileItem(key)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusFileItem(key),
+    ) as unknown as Promise<Output>;
   }
 }

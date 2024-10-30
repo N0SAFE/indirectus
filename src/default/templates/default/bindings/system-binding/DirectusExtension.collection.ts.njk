@@ -1,44 +1,60 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
-
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusExtensionItems,
   readDirectusExtensionItems,
   updateDirectusExtensionItem,
 } from "../../commands/DirectusExtension.commands";
+import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
-export class DirectusExtensionItems {
+export class DirectusExtensionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read munknown items from the collection.
    */
   async query<Output = Collections.DirectusExtension[]>(): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusExtensionItems(),
     ) as unknown as Promise<Output>;
   }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_extensions">,
+    Output = Directus.AggregationOutput<Schema, 'directus_extensions', Options>,
+  >(
+    options: Options,
+  ): Promise<
+    Output
+  > {
+    return this.request(aggregateDirectusExtensionItems<Options>(options)) as unknown as Promise<Output>;
+  }
 }
 
-export class DirectusExtensionItem {
+export class DirectusExtensionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Update a single item from the collection.
@@ -55,7 +71,7 @@ export class DirectusExtensionItem {
     name: string,
     data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusExtensionItem(bundle, name, data),
     ) as unknown as Promise<Output>;
   }

@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusWebhookItems,
   createDirectusWebhookItem,
   createDirectusWebhookItems,
   deleteDirectusWebhookItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusWebhookItem,
   updateDirectusWebhookItems,
 } from "../../commands/DirectusWebhook.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusWebhookItems {
+export class DirectusWebhookItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -41,7 +45,7 @@ export class DirectusWebhookItems {
     items: Partial<Collections.DirectusWebhook>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusWebhookItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -57,7 +61,7 @@ export class DirectusWebhookItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusWebhookItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -103,7 +107,7 @@ export class DirectusWebhookItems {
     patch: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusWebhookItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -116,20 +120,34 @@ export class DirectusWebhookItems {
       ? Collections.DirectusWebhook["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusWebhookItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_webhooks">,
+    Output = Directus.AggregationOutput<Schema, "directus_webhooks", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusWebhookItems<Options>(options),
     ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusWebhookItem {
+export class DirectusWebhookItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -145,7 +163,7 @@ export class DirectusWebhookItem {
     item: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusWebhookItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -166,7 +184,7 @@ export class DirectusWebhookItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusWebhookItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -188,7 +206,7 @@ export class DirectusWebhookItem {
     patch: Partial<Collections.DirectusWebhook>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusWebhookItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -201,7 +219,7 @@ export class DirectusWebhookItem {
       ? Collections.DirectusWebhook["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusWebhookItem(key),
     ) as unknown as Promise<Output>;
   }

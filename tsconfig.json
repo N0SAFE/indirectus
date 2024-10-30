@@ -9,6 +9,6 @@
       "rootDir": "src"
     },
     "exclude": ["out", "dist", "node_modules", "**/*.test.ts", "**/*.test.tsx"],
-    "include": ["**/*.ts", "**/*.tsx", "src/default/templates/default/command/DirectusActivity.command.tnjk"],
+    "include": ["**/*.ts", "**/*.tsx", "src/default/templates/default/command/DirectusActivity.command.tnjk", "src/default/templates/default/bindings/system-binding/DirectusRelation.collection...njkts"],
     "reflection": true
   }

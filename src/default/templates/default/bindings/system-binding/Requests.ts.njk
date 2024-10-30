@@ -6,8 +6,6 @@ import { ApplyQueryFields } from '../../types/ApplyQueryFields'
 
 import {
     Collections,
-    CollectionsType,
-    DirectusCommands,
     Schema,
 } from '../../client'
 
@@ -25,24 +23,17 @@ export class Requests {
         return this.client.request(DirectusSDK.acceptUserInvite(...params))
     }
     public aggregate<
-        Collection extends DirectusSDK.AllCollections<CollectionsType>,
-        Options extends Directus.AggregationOptions<
-            CollectionsType,
-            Collection
-        >,
-    >(
-        collection: Collection,
-        options: Options
-    ): Promise<
-        DirectusSDK.AggregationOutput<
-            CollectionsType,
+        Collection extends DirectusSDK.AllCollections<Schema>,
+        Options extends Directus.AggregationOptions<Schema, Collection>,
+        Output extends DirectusSDK.AggregationOutput<
+            Schema,
             Collection,
             Options
-        >[number]
-    > {
+        >[number],
+    >(collection: Collection, options: Options): Promise<Output> {
         return this.client
-            .request(DirectusSDK.aggregate(collection, options as any))
-            .then((res) => res[0]) as any
+            .request(DirectusSDK.aggregate(collection, options))
+            .then((res) => res[0]) as unknown as Promise<Output>
     }
     public authenticateShare(
         ...params: Parameters<typeof Directus.authenticateShare>
@@ -83,31 +74,25 @@ export class Requests {
         )
     }
     public importFile<
-        Schema,
         TQuery extends Directus.Query<
-            CollectionsType,
+            Schema,
             Collections.DirectusFile
         >,
+        Output = ApplyQueryFields<
+            Schema,
+            Collections.DirectusFile,
+            TQuery['fields']
+        >
     >(
         url: string,
         data?: Partial<Collections.DirectusFile>,
         query?: TQuery
     ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFile,
-            TQuery extends undefined
-                ? ['*']
-                : TQuery['fields'] extends undefined
-                  ? ['*']
-                  : TQuery['fields'] extends Readonly<any[]>
-                    ? TQuery['fields']
-                    : ['*']
-        >
+        Output
     > {
         return this.client.request(
-            DirectusSDK.importFile<CollectionsType, TQuery>(url, data, query)
-        ) as any
+            DirectusSDK.importFile<Schema, TQuery>(url, data, query)
+        ) as Promise<Output>
     }
     public inviteShare(...params: Parameters<typeof Directus.inviteShare>) {
         return this.client.request(DirectusSDK.inviteShare(...params))
@@ -129,9 +114,9 @@ export class Requests {
     public passwordReset(...params: Parameters<typeof Directus.passwordReset>) {
         return this.client.request(DirectusSDK.passwordReset(...params))
     }
-    public promoteContentVersion<Collection extends keyof CollectionsType>(
+    public promoteContentVersion<Collection extends keyof Schema>(
         ...params: Parameters<
-            typeof Directus.promoteContentVersion<CollectionsType, Collection>
+            typeof Directus.promoteContentVersion<Schema, Collection>
         >
     ) {
         return this.client.request(DirectusSDK.promoteContentVersion(...params))
@@ -185,26 +170,21 @@ export class Requests {
     }
     public uploadFiles<
         const TQuery extends Directus.Query<
-            CollectionsType,
+            Schema,
             Collections.DirectusFile
         >,
+        Output = ApplyQueryFields<
+            Schema,
+            Collections.DirectusFile,
+            TQuery['fields']
+        >
     >(
         data: FormData,
         query?: TQuery
     ): Promise<
-        ApplyQueryFields<
-            CollectionsType,
-            Collections.DirectusFile,
-            TQuery extends undefined
-                ? ['*']
-                : TQuery['fields'] extends undefined
-                  ? ['*']
-                  : TQuery['fields'] extends Readonly<any[]>
-                    ? TQuery['fields']
-                    : ['*']
-        >
+        Output
     > {
-        return this.client.request(DirectusSDK.uploadFiles<CollectionsType, TQuery>(data, query)) as any
+        return this.client.request(DirectusSDK.uploadFiles<Schema, TQuery>(data, query)) as unknown as Promise<Output>
     }
     public utilitySort(...params: Parameters<typeof Directus.utilitySort>) {
         return this.client.request(DirectusSDK.utilitySort(...params))
@@ -216,7 +196,7 @@ export class Requests {
         collection: Collection,
         format: Directus.FileFormat,
         query: TQuery,
-        file: Partial<Directus.DirectusFile<CollectionsType>>
+        file: Partial<Directus.DirectusFile<Schema>>
     ) {
         return this.client.request(
             DirectusSDK.utilsExport(collection, format, query, file)

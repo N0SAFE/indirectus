@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusVersionItems,
   createDirectusVersionItem,
   createDirectusVersionItems,
   deleteDirectusVersionItem,
@@ -15,26 +16,26 @@ import {
   updateDirectusVersionItem,
   updateDirectusVersionItems,
 } from "../../commands/DirectusVersion.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusVersionItems {
+export class DirectusVersionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
    */
   async create<
-    const Query extends DirectusSDK.Query<
-      Schema,
-      Collections.DirectusVersion
-    >,
+    const Query extends DirectusSDK.Query<Schema, Collections.DirectusVersion>,
     Output = ApplyQueryFields<
       Schema,
       Collections.DirectusVersion,
@@ -44,7 +45,7 @@ export class DirectusVersionItems {
     items: Partial<Collections.DirectusVersion>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusVersionItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -60,7 +61,7 @@ export class DirectusVersionItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusVersionItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -106,7 +107,7 @@ export class DirectusVersionItems {
     patch: Partial<Collections.DirectusVersion>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusVersionItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -119,20 +120,34 @@ export class DirectusVersionItems {
       ? Collections.DirectusVersion["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusVersionItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_versions">,
+    Output = Directus.AggregationOutput<Schema, "directus_versions", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusVersionItems<Options>(options),
     ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusVersionItem {
+export class DirectusVersionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -148,7 +163,7 @@ export class DirectusVersionItem {
     item: Partial<Collections.DirectusVersion>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusVersionItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -169,7 +184,7 @@ export class DirectusVersionItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusVersionItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -191,7 +206,7 @@ export class DirectusVersionItem {
     patch: Partial<Collections.DirectusVersion>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusVersionItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -204,7 +219,7 @@ export class DirectusVersionItem {
       ? Collections.DirectusVersion["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       deleteDirectusVersionItem(key),
     ) as unknown as Promise<Output>;
   }

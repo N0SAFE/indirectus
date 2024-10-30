@@ -2,8 +2,6 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 type DirectusSDK = typeof DirectusSDK;
@@ -16,9 +14,7 @@ export function readDirectusActivityItems<
     Schema,
     DirectusSDK.DirectusActivity<Schema>
   >,
->(
-  query?: Query,
-): ReturnType<typeof DirectusSDK.readActivities<Schema, Query>> {
+>(query?: Query): ReturnType<typeof DirectusSDK.readActivities<Schema, Query>> {
   return DirectusSDK.readActivities<Schema, Query>(query);
 }
 
@@ -48,3 +44,19 @@ export function readDirectusActivityItem<
  * Gets a single known directus activity item by id.
  */
 export const readDirectusActivity = readDirectusActivityItem;
+
+/**
+ * Aggregates directus activity items.
+ */
+export function aggregateDirectusActivityItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_activity">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_activity", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_activity", Options>(
+    "directus_activity",
+    option,
+  );
+}

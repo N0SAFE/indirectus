@@ -2,19 +2,17 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create many directus folders items.
  */
 export function createDirectusFolderItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusFolder
-  >,
->(items: Partial<Collections.DirectusFolder>[], query?: Query): ReturnType<typeof DirectusSDK.createFolders<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusFolder>,
+>(
+  items: Partial<Collections.DirectusFolder>[],
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createFolders<Schema, Query>> {
   return DirectusSDK.createFolders<Schema, Query>(items, query);
 }
 
@@ -26,7 +24,10 @@ export function createDirectusFolderItem<
     Schema,
     Directus.DirectusFolder<Schema>
   >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusFolder>, query?: Query): ReturnType<typeof DirectusSDK.createFolder<Schema, Query>> {
+>(
+  item: Partial<Collections.DirectusFolder>,
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createFolder<Schema, Query>> {
   return DirectusSDK.createFolder<Schema, Query>(item, query);
 }
 
@@ -34,10 +35,7 @@ export function createDirectusFolderItem<
  * Read many directus folders items.
  */
 export function readDirectusFolderItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusFolder
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusFolder>,
 >(query?: Query): ReturnType<typeof DirectusSDK.readFolders<Schema, Query>> {
   return DirectusSDK.readFolders<Schema, Query>(query);
 }
@@ -51,10 +49,7 @@ export const listDirectusFolder = readDirectusFolderItems;
  * Gets a single known directus folders item by id.
  */
 export function readDirectusFolderItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusFolder
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusFolder>,
 >(
   key: Collections.DirectusFolder extends { id: number | string }
     ? Collections.DirectusFolder["id"]
@@ -73,10 +68,7 @@ export const readDirectusFolder = readDirectusFolderItem;
  * Read many directus folders items.
  */
 export function updateDirectusFolderItems<
-  const Query extends Directus.Query<
-    Schema,
-    Directus.DirectusFolder<Schema>
-  >,
+  const Query extends Directus.Query<Schema, Directus.DirectusFolder<Schema>>,
 >(
   keys: Collections.DirectusFolder extends { id: number | string }
     ? Collections.DirectusFolder["id"][]
@@ -91,10 +83,7 @@ export function updateDirectusFolderItems<
  * Gets a single known directus folders item by id.
  */
 export function updateDirectusFolderItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusFolder
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusFolder>,
 >(
   key: Collections.DirectusFolder extends { id: number | string }
     ? Collections.DirectusFolder["id"]
@@ -125,4 +114,20 @@ export function deleteDirectusFolderItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deleteFolder<Schema>> {
   return DirectusSDK.deleteFolder<Schema>(key);
+}
+
+/**
+ * Aggregates directus folders items.
+ */
+export function aggregateDirectusFolderItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_folders">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_folders", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_folders", Options>(
+    "directus_folders",
+    option,
+  );
 }

@@ -2,18 +2,13 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create a single directus collections item.
  */
 export function createDirectusCollectionItem<
-  const Query extends DirectusSDK.Query<
-    Schema,
-    Collections.DirectusCollection
-  >, // Is this a mistake? Why []?
+  const Query extends DirectusSDK.Query<Schema, Collections.DirectusCollection>, // Is this a mistake? Why []?
 >(
   item: Partial<Collections.DirectusCollection>,
   query?: Query,
@@ -64,11 +59,7 @@ export function updateDirectusCollectionItem<
   patch: Partial<Collections.DirectusCollection>,
   query?: Query,
 ): ReturnType<typeof DirectusSDK.updateCollection<Schema, Query>> {
-  return DirectusSDK.updateCollection<Schema, Query>(
-    collection,
-    patch,
-    query,
-  );
+  return DirectusSDK.updateCollection<Schema, Query>(collection, patch, query);
 }
 
 /**
@@ -82,13 +73,8 @@ export function updateBatchDirectusCollectionItems<
 >(
   items: Directus.NestedPartial<Collections.DirectusCollection>[],
   query?: Query,
-): ReturnType<
-  typeof DirectusSDK.updateCollectionsBatch<Schema, Query>
-> {
-  return DirectusSDK.updateCollectionsBatch<Schema, Query>(
-    items,
-    query,
-  );
+): ReturnType<typeof DirectusSDK.updateCollectionsBatch<Schema, Query>> {
+  return DirectusSDK.updateCollectionsBatch<Schema, Query>(items, query);
 }
 
 /**
@@ -100,4 +86,20 @@ export function deleteDirectusCollectionItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deleteCollection<Schema>> {
   return DirectusSDK.deleteCollection<Schema>(key);
+}
+
+/**
+ * Aggregates directus collections items.
+ */
+export function aggregateDirectusCollectionItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_collections">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_collections", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_collections", Options>(
+    "directus_collections",
+    option,
+  );
 }

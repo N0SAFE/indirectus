@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusNotificationItems,
   createDirectusNotificationItem,
   createDirectusNotificationItems,
   deleteDirectusNotificationItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusNotificationItem,
   updateDirectusNotificationItems,
 } from "../../commands/DirectusNotification.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusNotificationItems {
+export class DirectusNotificationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -44,7 +48,7 @@ export class DirectusNotificationItems {
     items: Partial<Collections.DirectusNotification>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusNotificationItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -63,7 +67,7 @@ export class DirectusNotificationItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusNotificationItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -82,12 +86,14 @@ export class DirectusNotificationItems {
       Query["fields"]
     >,
   >(query?: Query): Promise<Output | undefined> {
-    return this.client.request(
-      readDirectusNotificationItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+    return this.client
+      .request(
+        readDirectusNotificationItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
@@ -110,7 +116,7 @@ export class DirectusNotificationItems {
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusNotificationItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -123,18 +129,34 @@ export class DirectusNotificationItems {
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(deleteDirectusNotificationItems(keys)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusNotificationItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_notifications">,
+    Output = Directus.AggregationOutput<Schema, "directus_notifications", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusNotificationItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusNotificationItem {
+export class DirectusNotificationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -153,7 +175,7 @@ export class DirectusNotificationItem {
     item: Partial<Collections.DirectusNotification>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusNotificationItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -177,7 +199,7 @@ export class DirectusNotificationItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusNotificationItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -202,7 +224,7 @@ export class DirectusNotificationItem {
     patch: Partial<Collections.DirectusNotification>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusNotificationItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -215,6 +237,8 @@ export class DirectusNotificationItem {
       ? Collections.DirectusNotification["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(deleteDirectusNotificationItem(key)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusNotificationItem(key),
+    ) as unknown as Promise<Output>;
   }
 }

@@ -2,19 +2,17 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create many directus presets items.
  */
 export function createDirectusPresetItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPreset
-  >,
->(items: Partial<Collections.DirectusPreset>[], query?: Query): ReturnType<typeof DirectusSDK.createPresets<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
+>(
+  items: Partial<Collections.DirectusPreset>[],
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPresets<Schema, Query>> {
   return DirectusSDK.createPresets<Schema, Query>(items, query);
 }
 
@@ -26,7 +24,10 @@ export function createDirectusPresetItem<
     Schema,
     Directus.DirectusPreset<Schema>
   >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusPreset>, query?: Query):  ReturnType<typeof DirectusSDK.createPreset<Schema, Query>> {
+>(
+  item: Partial<Collections.DirectusPreset>,
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPreset<Schema, Query>> {
   return DirectusSDK.createPreset<Schema, Query>(item, query);
 }
 
@@ -34,10 +35,7 @@ export function createDirectusPresetItem<
  * Read many directus presets items.
  */
 export function readDirectusPresetItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPreset
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
 >(query?: Query): ReturnType<typeof DirectusSDK.readPresets<Schema, Query>> {
   return DirectusSDK.readPresets<Schema, Query>(query);
 }
@@ -51,10 +49,7 @@ export const listDirectusPreset = readDirectusPresetItems;
  * Gets a single known directus presets item by id.
  */
 export function readDirectusPresetItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPreset
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
 >(
   key: Collections.DirectusPreset extends { id: number | string }
     ? Collections.DirectusPreset["id"]
@@ -73,10 +68,7 @@ export const readDirectusPreset = readDirectusPresetItem;
  * Read many directus presets items.
  */
 export function updateDirectusPresetItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPreset
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
 >(
   keys: Collections.DirectusPreset extends { id: number | string }
     ? Collections.DirectusPreset["id"][]
@@ -91,10 +83,7 @@ export function updateDirectusPresetItems<
  * Gets a single known directus presets item by id.
  */
 export function updateDirectusPresetItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPreset
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
 >(
   key: Collections.DirectusPreset extends { id: number | string }
     ? Collections.DirectusPreset["id"]
@@ -125,4 +114,20 @@ export function deleteDirectusPresetItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deletePreset<Schema>> {
   return DirectusSDK.deletePreset<Schema>(key);
+}
+
+/**
+ * Aggregates directus presets items.
+ */
+export function aggregateDirectusPresetItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_presets">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_presets", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_presets", Options>(
+    "directus_presets",
+    option,
+  );
 }

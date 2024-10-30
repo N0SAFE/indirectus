@@ -4,18 +4,22 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusActivityItems,
   readDirectusActivityItem,
   readDirectusActivityItems,
 } from "../../commands/DirectusActivity.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusActivityItems {
+export class DirectusActivityItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read munknown items from the collection.
@@ -28,7 +32,7 @@ export class DirectusActivityItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusActivityItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -38,10 +42,13 @@ export class DirectusActivityItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusActivity>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusActivity, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusActivity,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<Output | undefined> {
-    return this.client
+    return this
       .request(
         readDirectusActivityItems({
           ...query,
@@ -50,16 +57,32 @@ export class DirectusActivityItems {
       )
       .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_activity">,
+    Output = Directus.AggregationOutput<Schema, 'directus_activity', Options>,
+  >(
+    options: Options,
+  ): Promise<
+    Output
+  > {
+    return this.request(aggregateDirectusActivityItems<Options>(options)) as unknown as Promise<Output>;
+  }
 }
 
-export class DirectusActivityItem {
+export class DirectusActivityItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read a single item from the collection.
@@ -77,7 +100,7 @@ export class DirectusActivityItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusActivityItem(key, query),
     ) as unknown as Promise<Output>;
   }

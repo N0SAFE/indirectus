@@ -2,9 +2,7 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
-import { Collections, Schema } from "../client";
+import { Schema } from "../client";
 
 /**
  * Read munknown directus extensions items.
@@ -29,4 +27,20 @@ export function updateDirectusExtensionItem(
   data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
 ): ReturnType<typeof DirectusSDK.updateExtension<Schema>> {
   return DirectusSDK.updateExtension<Schema>(bundle, name, data);
+}
+
+/**
+ * Aggregates directus extensions items.
+ */
+export function aggregateDirectusExtensionItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_extensions">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_extensions", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_extensions", Options>(
+    "directus_extensions",
+    option,
+  );
 }

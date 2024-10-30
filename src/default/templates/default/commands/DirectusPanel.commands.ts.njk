@@ -2,19 +2,17 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create many directus panels items.
  */
 export function createDirectusPanelItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPanel
-  >,
->(items: Partial<Collections.DirectusPanel>[], query?: Query): ReturnType<typeof DirectusSDK.createPanels<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusPanel>,
+>(
+  items: Partial<Collections.DirectusPanel>[],
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPanels<Schema, Query>> {
   return DirectusSDK.createPanels<Schema, Query>(items, query);
 }
 
@@ -22,11 +20,11 @@ export function createDirectusPanelItems<
  * Create a single directus panels item.
  */
 export function createDirectusPanelItem<
-  const Query extends DirectusSDK.Query<
-    Schema,
-    Directus.DirectusPanel<Schema>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusPanel>, query?: Query): ReturnType<typeof DirectusSDK.createPanel<Schema, Query>> {
+  const Query extends DirectusSDK.Query<Schema, Directus.DirectusPanel<Schema>>, // Is this a mistake? Why []?
+>(
+  item: Partial<Collections.DirectusPanel>,
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createPanel<Schema, Query>> {
   return DirectusSDK.createPanel<Schema, Query>(item, query);
 }
 
@@ -34,10 +32,7 @@ export function createDirectusPanelItem<
  * Read many directus panels items.
  */
 export function readDirectusPanelItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPanel
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPanel>,
 >(query?: Query): ReturnType<typeof DirectusSDK.readPanels<Schema, Query>> {
   return DirectusSDK.readPanels<Schema, Query>(query);
 }
@@ -51,10 +46,7 @@ export const listDirectusPanel = readDirectusPanelItems;
  * Gets a single known directus panels item by id.
  */
 export function readDirectusPanelItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPanel
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPanel>,
 >(
   key: Collections.DirectusPanel extends { id: number | string }
     ? Collections.DirectusPanel["id"]
@@ -73,10 +65,7 @@ export const readDirectusPanel = readDirectusPanelItem;
  * Read many directus panels items.
  */
 export function updateDirectusPanelItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPanel
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPanel>,
 >(
   keys: Collections.DirectusPanel extends { id: number | string }
     ? Collections.DirectusPanel["id"][]
@@ -91,10 +80,7 @@ export function updateDirectusPanelItems<
  * Gets a single known directus panels item by id.
  */
 export function updateDirectusPanelItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusPanel
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusPanel>,
 >(
   key: Collections.DirectusPanel extends { id: number | string }
     ? Collections.DirectusPanel["id"]
@@ -125,4 +111,20 @@ export function deleteDirectusPanelItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deletePanel<Schema>> {
   return DirectusSDK.deletePanel<Schema>(key);
+}
+
+/**
+ * Aggregates directus panels items.
+ */
+export function aggregateDirectusPanelItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_panels">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_panels", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_panels", Options>(
+    "directus_panels",
+    option,
+  );
 }

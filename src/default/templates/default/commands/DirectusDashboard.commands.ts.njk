@@ -2,18 +2,13 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
  * Create munknown directus dashboards items.
  */
 export function createDirectusDashboardItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusDashboard
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
 >(
   items: Partial<Collections.DirectusDashboard>[],
   query?: Query,
@@ -40,13 +35,8 @@ export function createDirectusDashboardItem<
  * Read munknown directus dashboards items.
  */
 export function readDirectusDashboardItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusDashboard
-  >,
->(
-  query?: Query,
-): ReturnType<typeof DirectusSDK.readDashboards<Schema, Query>> {
+  const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
+>(query?: Query): ReturnType<typeof DirectusSDK.readDashboards<Schema, Query>> {
   return DirectusSDK.readDashboards<Schema, Query>(query);
 }
 
@@ -59,10 +49,7 @@ export const listDirectusDashboard = readDirectusDashboardItems;
  * Gets a single known directus dashboards item by id.
  */
 export function readDirectusDashboardItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusDashboard
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
 >(
   key: Collections.DirectusDashboard extends { id: number | string }
     ? Collections.DirectusDashboard["id"]
@@ -81,10 +68,7 @@ export const readDirectusDashboard = readDirectusDashboardItem;
  * Read munknown directus dashboards items.
  */
 export function updateDirectusDashboardItems<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusDashboard
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
 >(
   keys: Collections.DirectusDashboard extends { id: number | string }
     ? Collections.DirectusDashboard["id"][]
@@ -92,21 +76,14 @@ export function updateDirectusDashboardItems<
   patch: Partial<Collections.DirectusDashboard>,
   query?: Query,
 ): ReturnType<typeof DirectusSDK.updateDashboards<Schema, Query>> {
-  return DirectusSDK.updateDashboards<Schema, Query>(
-    keys,
-    patch,
-    query,
-  );
+  return DirectusSDK.updateDashboards<Schema, Query>(keys, patch, query);
 }
 
 /**
  * Gets a single known directus dashboards item by id.
  */
 export function updateDirectusDashboardItem<
-  const Query extends Directus.Query<
-    Schema,
-    Collections.DirectusDashboard
-  >,
+  const Query extends Directus.Query<Schema, Collections.DirectusDashboard>,
 >(
   key: Collections.DirectusDashboard extends { id: number | string }
     ? Collections.DirectusDashboard["id"]
@@ -137,4 +114,20 @@ export function deleteDirectusDashboardItem(
     : string | number,
 ) {
   return DirectusSDK.deleteDashboard<Schema>(key);
+}
+
+/**
+ * Aggregates directus dashboards items.
+ */
+export function aggregateDirectusDashboardItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_dashboards">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_dashboards", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_dashboards", Options>(
+    "directus_dashboards",
+    option,
+  );
 }

@@ -2,8 +2,6 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
@@ -11,7 +9,10 @@ import { Collections, Schema } from "../client";
  */
 export function createDirectusRoleItems<
   const Query extends Directus.Query<Schema, Collections.DirectusRole>,
->(items: Partial<Collections.DirectusRole>[], query?: Query): ReturnType<typeof DirectusSDK.createRoles<Schema, Query>> {
+>(
+  items: Partial<Collections.DirectusRole>[],
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createRoles<Schema, Query>> {
   return DirectusSDK.createRoles<Schema, Query>(items, query);
 }
 
@@ -19,11 +20,11 @@ export function createDirectusRoleItems<
  * Create a single directus roles item.
  */
 export function createDirectusRoleItem<
-  const Query extends DirectusSDK.Query<
-    Schema,
-    Directus.DirectusRole<Schema>
-  >, // Is this a mistake? Why []?
->(item: Partial<Collections.DirectusRole>, query?: Query): ReturnType<typeof DirectusSDK.createRole<Schema, Query>> {
+  const Query extends DirectusSDK.Query<Schema, Directus.DirectusRole<Schema>>, // Is this a mistake? Why []?
+>(
+  item: Partial<Collections.DirectusRole>,
+  query?: Query,
+): ReturnType<typeof DirectusSDK.createRole<Schema, Query>> {
   return DirectusSDK.createRole<Schema, Query>(item, query);
 }
 
@@ -110,4 +111,20 @@ export function deleteDirectusRoleItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deleteRole<Schema>> {
   return DirectusSDK.deleteRole<Schema>(key);
+}
+
+/**
+ * Aggregates directus roles items.
+ */
+export function aggregateDirectusRoleItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_roles">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_roles", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_roles", Options>(
+    "directus_roles",
+    option,
+  );
 }

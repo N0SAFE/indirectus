@@ -6,6 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusPermissionItems,
   createDirectusPermissionItem,
   createDirectusPermissionItems,
   deleteDirectusPermissionItem,
@@ -15,17 +16,20 @@ import {
   updateDirectusPermissionItem,
   updateDirectusPermissionItems,
 } from "../../commands/DirectusPermission.commands";
+import ChainableBinding from "../chainable-bindable";
 
 type DirectusSDK = typeof DirectusSDK;
 
-export class DirectusPermissionItems {
+export class DirectusPermissionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -44,7 +48,7 @@ export class DirectusPermissionItems {
     items: Partial<Collections.DirectusPermission>[],
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusPermissionItems(items, query),
     ) as unknown as Promise<Output>;
   }
@@ -60,7 +64,7 @@ export class DirectusPermissionItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusPermissionItems(query),
     ) as unknown as Promise<Output>;
   }
@@ -76,12 +80,14 @@ export class DirectusPermissionItems {
       Query["fields"]
     >,
   >(query?: Query): Promise<Output | undefined> {
-    return this.client.request(
-      readDirectusPermissionItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+    return this.client
+      .request(
+        readDirectusPermissionItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
   }
 
   /**
@@ -104,7 +110,7 @@ export class DirectusPermissionItems {
     patch: Partial<Collections.DirectusPermission>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusPermissionItems(keys, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -117,18 +123,34 @@ export class DirectusPermissionItems {
       ? Collections.DirectusPermission["id"][]
       : string[] | number[],
   ): Promise<Output> {
-    return this.client.request(deleteDirectusPermissionItems(keys)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusPermissionItems(keys),
+    ) as unknown as Promise<Output>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_permissions">,
+    Output = Directus.AggregationOutput<Schema, "directus_permissions", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusPermissionItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusPermissionItem {
+export class DirectusPermissionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Create a single item in the collection.
@@ -144,7 +166,7 @@ export class DirectusPermissionItem {
     item: Partial<Collections.DirectusPermission>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       createDirectusPermissionItem(item, query),
     ) as unknown as Promise<Output>;
   }
@@ -165,7 +187,7 @@ export class DirectusPermissionItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusPermissionItem(key, query),
     ) as unknown as Promise<Output>;
   }
@@ -187,7 +209,7 @@ export class DirectusPermissionItem {
     patch: Partial<Collections.DirectusPermission>,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       updateDirectusPermissionItem(key, patch, query),
     ) as unknown as Promise<Output>;
   }
@@ -200,6 +222,8 @@ export class DirectusPermissionItem {
       ? Collections.DirectusPermission["id"]
       : string | number,
   ): Promise<Output> {
-    return this.client.request(deleteDirectusPermissionItem(key)) as unknown as Promise<Output>;
+    return this.request(
+      deleteDirectusPermissionItem(key),
+    ) as unknown as Promise<Output>;
   }
 }

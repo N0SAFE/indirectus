@@ -9,7 +9,7 @@ import * as DirectusSDK from "@directus/sdk";
 
 import {
   Collections,
-  CollectionsType,
+  Schema,
 } from "../client";
 
 type DirectusSDK = typeof DirectusSDK
@@ -17,9 +17,9 @@ type DirectusSDK = typeof DirectusSDK
 {% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}
 {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
-{% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
-{% set genericQueryArray = ["const Query extends Directus.Query<CollectionsType, ", collectionType, "[]>"] | join %}
-{% set applyType  = ["ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>"] | join %}
+{% set genericQuery = ["const Query extends Directus.Query<Schema, ", collectionType, ">"] | join %}
+{% set genericQueryArray = ["const Query extends Directus.Query<Schema, ", collectionType, "[]>"] | join %}
+{% set applyType  = ["ApplyQueryFields<Schema, ", collectionType, ", Query['fields']>"] | join %}
 
 
 {% if collection.is_singleton %}
@@ -29,8 +29,8 @@ type DirectusSDK = typeof DirectusSDK
  */
 export function read{{ collectionName }}<
   {{ genericQuery }},
->(query?: Query): ReturnType<typeof DirectusSDK.readSingleton<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.readSingleton<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", query);
+>(query?: Query): ReturnType<typeof DirectusSDK.readSingleton<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.readSingleton<Schema, {{ collectionString }}, Query>("{{ collection.name }}", query);
 }
 
 /**
@@ -43,8 +43,8 @@ export const get{{ collectionName }} = read{{ collectionName }};
  */
 export function update{{ collectionName }}<
   {{ genericQuery }},
->(patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateSingleton<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.updateSingleton<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", patch, query);
+>(patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateSingleton<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.updateSingleton<Schema, {{ collectionString }}, Query>("{{ collection.name }}", patch, query);
 }
 
 {% else %}
@@ -54,17 +54,17 @@ export function update{{ collectionName }}<
  */
 export function create{{ collectionName }}Items<
   {{ genericQueryArray }}
->(items: Partial<{{ collectionType }}>[], query?: Query): ReturnType<typeof DirectusSDK.createItems<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.createItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
+>(items: Partial<{{ collectionType }}>[], query?: Query): ReturnType<typeof DirectusSDK.createItems<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.createItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
 }
 
 /**
  * Create a single {{ collection.name | to_collection_text }} item.
  */
 export function create{{ collectionName }}Item<
-  const Query extends DirectusSDK.Query<CollectionsType, {{ collectionType }}[]> // Is this a mistake? Why []?
->(item: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.createItem<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.createItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", item, query);
+  const Query extends DirectusSDK.Query<Schema, {{ collectionType }}[]> // Is this a mistake? Why []?
+>(item: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.createItem<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.createItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", item, query);
 }
 
 /**
@@ -72,8 +72,8 @@ export function create{{ collectionName }}Item<
  */
 export function read{{ collectionName }}Items<
   {{ genericQuery }},
->(query?: Query): ReturnType<typeof DirectusSDK.readItems<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.readItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", query);
+>(query?: Query): ReturnType<typeof DirectusSDK.readItems<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.readItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", query);
 }
 
 /**
@@ -86,8 +86,8 @@ export const list{{ collectionName }} = read{{ collectionName }}Items;
  */
 export function read{{ collectionName }}Item<
   {{ genericQuery }},
->(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query): ReturnType<typeof DirectusSDK.readItem<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.readItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", key, query);
+>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query): ReturnType<typeof DirectusSDK.readItem<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.readItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", key, query);
 }
 
 /**
@@ -100,8 +100,8 @@ export const read{{ collectionName }} = read{{ collectionName }}Item;
  */
 export function update{{ collectionName }}Items<
   {{ genericQueryArray }},
->(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateItems<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.updateItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", keys, patch, query);
+>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateItems<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.updateItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", keys, patch, query);
 }
 
 /**
@@ -109,8 +109,8 @@ export function update{{ collectionName }}Items<
  */
 export function update{{ collectionName }}ItemsBatch<
   {{ genericQueryArray }},
-> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): ReturnType<typeof DirectusSDK.updateItemsBatch<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.updateItemsBatch<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
+> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): ReturnType<typeof DirectusSDK.updateItemsBatch<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.updateItemsBatch<Schema, {{ collectionString }}, Query>("{{ collection.name }}", items, query);
 }
 
 /**
@@ -118,8 +118,8 @@ export function update{{ collectionName }}ItemsBatch<
  */
 export function update{{ collectionName }}Item<
   {{ genericQueryArray }},
->(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateItem<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.updateItem<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", key, patch, query);
+>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): ReturnType<typeof DirectusSDK.updateItem<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.updateItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", key, patch, query);
 }
 
 /**
@@ -127,16 +127,31 @@ export function update{{ collectionName }}Item<
  */
 export function delete{{ collectionName }}Items<
   {{ genericQueryArray }},
->(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): ReturnType<typeof DirectusSDK.deleteItems<CollectionsType, {{ collectionString }}, Query>> {
-  return DirectusSDK.deleteItems<CollectionsType, {{ collectionString }}, Query>("{{ collection.name }}", keys);
+>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): ReturnType<typeof DirectusSDK.deleteItems<Schema, {{ collectionString }}, Query>> {
+  return DirectusSDK.deleteItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", keys);
 }
 
 /**
  * Deletes a single known {{ collection.name | to_collection_text }} item by id.
  */
-export function delete{{ collectionName }}Item(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number): ReturnType<typeof DirectusSDK.deleteItem<CollectionsType, {{ collectionString }}>> {
-  return DirectusSDK.deleteItem<CollectionsType, {{ collectionString }}>("{{ collection.name }}", key);
+export function delete{{ collectionName }}Item(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number): ReturnType<typeof DirectusSDK.deleteItem<Schema, {{ collectionString }}>> {
+  return DirectusSDK.deleteItem<Schema, {{ collectionString }}>("{{ collection.name }}", key);
 }
+
+/**
+ * Aggregates {{ collection.name | to_collection_text }} items.
+ */
+export function aggregate{{ collectionName }}Item<
+  Options extends Directus.AggregationOptions<Schema, "{{ collection.name }}">,
+>(
+  option: Options,
+): ReturnType<typeof DirectusSDK.aggregate<Schema, "{{ collection.name }}", Options>> {
+  return DirectusSDK.aggregate<Schema, "{{ collection.name }}", Options>(
+    "{{ collection.name }}",
+    option,
+  );
+}
+
 
 {% endif %}`;
 

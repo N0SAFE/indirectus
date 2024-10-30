@@ -8,15 +8,15 @@ import * as DirectusSDK from "@directus/sdk";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { CollectionsType } from "../../client";
+import { Schema } from "../../client";
 
 export interface TypedCollectionSingletonWrapper<Collection extends object> {
   /**
    * Reads the singleton.
    */
   read<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     query?: Query,
   ): Promise<Output>;
@@ -25,8 +25,8 @@ export interface TypedCollectionSingletonWrapper<Collection extends object> {
    * Updates the singleton.
    */
   update<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     patch: Partial<Collection>,
     query?: Query,
@@ -38,8 +38,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * Creates many items in the collection.
    */
   create<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection[]>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+    const Query extends DirectusSDK.Query<Schema, Collection[]>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>[],
   >(
     items: Partial<Collection>[],
     query?: Query,
@@ -49,8 +49,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * Read many items from the collection.
    */
   query<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>[],
   >(
     query?: Query,
   ): Promise<Output>;
@@ -59,8 +59,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * Read the first item from the collection matching the query.
    */
   find<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     query?: Query,
   ): Promise<Output | undefined>;
@@ -69,8 +69,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * Update many items in the collection.
    */
   update<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection[]>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+    const Query extends DirectusSDK.Query<Schema, Collection[]>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>[],
   >(
     keys: string[] | number[],
     patch: Partial<Collection>,
@@ -81,8 +81,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * update many items with batch
    */
   updateBatch<
-    const Query extends Directus.Query<CollectionsType, Collection[]>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>[],
+    const Query extends Directus.Query<Schema, Collection[]>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>[],
   >(
     items: Partial<Directus.UnpackList<Collection>>[],
     query?: Query,
@@ -99,8 +99,8 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
    * Create a single item in the collection.
    */
   create<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     item: Partial<Collection>,
     query?: Query,
@@ -110,8 +110,8 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
    * Read a single item from the collection.
    */
   get<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     key: string | number,
     query?: Query,
@@ -121,8 +121,8 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
    * Update a single item from the collection.
    */
   update<
-    const Query extends DirectusSDK.Query<CollectionsType, Collection>,
-    Output = ApplyQueryFields<CollectionsType, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection>,
+    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
   >(
     key: string | number,
     patch: Partial<Collection>,
@@ -139,10 +139,10 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
   const perCollection = `{% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}
 {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
-{% set genericQuery = ["const Query extends Directus.Query<CollectionsType, ", collectionType, ">"] | join %}
-{% set genericQueryArray = ["const Query extends Directus.Query<CollectionsType, ", collectionType, "[]>"] | join %}
-{% set genericOutput = ["Output = ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>"] | join %}
-{% set genericOutputArray = ["Output = ApplyQueryFields<CollectionsType, ", collectionType, ", Query['fields']>[]"] | join %}
+{% set genericQuery = ["const Query extends Directus.Query<Schema, ", collectionType, ">"] | join %}
+{% set genericQueryArray = ["const Query extends Directus.Query<Schema, ", collectionType, "[]>"] | join %}
+{% set genericOutput = ["Output = ApplyQueryFields<Schema, ", collectionType, ", Query['fields']>"] | join %}
+{% set genericOutputArray = ["Output = ApplyQueryFields<Schema, ", collectionType, ", Query['fields']>[]"] | join %}
 {% set genericOutputVoid = "Output = void" %}
 {% set applyType  = "Output" %}
 
@@ -152,7 +152,6 @@ import { ApplyQueryFields } from '../../types/ApplyQueryFields'
 
 import {
     Collections,
-    CollectionsType,
     Schema,
 } from '../../client'
 

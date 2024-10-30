@@ -2,8 +2,6 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../types/ApplyQueryFields";
-
 import { Collections, Schema } from "../client";
 
 /**
@@ -22,10 +20,7 @@ export function createDirectusVersionItems<
  * Create a single directus versions item.
  */
 export function createDirectusVersionItem<
-  const Query extends DirectusSDK.Query<
-    Schema,
-    Collections.DirectusVersion
-  >, // Is this a mistake? Why []?
+  const Query extends DirectusSDK.Query<Schema, Collections.DirectusVersion>, // Is this a mistake? Why []?
 >(
   item: Partial<Collections.DirectusVersion>,
   query?: Query,
@@ -72,10 +67,7 @@ export const readDirectusVersion = readDirectusVersionItem;
  * Read many directus versions items.
  */
 export function updateDirectusVersionItems<
-  const Query extends Directus.Query<
-    Schema,
-    Directus.DirectusVersion<Schema>
-  >,
+  const Query extends Directus.Query<Schema, Directus.DirectusVersion<Schema>>,
 >(
   keys: Collections.DirectusVersion extends { id: number | string }
     ? Collections.DirectusVersion["id"][]
@@ -121,4 +113,20 @@ export function deleteDirectusVersionItem(
     : string | number,
 ): ReturnType<typeof DirectusSDK.deleteContentVersion<Schema>> {
   return DirectusSDK.deleteContentVersion<Schema>(key);
+}
+
+/**
+ * Aggregates directus versions items.
+ */
+export function aggregateDirectusVersionItems<
+  Options extends Directus.AggregationOptions<Schema, "directus_versions">,
+>(
+  option: Options,
+): ReturnType<
+  typeof DirectusSDK.aggregate<Schema, "directus_versions", Options>
+> {
+  return DirectusSDK.aggregate<Schema, "directus_versions", Options>(
+    "directus_versions",
+    option,
+  );
 }

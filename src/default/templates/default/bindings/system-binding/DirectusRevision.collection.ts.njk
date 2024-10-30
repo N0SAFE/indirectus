@@ -1,23 +1,25 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
-
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 import {
+  aggregateDirectusRevisionItems,
   readDirectusRevisionItem,
   readDirectusRevisionItems,
 } from "../../commands/DirectusRevision.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusRevisionItems {
+export class DirectusRevisionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read munknown items from the collection.
@@ -30,7 +32,9 @@ export class DirectusRevisionItems {
       Query["fields"]
     >[],
   >(query?: Query): Promise<Output> {
-    return this.client.request(readDirectusRevisionItems(query)) as unknown as Promise<Output>;
+    return this.request(
+      readDirectusRevisionItems(query),
+    ) as unknown as Promise<Output>;
   }
 
   /**
@@ -44,23 +48,39 @@ export class DirectusRevisionItems {
       Query["fields"]
     >,
   >(query?: Query): Promise<Output | undefined> {
-    return this.client.request(
-      readDirectusRevisionItems({
-        ...query,
-        limit: 1,
-      }),
-    ).then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+    return this.client
+      .request(
+        readDirectusRevisionItems({
+          ...query,
+          limit: 1,
+        }),
+      )
+      .then((items) => items?.[0]) as unknown as Promise<Output | undefined>;
+  }
+  
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_revisions">,
+    Output = Directus.AggregationOutput<Schema, "directus_revisions", Options>,
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusRevisionItems<Options>(options),
+    ) as unknown as Promise<Output>;
   }
 }
 
-export class DirectusRevisionItem {
+export class DirectusRevisionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
-  ) {}
+  ) {
+    super(client)
+  }
 
   /**
    * Read a single item from the collection.
@@ -78,7 +98,7 @@ export class DirectusRevisionItem {
       : string | number,
     query?: Query,
   ): Promise<Output> {
-    return this.client.request(
+    return this.request(
       readDirectusRevisionItem(key, query),
     ) as unknown as Promise<Output>;
   }
