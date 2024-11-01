@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusOperationItem,
   createDirectusOperationItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusOperationItem,
   updateDirectusOperationItems,
 } from "../../commands/DirectusOperation.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusOperationItems {
+export class DirectusOperationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -45,7 +47,7 @@ export class DirectusOperationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusOperationItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -63,7 +65,7 @@ export class DirectusOperationItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusOperationItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -74,8 +76,11 @@ export class DirectusOperationItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusOperation>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusOperation, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusOperation,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -110,7 +115,7 @@ export class DirectusOperationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusOperationItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -124,18 +129,19 @@ export class DirectusOperationItems {
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return await this.client.request(deleteDirectusOperationItems(keys));
+    return toSafe(this.request(deleteDirectusOperationItems(keys))as unknown as Promise<Output>);
   }
 }
 
-export class DirectusOperationItem {
+export class DirectusOperationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -152,7 +158,7 @@ export class DirectusOperationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusOperationItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -175,7 +181,7 @@ export class DirectusOperationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusOperationItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -199,7 +205,7 @@ export class DirectusOperationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusOperationItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -213,6 +219,6 @@ export class DirectusOperationItem {
       ? Collections.DirectusOperation["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return await this.client.request(deleteDirectusOperationItem(key));
+    return toSafe(this.request(deleteDirectusOperationItem(key)) as unknown as Promise<Output>);
   }
 }

@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusNotificationItem,
   createDirectusNotificationItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusNotificationItem,
   updateDirectusNotificationItems,
 } from "../../commands/DirectusNotification.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusNotificationItems {
+export class DirectusNotificationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -45,7 +47,7 @@ export class DirectusNotificationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusNotificationItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -66,7 +68,7 @@ export class DirectusNotificationItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusNotificationItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -121,7 +123,7 @@ export class DirectusNotificationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusNotificationItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -135,18 +137,23 @@ export class DirectusNotificationItems {
       ? Collections.DirectusNotification["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusNotificationItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusNotificationItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusNotificationItem {
+export class DirectusNotificationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -166,7 +173,7 @@ export class DirectusNotificationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusNotificationItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -192,7 +199,7 @@ export class DirectusNotificationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusNotificationItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -219,7 +226,7 @@ export class DirectusNotificationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusNotificationItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -233,6 +240,10 @@ export class DirectusNotificationItem {
       ? Collections.DirectusNotification["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusNotificationItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusNotificationItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

@@ -37,7 +37,7 @@
     "version": "changeset version",
     "release": "npm publish --access public",
     "ci": "npm run version && npm run build && npm run release",
-    "test": "node ./src/cli/index.js sdk generate --url http://127.0.0.1:8055/ --dir ./.directus/src --outputDir ./.directus/src"
+    "test": "node ./src/cli/index.js sdk generate --url http://127.0.0.1:8055/ --dir ./.directus/src --outputDir ./.directus/src "
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",

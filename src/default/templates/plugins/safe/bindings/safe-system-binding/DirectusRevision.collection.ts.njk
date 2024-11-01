@@ -4,20 +4,22 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   readDirectusRevisionItem,
   readDirectusRevisionItems,
 } from "../../commands/DirectusRevision.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusRevisionItems {
+export class DirectusRevisionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read munknown items from the collection.
@@ -31,7 +33,7 @@ export class DirectusRevisionItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRevisionItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -42,8 +44,11 @@ export class DirectusRevisionItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusRevision>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusRevision, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusRevision,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -58,14 +63,15 @@ export class DirectusRevisionItems {
   }
 }
 
-export class DirectusRevisionItem {
+export class DirectusRevisionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read a single item from the collection.
@@ -84,7 +90,7 @@ export class DirectusRevisionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRevisionItem(key, query),
       ) as unknown as Promise<Output>,
     );

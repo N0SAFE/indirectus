@@ -4,7 +4,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusRelationItem,
   deleteDirectusRelationItem,
@@ -12,15 +12,17 @@ import {
   readDirectusRelationItems,
   updateDirectusRelationItem,
 } from "../../commands/DirectusRelation.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusRelationItems {
+export class DirectusRelationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read munknown items from the collection.
@@ -29,21 +31,22 @@ export class DirectusRelationItems {
     Output = ApplyQueryFields<Schema, Collections.DirectusRelation>[],
   >(): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRelationItems(),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusRelationItem {
+export class DirectusRelationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -52,7 +55,7 @@ export class DirectusRelationItem {
     item: Partial<Collections.DirectusRelation>,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusRelationItem(item),
       ) as unknown as Promise<Output>,
     );
@@ -68,7 +71,7 @@ export class DirectusRelationItem {
     field: Directus.DirectusRelation<Schema>["field"],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRelationItem(key, field),
       ) as unknown as Promise<Output>,
     );
@@ -91,7 +94,7 @@ export class DirectusRelationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusRelationItem(collection, field, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -105,7 +108,7 @@ export class DirectusRelationItem {
     field: Directus.DirectusRelation<Schema>["field"],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusRelationItem(collection, field),
       ) as unknown as Promise<Output>,
     );

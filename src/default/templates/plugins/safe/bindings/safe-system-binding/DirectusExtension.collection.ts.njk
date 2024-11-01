@@ -4,20 +4,22 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   readDirectusExtensionItems,
   updateDirectusExtensionItem,
 } from "../../commands/DirectusExtension.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusExtensionItems {
+export class DirectusExtensionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read munknown items from the collection.
@@ -26,21 +28,22 @@ export class DirectusExtensionItems {
     ToSafeOutput<Output>
   > {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusExtensionItems(),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusExtensionItem {
+export class DirectusExtensionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Update a single item from the collection.
@@ -58,7 +61,7 @@ export class DirectusExtensionItem {
     data: Directus.NestedPartial<Directus.DirectusExtension<Schema>>,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusExtensionItem(bundle, name, data),
       ) as unknown as Promise<Output>,
     );

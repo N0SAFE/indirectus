@@ -4,7 +4,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusCollectionItem,
   deleteDirectusCollectionItem,
@@ -13,15 +13,17 @@ import {
   updateBatchDirectusCollectionItems,
   updateDirectusCollectionItem,
 } from "../../commands/DirectusCollection.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusCollectionItems {
+export class DirectusCollectionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read munknown items from the collection.
@@ -30,7 +32,7 @@ export class DirectusCollectionItems {
     ToSafeOutput<Output>
   > {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusCollectionItems(),
       ) as unknown as Promise<Output>,
     );
@@ -48,21 +50,22 @@ export class DirectusCollectionItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateBatchDirectusCollectionItems(items, query),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusCollectionItem {
+export class DirectusCollectionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -79,7 +82,7 @@ export class DirectusCollectionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusCollectionItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -92,7 +95,7 @@ export class DirectusCollectionItem {
     collection: keyof Schema,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusCollectionItem(collection),
       ) as unknown as Promise<Output>,
     );
@@ -114,7 +117,7 @@ export class DirectusCollectionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusCollectionItem(collection, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -123,9 +126,13 @@ export class DirectusCollectionItem {
   /**
    * Remove munknown items in the collection.
    */
-  async remove<Output = void>(collection: keyof Schema): Promise<ToSafeOutput<Output>> {
+  async remove<Output = void>(
+    collection: keyof Schema,
+  ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(deleteDirectusCollectionItem(collection)) as unknown as Promise<Output>,
-    )
+      this.request(
+        deleteDirectusCollectionItem(collection),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

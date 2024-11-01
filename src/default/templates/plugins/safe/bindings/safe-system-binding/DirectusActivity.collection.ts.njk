@@ -4,23 +4,23 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 
 import {
   readDirectusActivityItem,
   readDirectusActivityItems,
 } from "../../commands/DirectusActivity.commands";
+import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
-export class DirectusActivityItems {
+export class DirectusActivityItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read munknown items from the collection.
@@ -34,7 +34,7 @@ export class DirectusActivityItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusActivityItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -45,8 +45,11 @@ export class DirectusActivityItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusActivity>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusActivity, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusActivity,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -61,14 +64,15 @@ export class DirectusActivityItems {
   }
 }
 
-export class DirectusActivityItem {
+export class DirectusActivityItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read a single item from the collection.
@@ -87,7 +91,7 @@ export class DirectusActivityItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusActivityItem(key, query),
       ) as unknown as Promise<Output>,
     );

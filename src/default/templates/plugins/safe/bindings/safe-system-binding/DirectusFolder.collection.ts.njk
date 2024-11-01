@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusFolderItem,
   createDirectusFolderItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusFolderItem,
   updateDirectusFolderItems,
 } from "../../commands/DirectusFolder.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusFolderItems {
+export class DirectusFolderItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -42,7 +44,7 @@ export class DirectusFolderItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusFolderItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusFolderItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFolderItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusFolderItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusFolder>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusFolder, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusFolder,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -104,7 +109,7 @@ export class DirectusFolderItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusFolderItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -118,18 +123,23 @@ export class DirectusFolderItems {
       ? Collections.DirectusFolder["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusFolderItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusFolderItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusFolderItem {
+export class DirectusFolderItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -146,7 +156,7 @@ export class DirectusFolderItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusFolderItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -169,7 +179,7 @@ export class DirectusFolderItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFolderItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -193,7 +203,7 @@ export class DirectusFolderItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusFolderItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -207,6 +217,10 @@ export class DirectusFolderItem {
       ? Collections.DirectusFolder["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusFolderItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusFolderItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

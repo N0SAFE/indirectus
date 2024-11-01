@@ -4,7 +4,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusFieldItem,
   deleteDirectusFieldItem,
@@ -12,16 +12,18 @@ import {
   readDirectusFieldItems,
   updateDirectusFieldItem,
 } from "../../commands/DirectusField.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusFieldItems {
+export class DirectusFieldItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
-
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
+  
   /**
    * Read any items from the collection.
    */
@@ -29,21 +31,22 @@ export class DirectusFieldItems {
     ToSafeOutput<Output>
   > {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFieldItems(),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusFieldItem {
+export class DirectusFieldItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -61,7 +64,7 @@ export class DirectusFieldItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusFieldItem(collection, item, query),
       ) as unknown as Promise<Output>,
     );
@@ -75,7 +78,7 @@ export class DirectusFieldItem {
     field: Directus.DirectusField<Schema>["field"],
   ): Promise<ToSafeOutput<Directus.ReadFieldOutput<Schema>>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFieldItem(collection, field),
       ) as unknown as Promise<Directus.ReadFieldOutput<Schema>>,
     );
@@ -100,7 +103,7 @@ export class DirectusFieldItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusFieldItem(key, field, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -114,7 +117,9 @@ export class DirectusFieldItem {
     field: Directus.DirectusField<Schema>["field"],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(deleteDirectusFieldItem(collection, field)) as unknown as Promise<Output>,
+      this.request(
+        deleteDirectusFieldItem(collection, field),
+      ) as unknown as Promise<Output>,
     );
   }
 }

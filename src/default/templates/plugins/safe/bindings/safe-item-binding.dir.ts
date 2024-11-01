@@ -6,7 +6,7 @@ export const generate = (context: Context) => {
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ToSafeOutput } from "../../utils";
+import { ToSafeOutput } from "../../utils/index";
 
 import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
@@ -150,9 +150,11 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
 
 import type * as Directus from '@directus/sdk'
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 
 import { ApplyQueryFields } from '../../types/ApplyQueryFields'
+
+import ChainableBinding from '../chainable-bindable'
 
 import {
     Collections,
@@ -164,13 +166,14 @@ import { TypedCollectionSingletonWrapper } from "./types";
 
 import { read{{ collectionName }}, update{{ collectionName }} } from '../../commands/{{ collectionName }}.commands'
 
-export class {{ collectionName }}Singleton implements TypedCollectionSingletonWrapper<{{ collectionType }}>
+export class {{ collectionName }}Singleton extends ChainableBinding implements TypedCollectionSingletonWrapper<{{ collectionType }}>
 {
   /**
    *
    */
-  constructor(private client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
+  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
   {
+    super(client);
   }
 
   /**
@@ -178,7 +181,7 @@ export class {{ collectionName }}Singleton implements TypedCollectionSingletonWr
    */
   async read<{{ genericQuery }}, {{ genericOutput }}>(query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(read{{ collectionName }}(query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(read{{ collectionName }}(query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -186,7 +189,7 @@ export class {{ collectionName }}Singleton implements TypedCollectionSingletonWr
    */
   async update<{{ genericQuery }}, {{ genericOutput }}>(patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(update{{ collectionName }}(patch, query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(update{{ collectionName }}(patch, query))) as unknown as Promise<{{ applyType }}>;
   }
 }
 
@@ -195,13 +198,14 @@ import { TypedCollectionItemsWrapper, TypedCollectionItemWrapper } from "./types
 
 import { create{{ collectionName }}Item, create{{ collectionName }}Items, delete{{ collectionName }}Item, delete{{ collectionName }}Items, read{{ collectionName }}Item, read{{ collectionName }}Items, update{{ collectionName }}Item, update{{ collectionName }}Items, update{{ collectionName }}ItemsBatch } from '../../commands/{{ collectionName }}.commands'
 
-export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{ collectionType }}>
+export class {{ collectionName }}Items extends ChainableBinding implements TypedCollectionItemsWrapper<{{ collectionType }}>
 {
   /**
    *
    */
-  constructor(private client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
+  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
   {
+    super(client);
   }
 
   /**
@@ -215,7 +219,7 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
   ): Promise<
       {{ applyType }}
   > {
-    return toSafe(this.client.request(create{{ collectionName }}Items(items, query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(create{{ collectionName }}Items(items, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -223,7 +227,7 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    */
   async query<{{ genericQuery }}, {{ genericOutputArray }}>(query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(read{{ collectionName }}Items(query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(read{{ collectionName }}Items(query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -231,7 +235,7 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    */
   async find<{{ genericQuery }}, {{ genericOutput }}>(query?: Query): Promise<{{ applyTypeUndefined }}>
   {
-    return toSafe(this.client.request(read{{ collectionName }}Items({
+    return toSafe(this.request(read{{ collectionName }}Items({
       ...query,
       limit: 1,
     })).then(items => items?.[0])) as unknown as Promise<{{ applyTypeUndefined }}>;
@@ -242,7 +246,7 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    */
   async update<{{ genericQueryArray }}, {{ genericOutputArray }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[], patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(update{{ collectionName }}Items(keys, patch, query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(update{{ collectionName }}Items(keys, patch, query))) as unknown as Promise<{{ applyType }}>;
   }
   
   /**
@@ -250,7 +254,7 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    */
   async updateBatch<{{ genericQueryArray }}, {{ genericOutputArray }}> (items: Partial<Directus.UnpackList<Collections.{{collectionName}}>>[], query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(update{{ collectionName }}ItemsBatch(items, query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(update{{ collectionName }}ItemsBatch(items, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -258,17 +262,18 @@ export class {{ collectionName }}Items implements TypedCollectionItemsWrapper<{{
    */
   async remove<{{ genericOutputVoid }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(delete{{ collectionName }}Items(keys))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(delete{{ collectionName }}Items(keys))) as unknown as Promise<{{ applyType }}>;
   }
 }
 
-export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ collectionType }}>
+export class {{ collectionName }}Item extends ChainableBinding implements TypedCollectionItemWrapper<{{ collectionType }}>
 {
   /**
    *
    */
-  constructor(private client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
+  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
   {
+    super(client);
   }
 
   /**
@@ -276,7 +281,7 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
    */
   async create<{{ genericQuery }}, {{ genericOutput }}>(item: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(create{{ collectionName }}Item(item, query as any))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(create{{ collectionName }}Item(item, query as any))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -284,7 +289,7 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
    */
   async get<{{ genericQuery }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(read{{ collectionName }}Item(key, query))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(read{{ collectionName }}Item(key, query))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -292,7 +297,7 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
    */
   async update<{{ genericQuery }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(update{{ collectionName }}Item(key, patch, query as any))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(update{{ collectionName }}Item(key, patch, query as any))) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -300,7 +305,7 @@ export class {{ collectionName }}Item implements TypedCollectionItemWrapper<{{ c
    */
   async remove<{{ genericOutputVoid }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number): Promise<{{ applyType }}>
   {
-    return toSafe(this.client.request(delete{{ collectionName }}Item(key))) as unknown as Promise<{{ applyType }}>;
+    return toSafe(this.request(delete{{ collectionName }}Item(key))) as unknown as Promise<{{ applyType }}>;
   }
 }
 

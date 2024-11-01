@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusShareItem,
   createDirectusShareItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusShareItem,
   updateDirectusShareItems,
 } from "../../commands/DirectusShare.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusShareItems {
+export class DirectusShareItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -42,7 +44,7 @@ export class DirectusShareItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusShareItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusShareItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusShareItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusShareItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusShare>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusShare, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusShare,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -104,7 +109,7 @@ export class DirectusShareItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusShareItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -118,18 +123,23 @@ export class DirectusShareItems {
       ? Collections.DirectusShare["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusShareItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusShareItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusShareItem {
+export class DirectusShareItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -146,7 +156,7 @@ export class DirectusShareItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusShareItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -169,7 +179,7 @@ export class DirectusShareItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusShareItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -193,7 +203,7 @@ export class DirectusShareItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusShareItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -207,6 +217,10 @@ export class DirectusShareItem {
       ? Collections.DirectusShare["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusShareItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusShareItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

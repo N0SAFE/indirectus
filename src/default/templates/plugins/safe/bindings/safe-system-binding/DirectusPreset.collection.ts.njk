@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusPresetItem,
   createDirectusPresetItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusPresetItem,
   updateDirectusPresetItems,
 } from "../../commands/DirectusPreset.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusPresetItems {
+export class DirectusPresetItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -42,7 +44,7 @@ export class DirectusPresetItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusPresetItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusPresetItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusPresetItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusPresetItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusPreset>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusPreset, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusPreset,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -104,7 +109,7 @@ export class DirectusPresetItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusPresetItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -119,21 +124,22 @@ export class DirectusPresetItems {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusPresetItems(keys),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusPresetItem {
+export class DirectusPresetItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -150,7 +156,7 @@ export class DirectusPresetItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusPresetItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -173,7 +179,7 @@ export class DirectusPresetItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusPresetItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -197,7 +203,7 @@ export class DirectusPresetItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusPresetItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -212,7 +218,7 @@ export class DirectusPresetItem {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusPresetItem(key),
       ) as unknown as Promise<Output>,
     );

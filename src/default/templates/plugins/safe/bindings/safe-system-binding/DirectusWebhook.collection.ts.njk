@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusWebhookItem,
   createDirectusWebhookItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusWebhookItem,
   updateDirectusWebhookItems,
 } from "../../commands/DirectusWebhook.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusWebhookItems {
+export class DirectusWebhookItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -42,7 +44,7 @@ export class DirectusWebhookItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusWebhookItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusWebhookItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusWebhookItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusWebhookItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusWebhook>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusWebhook, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusWebhook,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -107,7 +112,7 @@ export class DirectusWebhookItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusWebhookItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -122,21 +127,22 @@ export class DirectusWebhookItems {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusWebhookItems(keys),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusWebhookItem {
+export class DirectusWebhookItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -153,7 +159,7 @@ export class DirectusWebhookItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusWebhookItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -176,7 +182,7 @@ export class DirectusWebhookItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusWebhookItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -200,7 +206,7 @@ export class DirectusWebhookItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusWebhookItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -215,7 +221,7 @@ export class DirectusWebhookItem {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusWebhookItem(key),
       ) as unknown as Promise<Output>,
     );

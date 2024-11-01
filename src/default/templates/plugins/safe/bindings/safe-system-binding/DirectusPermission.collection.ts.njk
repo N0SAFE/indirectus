@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   readDirectusPermissionItems,
   updateDirectusPermissionItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusPermissionItem,
   deleteDirectusPermissionItem,
 } from "../../commands/DirectusPermission.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusPermissionItems {
+export class DirectusPermissionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -45,7 +47,7 @@ export class DirectusPermissionItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusPermissionItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -63,7 +65,7 @@ export class DirectusPermissionItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusPermissionItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -115,7 +117,7 @@ export class DirectusPermissionItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusPermissionItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -129,18 +131,23 @@ export class DirectusPermissionItems {
       ? Collections.DirectusPermission["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusPermissionItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusPermissionItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusPermissionItem {
+export class DirectusPermissionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -157,7 +164,7 @@ export class DirectusPermissionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusPermissionItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -180,7 +187,7 @@ export class DirectusPermissionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusPermissionItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -204,7 +211,7 @@ export class DirectusPermissionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusPermissionItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -218,6 +225,10 @@ export class DirectusPermissionItem {
       ? Collections.DirectusPermission["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusPermissionItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusPermissionItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

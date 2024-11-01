@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   readDirectusVersionItems,
   updateDirectusVersionItems,
@@ -17,24 +17,23 @@ import {
   updateDirectusVersionItem,
   deleteDirectusVersionItem,
 } from "../../commands/DirectusVersion.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusVersionItems {
+export class DirectusVersionItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
    */
   async create<
-    const Query extends DirectusSDK.Query<
-      Schema,
-      Collections.DirectusVersion
-    >,
+    const Query extends DirectusSDK.Query<Schema, Collections.DirectusVersion>,
     Output = ApplyQueryFields<
       Schema,
       Collections.DirectusVersion,
@@ -45,7 +44,7 @@ export class DirectusVersionItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusVersionItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -63,7 +62,7 @@ export class DirectusVersionItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusVersionItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -75,11 +74,7 @@ export class DirectusVersionItems {
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusVersion>,
     Output =
-      | ApplyQueryFields<
-          Schema,
-          Collections.DirectusVersion,
-          Query["fields"]
-        >
+      | ApplyQueryFields<Schema, Collections.DirectusVersion, Query["fields"]>
       | undefined,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
@@ -115,7 +110,7 @@ export class DirectusVersionItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusVersionItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -130,21 +125,22 @@ export class DirectusVersionItems {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusVersionItems(keys),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusVersionItem {
+export class DirectusVersionItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -161,7 +157,7 @@ export class DirectusVersionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusVersionItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -184,7 +180,7 @@ export class DirectusVersionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusVersionItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -208,7 +204,7 @@ export class DirectusVersionItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusVersionItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -223,7 +219,7 @@ export class DirectusVersionItem {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusVersionItem(key),
       ) as unknown as Promise<Output>,
     );

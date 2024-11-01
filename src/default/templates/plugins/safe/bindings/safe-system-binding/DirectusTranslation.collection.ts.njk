@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusTranslationItem,
   createDirectusTranslationItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusTranslationItem,
   updateDirectusTranslationItems,
 } from "../../commands/DirectusTranslation.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusTranslationItems {
+export class DirectusTranslationItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -45,7 +47,7 @@ export class DirectusTranslationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusTranslationItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -63,7 +65,7 @@ export class DirectusTranslationItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusTranslationItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -115,7 +117,7 @@ export class DirectusTranslationItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusTranslationItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -129,18 +131,23 @@ export class DirectusTranslationItems {
       ? Collections.DirectusTranslation["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusTranslationItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusTranslationItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusTranslationItem {
+export class DirectusTranslationItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -157,7 +164,7 @@ export class DirectusTranslationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusTranslationItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -180,7 +187,7 @@ export class DirectusTranslationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusTranslationItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -204,7 +211,7 @@ export class DirectusTranslationItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusTranslationItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -218,6 +225,10 @@ export class DirectusTranslationItem {
       ? Collections.DirectusTranslation["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusTranslationItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusTranslationItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

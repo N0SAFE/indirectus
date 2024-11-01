@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusRoleItem,
   createDirectusRoleItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusRoleItem,
   updateDirectusRoleItems,
 } from "../../commands/DirectusRole.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusRoleItems {
+export class DirectusRoleItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates munknown items in the collection.
@@ -42,7 +44,7 @@ export class DirectusRoleItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusRoleItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusRoleItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRoleItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusRoleItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusRole>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusRole, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusRole,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -104,7 +109,7 @@ export class DirectusRoleItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusRoleItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -119,21 +124,22 @@ export class DirectusRoleItems {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusRoleItems(keys),
       ) as unknown as Promise<Output>,
     );
   }
 }
 
-export class DirectusRoleItem {
+export class DirectusRoleItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -150,7 +156,7 @@ export class DirectusRoleItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusRoleItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -173,7 +179,7 @@ export class DirectusRoleItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusRoleItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -197,7 +203,7 @@ export class DirectusRoleItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusRoleItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -212,7 +218,7 @@ export class DirectusRoleItem {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         deleteDirectusRoleItem(key),
       ) as unknown as Promise<Output>,
     );

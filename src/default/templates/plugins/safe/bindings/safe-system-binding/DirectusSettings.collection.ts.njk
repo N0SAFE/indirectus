@@ -4,20 +4,22 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   readDirectusSettings,
   updateDirectusSettings,
 } from "../../commands/DirectusSettings.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusSettingsSingleton {
+export class DirectusSettingsSingleton extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Read the singleton from the collection.
@@ -31,7 +33,7 @@ export class DirectusSettingsSingleton {
     >,
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusSettings(query),
       ) as unknown as Promise<Output>,
     );
@@ -52,7 +54,7 @@ export class DirectusSettingsSingleton {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusSettings(patch, query),
       ) as unknown as Promise<Output>,
     );

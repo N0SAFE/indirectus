@@ -6,7 +6,7 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
 import { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils";
+import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
   createDirectusFlowItem,
   createDirectusFlowItems,
@@ -17,15 +17,17 @@ import {
   updateDirectusFlowItem,
   updateDirectusFlowItems,
 } from "../../commands/DirectusFlow.commands";
+import ChainableBinding from "../chainable-bindable";
 
-export class DirectusFlowItems {
+export class DirectusFlowItems extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Creates many items in the collection.
@@ -42,7 +44,7 @@ export class DirectusFlowItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusFlowItems(items, query),
       ) as unknown as Promise<Output>,
     );
@@ -60,7 +62,7 @@ export class DirectusFlowItems {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFlowItems(query),
       ) as unknown as Promise<Output>,
     );
@@ -71,8 +73,11 @@ export class DirectusFlowItems {
    */
   async find<
     const Query extends Directus.Query<Schema, Collections.DirectusFlow>,
-    Output =
-      | ApplyQueryFields<Schema, Collections.DirectusFlow, Query["fields"]>
+    Output = ApplyQueryFields<
+      Schema,
+      Collections.DirectusFlow,
+      Query["fields"]
+    >,
   >(query?: Query): Promise<ToSafeOutput<Output | undefined>> {
     return toSafe(
       this.client
@@ -104,7 +109,7 @@ export class DirectusFlowItems {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusFlowItems(keys, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -118,18 +123,23 @@ export class DirectusFlowItems {
       ? Collections.DirectusFlow["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusFlowItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusFlowItems(keys),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
-export class DirectusFlowItem {
+export class DirectusFlowItem extends ChainableBinding {
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {}
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
+  ) {
+    super(client);
+  }
 
   /**
    * Create a single item in the collection.
@@ -146,7 +156,7 @@ export class DirectusFlowItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         createDirectusFlowItem(item, query),
       ) as unknown as Promise<Output>,
     );
@@ -169,7 +179,7 @@ export class DirectusFlowItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         readDirectusFlowItem(key, query),
       ) as unknown as Promise<Output>,
     );
@@ -193,7 +203,7 @@ export class DirectusFlowItem {
     query?: Query,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.client.request(
+      this.request(
         updateDirectusFlowItem(key, patch, query),
       ) as unknown as Promise<Output>,
     );
@@ -207,6 +217,10 @@ export class DirectusFlowItem {
       ? Collections.DirectusFlow["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.client.request(deleteDirectusFlowItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusFlowItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }
