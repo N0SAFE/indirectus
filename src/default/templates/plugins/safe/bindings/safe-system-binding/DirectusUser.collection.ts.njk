@@ -193,15 +193,16 @@ export class DirectusUserItems extends ChainableBinding {
   }
 }
 
-export class DirectusUserItem {
+export class DirectusUserItem extends ChainableBinding {
   public Me: DirectusMe;
   /**
    *
    */
   constructor(
-    private client: Directus.DirectusClient<Schema> &
+    client: Directus.DirectusClient<Schema> &
       Directus.RestClient<Schema>,
   ) {
+    super(client);
     this.Me = new DirectusMe(client);
   }
 
