@@ -55,13 +55,13 @@ export class DirectusCollectionItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_collections">,
-    Output = Directus.AggregationOutput<Schema, 'directus_collections', Options>,
+    Output = Directus.AggregationOutput<Schema, 'directus_collections', Options>[number],
   >(
     options: Options,
   ): Promise<
     Output
   > {
-    return this.request(aggregateDirectusCollectionItems<Options>(options)) as unknown as Promise<Output>;
+    return this.request(aggregateDirectusCollectionItems<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

@@ -63,13 +63,13 @@ export class DirectusActivityItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_activity">,
-    Output = Directus.AggregationOutput<Schema, 'directus_activity', Options>,
+    Output = Directus.AggregationOutput<Schema, 'directus_activity', Options>[number],
   >(
     options: Options,
   ): Promise<
     Output
   > {
-    return this.request(aggregateDirectusActivityItems<Options>(options)) as unknown as Promise<Output>;
+    return this.request(aggregateDirectusActivityItems<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

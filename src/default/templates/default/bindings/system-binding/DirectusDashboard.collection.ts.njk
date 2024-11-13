@@ -133,13 +133,13 @@ export class DirectusDashboardItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_dashboards">,
-    Output = Directus.AggregationOutput<Schema, 'directus_dashboards', Options>,
+    Output = Directus.AggregationOutput<Schema, 'directus_dashboards', Options>[number],
   >(
     options: Options,
   ): Promise<
     Output
   > {
-    return this.request(aggregateDirectusDashboardItems<Options>(options)) as unknown as Promise<Output>;
+    return this.request(aggregateDirectusDashboardItems<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

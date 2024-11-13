@@ -63,11 +63,11 @@ export class DirectusRevisionItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_revisions">,
-    Output = Directus.AggregationOutput<Schema, "directus_revisions", Options>,
+    Output = Directus.AggregationOutput<Schema, "directus_revisions", Options>[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusRevisionItems<Options>(options),
-    ) as unknown as Promise<Output>;
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

@@ -130,11 +130,11 @@ export class DirectusWebhookItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_webhooks">,
-    Output = Directus.AggregationOutput<Schema, "directus_webhooks", Options>,
+    Output = Directus.AggregationOutput<Schema, "directus_webhooks", Options>[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusWebhookItems<Options>(options),
-    ) as unknown as Promise<Output>;
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

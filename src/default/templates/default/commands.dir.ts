@@ -141,7 +141,7 @@ export function delete{{ collectionName }}Item(key: Collections.{{collectionName
 /**
  * Aggregates {{ collection.name | to_collection_text }} items.
  */
-export function aggregate{{ collectionName }}Item<
+export function aggregate{{ collectionName }}Items<
   Options extends Directus.AggregationOptions<Schema, "{{ collection.name }}">,
 >(
   option: Options,

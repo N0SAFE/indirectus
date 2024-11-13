@@ -127,11 +127,11 @@ export class DirectusPanelItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_panels">,
-    Output = Directus.AggregationOutput<Schema, "directus_panels", Options>,
+    Output = Directus.AggregationOutput<Schema, "directus_panels", Options>[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusPanelItems<Options>(options),
-    ) as unknown as Promise<Output>;
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

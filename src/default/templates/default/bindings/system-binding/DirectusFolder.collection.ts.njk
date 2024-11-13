@@ -127,11 +127,11 @@ export class DirectusFolderItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_folders">,
-    Output = Directus.AggregationOutput<Schema, "directus_folders", Options>,
+    Output = Directus.AggregationOutput<Schema, "directus_folders", Options>[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusFolderItems<Options>(options),
-    ) as unknown as Promise<Output>;
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

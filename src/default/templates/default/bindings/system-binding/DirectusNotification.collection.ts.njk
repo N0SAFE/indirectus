@@ -139,11 +139,11 @@ export class DirectusNotificationItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_notifications">,
-    Output = Directus.AggregationOutput<Schema, "directus_notifications", Options>,
+    Output = Directus.AggregationOutput<Schema, "directus_notifications", Options>[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusNotificationItems<Options>(options),
-    ) as unknown as Promise<Output>;
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 

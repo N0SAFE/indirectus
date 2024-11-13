@@ -54,3 +54,5 @@ type returnType = {
     }
 }
 ```
+
+add aggregate options to the safe bindings

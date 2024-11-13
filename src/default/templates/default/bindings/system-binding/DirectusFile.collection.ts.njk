@@ -209,13 +209,13 @@ export class DirectusFileItems extends ChainableBinding {
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_files">,
-    Output = Directus.AggregationOutput<Schema, 'directus_files', Options>,
+    Output = Directus.AggregationOutput<Schema, 'directus_files', Options>[number],
   >(
     options: Options,
   ): Promise<
     Output
   > {
-    return this.request(aggregateDirectusFileItems<Options>(options)) as unknown as Promise<Output>;
+    return this.request(aggregateDirectusFileItems<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 
