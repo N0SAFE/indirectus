@@ -53,5 +53,11 @@ export default class ChainableBinding {
     obj.chain = [...this.chain, newFunc];
     return obj
   }
+
+  withCustom(custom: (last: Directus.RestCommand<unknown, Schema>) => Directus.RestCommand<unknown, Schema>) {
+    const obj = new (this as any).constructor(this.client) as this;
+    obj.chain = [...this.chain, custom];
+    return obj;
+  }
 }
 
