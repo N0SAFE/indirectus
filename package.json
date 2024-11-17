@@ -1,6 +1,10 @@
 {
   "name": "@n0safe/indirectus",
-  "version": "1.4.8",
+  "version": "1.4.9",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/N0SAFE/indirectus"
+  },
   "keywords": [
     "indirectus",
     "directus",
@@ -12,8 +16,8 @@
     "typescript"
   ],
   "author": {
-    "name": "João Biondo",
-    "email": "wolfulus@gmail.com"
+    "name": "Mathis Sebille",
+    "email": "sssebillemathis@gmail.com"
   },
   "files": [
     "README.md",
@@ -37,7 +41,7 @@
     "version": "changeset version",
     "release": "npm publish --access public",
     "ci": "npm run version && npm run build && npm run release",
-    "test": "node ./src/cli/index.js sdk generate --url https://dfac-2a02-8428-10cf-2b01-f55c-babb-48fa-daf1.ngrok-free.app --dir ./.directus/src --outputDir ./.directus/src --token 4GRlejdmvoroQEjkv3X-uGCSDNrZPZMK"
+    "test": "node ./src/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",

@@ -6,6 +6,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusRelationItems,
   createDirectusRelationItem,
   deleteDirectusRelationItem,
   readDirectusRelationItem,
@@ -31,8 +32,24 @@ export class DirectusRelationItems extends ChainableBinding {
     Output = ApplyQueryFields<Schema, Collections.DirectusRelation>[],
   >(): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusRelationItems(),
+      this.request(readDirectusRelationItems()) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_relations">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_relations",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusRelationItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

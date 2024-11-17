@@ -35,7 +35,7 @@ export interface TypedCollectionSingletonWrapper<Collection extends object> {
   ): Promise<ToSafeOutput<Output>>;
 }
 
-export interface TypedCollectionItemsWrapper<Collection extends object> {
+export interface TypedCollectionItemsWrapper<Collection extends object, CollectionName extends Directus.AllCollections<Schema>> {
   /**
    * Creates many items in the collection.
    */
@@ -94,6 +94,18 @@ export interface TypedCollectionItemsWrapper<Collection extends object> {
    * Remove many items in the collection.
    */
   remove<Output = void>(keys: string[] | number[]): Promise<ToSafeOutput<Output>>;
+  
+  /**
+    * Aggregates items in the collection.
+    */
+  aggregate<
+    Options extends Directus.AggregationOptions<Schema, CollectionName>,
+    Output = Directus.AggregationOutput<
+      Schema,
+      CollectionName,
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>>
 }
 
 export interface TypedCollectionItemWrapper<Collection extends object> {
@@ -196,9 +208,9 @@ export class {{ collectionName }}Singleton extends ChainableBinding implements T
 {% else %}
 import { TypedCollectionItemsWrapper, TypedCollectionItemWrapper } from "./types";
 
-import { create{{ collectionName }}Item, create{{ collectionName }}Items, delete{{ collectionName }}Item, delete{{ collectionName }}Items, read{{ collectionName }}Item, read{{ collectionName }}Items, update{{ collectionName }}Item, update{{ collectionName }}Items, update{{ collectionName }}ItemsBatch } from '../../commands/{{ collectionName }}.commands'
+import { create{{ collectionName }}Item, create{{ collectionName }}Items, delete{{ collectionName }}Item, delete{{ collectionName }}Items, read{{ collectionName }}Item, read{{ collectionName }}Items, update{{ collectionName }}Item, update{{ collectionName }}Items, update{{ collectionName }}ItemsBatch, aggregate{{ collectionName }}Items } from '../../commands/{{ collectionName }}.commands'
 
-export class {{ collectionName }}Items extends ChainableBinding implements TypedCollectionItemsWrapper<{{ collectionType }}>
+export class {{ collectionName }}Items extends ChainableBinding implements TypedCollectionItemsWrapper<{{ collectionType }}, {{ collectionString }}>
 {
   /**
    *
@@ -263,6 +275,16 @@ export class {{ collectionName }}Items extends ChainableBinding implements Typed
   async remove<{{ genericOutputVoid }}>(keys: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]): Promise<{{ applyType }}>
   {
     return toSafe(this.request(delete{{ collectionName }}Items(keys))) as unknown as Promise<{{ applyType }}>;
+  }
+    
+  /**
+    * Aggregates the items in the collection.
+    */
+  async aggregate<Options extends Directus.AggregationOptions<Schema, {{ collectionString }}>, Output = Directus.AggregationOutput< Schema, {{ collectionString }}, Options >[number], >(options: Options): Promise<{{ applyType }}>
+  {
+    return toSafe(this.request(
+     aggregate{{ collectionName }}Items<Options>(options),
+    ).then((a) => a?.[0]) as unknown as Promise<Output>);
   }
 }
 

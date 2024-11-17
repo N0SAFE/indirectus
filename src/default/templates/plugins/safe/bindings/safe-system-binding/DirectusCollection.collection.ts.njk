@@ -6,6 +6,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusCollectionItems,
   createDirectusCollectionItem,
   deleteDirectusCollectionItem,
   readDirectusCollectionItem,
@@ -32,9 +33,7 @@ export class DirectusCollectionItems extends ChainableBinding {
     ToSafeOutput<Output>
   > {
     return toSafe(
-      this.request(
-        readDirectusCollectionItems(),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusCollectionItems()) as unknown as Promise<Output>,
     );
   }
 
@@ -52,6 +51,24 @@ export class DirectusCollectionItems extends ChainableBinding {
     return toSafe(
       this.request(
         updateBatchDirectusCollectionItems(items, query),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_collections">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_collections",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusCollectionItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

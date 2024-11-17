@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusPolicyItems,
   createDirectusPolicyItem,
   createDirectusPolicyItems,
   deleteDirectusPolicyItem,
@@ -129,6 +130,24 @@ export class DirectusPolicyItems extends ChainableBinding {
       ) as unknown as Promise<Output>,
     );
   }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_policies">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_policies",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusPolicyItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
+  }
 }
 
 export class DirectusPolicyItem extends ChainableBinding {
@@ -218,9 +237,7 @@ export class DirectusPolicyItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusPolicyItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusPolicyItem(key)) as unknown as Promise<Output>,
     );
   }
 }

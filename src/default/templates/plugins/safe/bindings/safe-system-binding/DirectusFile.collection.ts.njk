@@ -9,6 +9,7 @@ import { Collections, Schema } from "../../client";
 import { toSafe, ToSafeOutput } from "../../utils/index";
 
 import {
+  aggregateDirectusFileItems,
   deleteDirectusFileItem,
   deleteDirectusFileItems,
   readDirectusFileArrayBuffer,
@@ -126,9 +127,7 @@ export class DirectusFileItems extends ChainableBinding {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusFileItems(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusFileItems(query)) as unknown as Promise<Output>,
     );
   }
 
@@ -209,8 +208,24 @@ export class DirectusFileItems extends ChainableBinding {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusFileItems(keys),
+      this.request(deleteDirectusFileItems(keys)) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_files">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_files",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusFileItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }
@@ -338,9 +353,7 @@ export class DirectusFileItem extends ChainableBinding {
       : string | number,
     query?: Directus.AssetsQuery,
   ) {
-    return await toSafe(
-      this.request(readDirectusFileArrayBuffer(key, query)),
-    );
+    return await toSafe(this.request(readDirectusFileArrayBuffer(key, query)));
   }
 
   /**
@@ -364,9 +377,7 @@ export class DirectusFileItem extends ChainableBinding {
       : string | number,
     query?: Directus.AssetsQuery,
   ) {
-    return await toSafe(
-      this.request(readDirectusFileStream(key, query)),
-    );
+    return await toSafe(this.request(readDirectusFileStream(key, query)));
   }
 
   /**
@@ -402,9 +413,7 @@ export class DirectusFileItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusFileItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusFileItem(key)) as unknown as Promise<Output>,
     );
   }
 }

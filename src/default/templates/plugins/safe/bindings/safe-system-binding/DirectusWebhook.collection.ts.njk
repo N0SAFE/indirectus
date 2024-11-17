@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusWebhookItems,
   createDirectusWebhookItem,
   createDirectusWebhookItems,
   deleteDirectusWebhookItem,
@@ -129,6 +130,24 @@ export class DirectusWebhookItems extends ChainableBinding {
     return toSafe(
       this.request(
         deleteDirectusWebhookItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_webhooks">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_webhooks",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusWebhookItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

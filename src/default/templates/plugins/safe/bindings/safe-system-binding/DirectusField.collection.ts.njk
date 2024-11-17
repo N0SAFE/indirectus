@@ -6,6 +6,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusFieldItems,
   createDirectusFieldItem,
   deleteDirectusFieldItem,
   readDirectusFieldItem,
@@ -23,7 +24,7 @@ export class DirectusFieldItems extends ChainableBinding {
   ) {
     super(client);
   }
-  
+
   /**
    * Read any items from the collection.
    */
@@ -31,8 +32,24 @@ export class DirectusFieldItems extends ChainableBinding {
     ToSafeOutput<Output>
   > {
     return toSafe(
-      this.request(
-        readDirectusFieldItems(),
+      this.request(readDirectusFieldItems()) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_fields">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_fields",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusFieldItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

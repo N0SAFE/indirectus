@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusNotificationItems,
   createDirectusNotificationItem,
   createDirectusNotificationItems,
   deleteDirectusNotificationItem,
@@ -140,6 +141,27 @@ export class DirectusNotificationItems extends ChainableBinding {
     return toSafe(
       this.request(
         deleteDirectusNotificationItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<
+      Schema,
+      "directus_notifications"
+    >,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_notifications",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusNotificationItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

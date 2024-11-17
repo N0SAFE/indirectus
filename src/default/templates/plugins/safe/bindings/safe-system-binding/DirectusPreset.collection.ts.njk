@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusPresetItems,
   createDirectusPresetItem,
   createDirectusPresetItems,
   deleteDirectusPresetItem,
@@ -129,6 +130,24 @@ export class DirectusPresetItems extends ChainableBinding {
       ) as unknown as Promise<Output>,
     );
   }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_presets">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_presets",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusPresetItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
+  }
 }
 
 export class DirectusPresetItem extends ChainableBinding {
@@ -218,9 +237,7 @@ export class DirectusPresetItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusPresetItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusPresetItem(key)) as unknown as Promise<Output>,
     );
   }
 }

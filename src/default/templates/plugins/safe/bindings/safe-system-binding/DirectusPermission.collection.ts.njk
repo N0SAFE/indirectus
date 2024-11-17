@@ -16,6 +16,7 @@ import {
   readDirectusPermissionItem,
   updateDirectusPermissionItem,
   deleteDirectusPermissionItem,
+  aggregateDirectusPermissionItems,
 } from "../../commands/DirectusPermission.commands";
 import ChainableBinding from "../chainable-bindable";
 
@@ -134,6 +135,24 @@ export class DirectusPermissionItems extends ChainableBinding {
     return toSafe(
       this.request(
         deleteDirectusPermissionItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_permissions">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_permissions",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusPermissionItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

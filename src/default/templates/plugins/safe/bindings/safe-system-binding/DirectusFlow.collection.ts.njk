@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusFlowItems,
   createDirectusFlowItem,
   createDirectusFlowItems,
   deleteDirectusFlowItem,
@@ -62,9 +63,7 @@ export class DirectusFlowItems extends ChainableBinding {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusFlowItems(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusFlowItems(query)) as unknown as Promise<Output>,
     );
   }
 
@@ -124,8 +123,24 @@ export class DirectusFlowItems extends ChainableBinding {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusFlowItems(keys),
+      this.request(deleteDirectusFlowItems(keys)) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_flows">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_flows",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusFlowItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }
@@ -218,9 +233,7 @@ export class DirectusFlowItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusFlowItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusFlowItem(key)) as unknown as Promise<Output>,
     );
   }
 }

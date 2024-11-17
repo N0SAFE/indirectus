@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusPanelItems,
   createDirectusPanelItem,
   createDirectusPanelItems,
   deleteDirectusPanelItem,
@@ -62,9 +63,7 @@ export class DirectusPanelItems extends ChainableBinding {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusPanelItems(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusPanelItems(query)) as unknown as Promise<Output>,
     );
   }
 
@@ -124,6 +123,24 @@ export class DirectusPanelItems extends ChainableBinding {
     return toSafe(
       this.request(
         deleteDirectusPanelItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_panels">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_panels",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusPanelItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }
@@ -216,9 +233,7 @@ export class DirectusPanelItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusPanelItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusPanelItem(key)) as unknown as Promise<Output>,
     );
   }
 }

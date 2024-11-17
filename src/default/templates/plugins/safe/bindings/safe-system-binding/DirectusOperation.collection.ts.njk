@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusOperationItems,
   createDirectusOperationItem,
   createDirectusOperationItems,
   deleteDirectusOperationItem,
@@ -129,7 +130,29 @@ export class DirectusOperationItems extends ChainableBinding {
       ? Collections.DirectusOperation["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.request(deleteDirectusOperationItems(keys))as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusOperationItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_operations">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_operations",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusOperationItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
@@ -219,6 +242,10 @@ export class DirectusOperationItem extends ChainableBinding {
       ? Collections.DirectusOperation["id"]
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.request(deleteDirectusOperationItem(key)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusOperationItem(key),
+      ) as unknown as Promise<Output>,
+    );
   }
 }

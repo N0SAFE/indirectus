@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusFolderItems,
   createDirectusFolderItem,
   createDirectusFolderItems,
   deleteDirectusFolderItem,
@@ -129,6 +130,24 @@ export class DirectusFolderItems extends ChainableBinding {
       ) as unknown as Promise<Output>,
     );
   }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_folders">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_folders",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusFolderItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
+  }
 }
 
 export class DirectusFolderItem extends ChainableBinding {
@@ -218,9 +237,7 @@ export class DirectusFolderItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusFolderItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusFolderItem(key)) as unknown as Promise<Output>,
     );
   }
 }

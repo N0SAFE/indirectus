@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusUserItems,
   createDirectusUserItem,
   createDirectusUserItems,
   deleteDirectusUserItem,
@@ -56,9 +57,9 @@ export class DirectusMe extends ChainableBinding {
       Query["fields"]
     >,
   >(query?: Query): Promise<ToSafeOutput<Output>> {
-    return toSafe(
-      this.request(readMeRoleItem(query)),
-    ) as unknown as Promise<ToSafeOutput<Output>>;
+    return toSafe(this.request(readMeRoleItem(query))) as unknown as Promise<
+      ToSafeOutput<Output>
+    >;
   }
 
   /**
@@ -124,9 +125,7 @@ export class DirectusUserItems extends ChainableBinding {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusUserItems(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusUserItems(query)) as unknown as Promise<Output>,
     );
   }
 
@@ -186,8 +185,24 @@ export class DirectusUserItems extends ChainableBinding {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusUserItems(keys),
+      this.request(deleteDirectusUserItems(keys)) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_users">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_users",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusUserItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }
@@ -199,8 +214,7 @@ export class DirectusUserItem extends ChainableBinding {
    *
    */
   constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
   ) {
     super(client);
     this.Me = new DirectusMe(client);
@@ -283,9 +297,7 @@ export class DirectusUserItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusUserItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusUserItem(key)) as unknown as Promise<Output>,
     );
   }
 }

@@ -6,6 +6,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusRevisionItems,
   readDirectusRevisionItem,
   readDirectusRevisionItems,
 } from "../../commands/DirectusRevision.commands";
@@ -59,6 +60,24 @@ export class DirectusRevisionItems extends ChainableBinding {
           }),
         )
         .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_revisions">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_revisions",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusRevisionItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
     );
   }
 }

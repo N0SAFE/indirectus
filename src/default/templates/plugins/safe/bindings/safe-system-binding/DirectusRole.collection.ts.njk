@@ -8,6 +8,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusRoleItems,
   createDirectusRoleItem,
   createDirectusRoleItems,
   deleteDirectusRoleItem,
@@ -62,9 +63,7 @@ export class DirectusRoleItems extends ChainableBinding {
     >[],
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusRoleItems(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusRoleItems(query)) as unknown as Promise<Output>,
     );
   }
 
@@ -124,8 +123,24 @@ export class DirectusRoleItems extends ChainableBinding {
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusRoleItems(keys),
+      this.request(deleteDirectusRoleItems(keys)) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_roles">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_roles",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusRoleItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }
@@ -218,9 +233,7 @@ export class DirectusRoleItem extends ChainableBinding {
       : string | number,
   ): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        deleteDirectusRoleItem(key),
-      ) as unknown as Promise<Output>,
+      this.request(deleteDirectusRoleItem(key)) as unknown as Promise<Output>,
     );
   }
 }

@@ -33,9 +33,7 @@ export class DirectusSettingsSingleton extends ChainableBinding {
     >,
   >(query?: Query): Promise<ToSafeOutput<Output>> {
     return toSafe(
-      this.request(
-        readDirectusSettings(query),
-      ) as unknown as Promise<Output>,
+      this.request(readDirectusSettings(query)) as unknown as Promise<Output>,
     );
   }
 

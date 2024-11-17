@@ -16,6 +16,7 @@ import {
   readDirectusVersionItem,
   updateDirectusVersionItem,
   deleteDirectusVersionItem,
+  aggregateDirectusVersionItems,
 } from "../../commands/DirectusVersion.commands";
 import ChainableBinding from "../chainable-bindable";
 
@@ -127,6 +128,24 @@ export class DirectusVersionItems extends ChainableBinding {
     return toSafe(
       this.request(
         deleteDirectusVersionItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_versions">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_versions",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusVersionItems<Options>(options)).then(
+        (a) => a?.[0],
       ) as unknown as Promise<Output>,
     );
   }

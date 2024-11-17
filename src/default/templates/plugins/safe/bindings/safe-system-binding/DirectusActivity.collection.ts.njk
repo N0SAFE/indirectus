@@ -7,6 +7,7 @@ import { Collections, Schema } from "../../client";
 import { toSafe, ToSafeOutput } from "../../utils/index";
 
 import {
+  aggregateDirectusActivityItems,
   readDirectusActivityItem,
   readDirectusActivityItems,
 } from "../../commands/DirectusActivity.commands";
@@ -61,6 +62,22 @@ export class DirectusActivityItems extends ChainableBinding {
         )
         .then((items) => items?.[0]) as unknown as Promise<Output | undefined>,
     );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_activity">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_activity",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(this.request(aggregateDirectusActivityItems<Options>(options)).then(
+      (a) => a?.[0],
+    ) as unknown as Promise<Output>);
   }
 }
 

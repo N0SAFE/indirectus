@@ -6,6 +6,7 @@ import { Collections, Schema } from "../../client";
 
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import {
+  aggregateDirectusDashboardItems,
   createDirectusDashboardItem,
   createDirectusDashboardItems,
   deleteDirectusDashboardItem,
@@ -16,7 +17,7 @@ import {
   updateDirectusDashboardItems,
 } from "../../commands/DirectusDashboard.commands";
 import ChainableBinding from "../chainable-bindable";
-import type * as DirectusSDK from '@directus/sdk';
+import type * as DirectusSDK from "@directus/sdk";
 
 export class DirectusDashboardItems extends ChainableBinding {
   /**
@@ -128,7 +129,29 @@ export class DirectusDashboardItems extends ChainableBinding {
       ? Collections.DirectusDashboard["id"][]
       : string[] | number[],
   ): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.request(deleteDirectusDashboardItems(keys)) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(
+        deleteDirectusDashboardItems(keys),
+      ) as unknown as Promise<Output>,
+    );
+  }
+
+  /**
+   * Aggregates the items in the collection.
+   */
+  async aggregate<
+    Options extends Directus.AggregationOptions<Schema, "directus_dashboards">,
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_dashboards",
+      Options
+    >[number],
+  >(options: Options): Promise<ToSafeOutput<Output>> {
+    return toSafe(
+      this.request(aggregateDirectusDashboardItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
