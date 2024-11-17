@@ -40,7 +40,7 @@
     "check-types": "tsc --noEmit",
     "version": "changeset version",
     "release": "npm publish --access public",
-    "ci": "npm run version && npm run build && npm run release",
+    "ci": "npm run build && npm run release",
     "test": "node ./src/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
   },
   "dependencies": {
