@@ -2,7 +2,7 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { Collections, Schema } from "../client";
+import type { Collections, Schema } from "../client";
 
 /**
  * Create many directus roles items.
@@ -120,9 +120,7 @@ export function aggregateDirectusRoleItems<
   Options extends Directus.AggregationOptions<Schema, "directus_roles">,
 >(
   option: Options,
-): ReturnType<
-  typeof DirectusSDK.aggregate<Schema, "directus_roles", Options>
-> {
+): ReturnType<typeof DirectusSDK.aggregate<Schema, "directus_roles", Options>> {
   return DirectusSDK.aggregate<Schema, "directus_roles", Options>(
     "directus_roles",
     option,

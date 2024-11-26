@@ -1,5 +1,5 @@
 import * as njk from "nunjucks";
-import { TemplateFile, TemplateLoader } from "./template-loader";
+import { type TemplateFile, TemplateLoader } from "./template-loader";
 import type { Registry } from "./registry";
 import type { Schema } from "./schema";
 

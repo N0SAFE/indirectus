@@ -1,12 +1,12 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
+import type * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils/index";
+import { toSafe, type ToSafeOutput } from "../../utils/index";
 import {
   readDirectusPermissionItems,
   updateDirectusPermissionItems,
@@ -21,14 +21,6 @@ import {
 import ChainableBinding from "../chainable-bindable";
 
 export class DirectusPermissionItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   /**
    * Creates munknown items in the collection.
@@ -159,14 +151,6 @@ export class DirectusPermissionItems extends ChainableBinding {
 }
 
 export class DirectusPermissionItem extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   /**
    * Create a single item in the collection.

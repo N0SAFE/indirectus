@@ -1,5 +1,5 @@
 import { to_collection_name } from "../../extensions/filters/directus";
-import { Context } from "../../../types/types";
+import type { Context } from "../../../types/types";
 
 export const generate = async (context: Context) => {
     console.log("Generating command for Directus instance");
@@ -11,8 +11,6 @@ import {
   Collections,
   Schema,
 } from "../client";
-
-type DirectusSDK = typeof DirectusSDK
 
 {% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}

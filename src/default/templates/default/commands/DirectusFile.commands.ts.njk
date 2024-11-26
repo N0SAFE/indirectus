@@ -2,7 +2,7 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { Collections, Schema } from "../client";
+import type { Collections, Schema } from "../client";
 
 /**
  * Read munknown directus files items.
@@ -141,9 +141,7 @@ export function aggregateDirectusFileItems<
   Options extends Directus.AggregationOptions<Schema, "directus_files">,
 >(
   option: Options,
-): ReturnType<
-  typeof DirectusSDK.aggregate<Schema, "directus_files", Options>
-> {
+): ReturnType<typeof DirectusSDK.aggregate<Schema, "directus_files", Options>> {
   return DirectusSDK.aggregate<Schema, "directus_files", Options>(
     "directus_files",
     option,

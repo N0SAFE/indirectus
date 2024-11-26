@@ -2,8 +2,8 @@ import * as cc from "@wolfpkgs/core/strings";
 
 import { contains } from "../default/extensions/filters/contains";
 
-import { Relationship, getRelationship, isUnmapped } from "./relationships";
-import {
+import { type Relationship, getRelationship, isUnmapped } from "./relationships";
+import type {
   DirectusCollection,
   DirectusField,
   DirectusRelation,

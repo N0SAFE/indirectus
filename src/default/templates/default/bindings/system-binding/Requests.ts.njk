@@ -7,8 +7,6 @@ import { ApplyQueryFields } from "../../types/ApplyQueryFields";
 import { Collections, Schema } from "../../client";
 import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
 export class Requests extends ChainableBinding {
   constructor(
     client: Directus.DirectusClient<Schema> &

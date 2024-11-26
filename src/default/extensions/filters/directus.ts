@@ -1,4 +1,4 @@
-import { Collection, Field } from "../../../types/registry";
+import type { Collection, Field } from "../../../types/registry";
 
 import { json } from "./json";
 import { quote, quoted } from "./quote";
@@ -39,13 +39,13 @@ export function to_system_method_suffix(
 export function to_collection_text(
   context: TemplateContext,
   value: string,
-  prefix: string = "",
-  suffix: string = "",
+  prefix = "",
+  suffix = "",
 ) {
   return `${prefix}${lower_case(context, space_case(context, value))}${suffix}`;
 }
 
-export function to_collection_string(context: TemplateContext, value: String) {
+export function to_collection_string(context: TemplateContext, value: string) {
   return quoted(context, value);
 }
 
@@ -84,12 +84,12 @@ export function to_ts_type(context: TemplateContext, field: Field) {
     return "never";
   }
 
-  let types: string[] = [];
-  let schema = field.type;
-  let meta = field.type.raw?.meta;
+  const types: string[] = [];
+  const schema = field.type;
+  const meta = field.type.raw?.meta;
   let nullable = false;
 
-  let db_type = match(
+  const db_type = match(
     field?.type?.database?.split("(", 2)[0]!.toLowerCase().trim(),
   )
     .returnType<string | false>()
@@ -231,10 +231,10 @@ export function to_ts_type(context: TemplateContext, field: Field) {
       types.unshift("Types.String[]");
       break;
     case "select-dropdown":
-      let values = (meta?.options?.choices ?? []).map((v: any) =>
+      const values = (meta?.options?.choices ?? []).map((v: any) =>
         quote(context, v.value),
       );
-      for (let value of values) {
+      for (const value of values) {
         if (value == null) {
           nullable = true;
         } else {
@@ -276,7 +276,7 @@ export function to_ts_type(context: TemplateContext, field: Field) {
         `${to_collection_name(context, field.translations_collection)}[]`,
       );
     } else {
-      let suffix =
+      const suffix =
         ((isManyToOne(field.type.relationship) ||
           isOneToMany(field.type.relationship)) &&
           field.type.relationship.many) ??
@@ -317,9 +317,9 @@ export function to_ts_type(context: TemplateContext, field: Field) {
   }
 
   if (types.length <= 0) {
-    let schemaStr = json(context, schema);
-    let metaStr = json(context, meta);
-    let unknown = `Types.UnknownType<{ schema: ${schemaStr}, meta: ${metaStr} }>`;
+    const schemaStr = json(context, schema);
+    const metaStr = json(context, meta);
+    const unknown = `Types.UnknownType<{ schema: ${schemaStr}, meta: ${metaStr} }>`;
     types.unshift(unknown);
   }
 

@@ -1,10 +1,10 @@
 import type * as Directus from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils/index";
+import { toSafe, type ToSafeOutput } from "../../utils/index";
 
 import {
   aggregateDirectusActivityItems,
@@ -14,14 +14,6 @@ import {
 import ChainableBinding from "../chainable-bindable";
 
 export class DirectusActivityItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   /**
    * Read munknown items from the collection.
@@ -75,21 +67,15 @@ export class DirectusActivityItems extends ChainableBinding {
       Options
     >[number],
   >(options: Options): Promise<ToSafeOutput<Output>> {
-    return toSafe(this.request(aggregateDirectusActivityItems<Options>(options)).then(
-      (a) => a?.[0],
-    ) as unknown as Promise<Output>);
+    return toSafe(
+      this.request(aggregateDirectusActivityItems<Options>(options)).then(
+        (a) => a?.[0],
+      ) as unknown as Promise<Output>,
+    );
   }
 }
 
 export class DirectusActivityItem extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   /**
    * Read a single item from the collection.

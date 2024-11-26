@@ -2,7 +2,7 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { Collections, Schema } from "../client";
+import type { Collections, Schema } from "../client";
 
 /**
  * Create many directus flows items.
@@ -120,9 +120,7 @@ export function aggregateDirectusFlowItems<
   Options extends Directus.AggregationOptions<Schema, "directus_flows">,
 >(
   option: Options,
-): ReturnType<
-  typeof DirectusSDK.aggregate<Schema, "directus_flows", Options>
-> {
+): ReturnType<typeof DirectusSDK.aggregate<Schema, "directus_flows", Options>> {
   return DirectusSDK.aggregate<Schema, "directus_flows", Options>(
     "directus_flows",
     option,

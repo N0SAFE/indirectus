@@ -140,7 +140,7 @@ export async function fetchSchema(
       );
     }
 
-    let body: string = "";
+    let body = "";
     let schema: any = undefined;
 
     try {

@@ -22,14 +22,14 @@ type DirectusSDK = typeof DirectusSDK;
 
 /*
 declare module "@directus/sdk" {
-  type DirectusAccess<Schema = any> = Directus.MergeCoreCollection<
+  type DirectusAccess<Schema = unknown> = Directus.MergeCoreCollection<
     Schema,
     "directus_access", {
       id: string;
     }
   >;
 
-  type DirectusPolicies<Schema = any> = Directus.MergeCoreCollection<
+  type DirectusPolicies<Schema = unknown> = Directus.MergeCoreCollection<
     Schema,
     "directus_policies", {
       id: string;
@@ -187,10 +187,10 @@ export interface Schema extends System {
  * The Directus Client.
  */
 
-export type DirectusRestCommands<T extends Record<any, any>> = keyof {
+export type DirectusRestCommands<T extends Record<string | number | symbol, unknown>> = keyof {
   [K in keyof T as T[K] extends (
-    ...any: any[]
-  ) => Directus.RestCommand<any, any>
+    ...any: unknown[]
+  ) => Directus.RestCommand<unknown, unknown>
     ? K
     : never]: K;
 };
@@ -287,13 +287,13 @@ const excludedDirectusCommands: {
 } as const;
 
 export type _InjectSchemaSystemTypes<T, Schema>
-  = T extends Directus.Query<any, infer C> ? Directus.Query<Schema, C>
+  = T extends Directus.Query<unknown, infer C> ? Directus.Query<Schema, C>
 {% for collection in registry.collections -%}
 {% if collection.is_system %}
-  : T extends Directus.{{ collection.name | to_collection_name }}<any> ? Directus.{{ collection.name | to_collection_name }}<Schema>
+  : T extends Directus.{{ collection.name | to_collection_name }}<unknown> ? Directus.{{ collection.name | to_collection_name }}<Schema>
 {% endif %}
 {% endfor %}
-  : T extends Directus.DirectusUser<any> ? Directus.DirectusUser<Schema>
+  : T extends Directus.DirectusUser<unknown> ? Directus.DirectusUser<Schema>
   : T;
 
 export type InjectSchemaSystemTypes<T, Schema>
@@ -311,7 +311,7 @@ export type DirectusCommands = {
   [K in DirectusRestCommands<DirectusSDK>]: (
     ...args: InjectSchema<Parameters<DirectusSDK[K]>, Schema>
   ) => Promise<
-    ReturnType<DirectusSDK[K]> extends Directus.RestCommand<infer Output, any>
+    ReturnType<DirectusSDK[K]> extends Directus.RestCommand<infer Output, unknown>
       ? Output
       : unknown
   >;
@@ -333,9 +333,9 @@ export const schema = () => {
 
     return Object.fromEntries([
       ...(() => {
-        const requests = new SystemBinding.Requests(client as any) as any
+        const requests = new SystemBinding.Requests(client)
         return Object.getOwnPropertyNames(Object.getPrototypeOf(requests)).map(
-          (n) => [n, requests[n].bind(requests)],
+          (n) => [n, typeof requests[(n as keyof SystemBinding.Requests)] === "function" ? (requests[(n as keyof SystemBinding.Requests)] as Function).bind(requests) : requests[(n as keyof SystemBinding.Requests)]],
         );
       })(),
 
@@ -343,19 +343,19 @@ export const schema = () => {
 {% if collection.is_system %}
 
 {% if not collection.is_singleton %}
-      [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
-      [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
+      [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Items(client)],
+      [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Item(client)],
 {% else %}
-      [{{ collection.name | to_collection_name | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
+      [{{ collection.name | to_collection_name | to_collection_string }}, new SystemBinding.{{ collection.name | to_collection_name }}Singleton(client)],
 {% endif %}
 
 {% else %}
 
 {% if not collection.is_singleton %}
-      [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Items(client as any)],
-      [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Item(client as any)],
+      [{{ collection.name | to_collection_name | pluralize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Items(client)],
+      [{{ collection.name | to_collection_name | singularize | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Item(client)],
 {% else %}
-      [{{ collection.name | to_collection_name | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Singleton(client as any)],
+      [{{ collection.name | to_collection_name | to_collection_string }}, new ItemBinding.{{ collection.name | to_collection_name }}Singleton(client)],
 {% endif %}
 {% endif %}
 {% endfor %}
@@ -369,7 +369,7 @@ export const schema = () => {
 
 export interface BindableClient {
   with: <
-    Client extends DirectusSDK.DirectusClient<any>,
+    Client extends DirectusSDK.DirectusClient<unknown>,
     Extension extends object,
   >(
     createExtension: (client: Client) => Extension,
@@ -381,8 +381,8 @@ export const bindings = () => {
     client: Client,
   ): BindableClient => {
     return {
-      with(createExtension: any) {
-        const extension = createExtension(this);
+      with(createExtension: (client: DirectusSDK.DirectusClient<Schema>) => object) {
+        const extension = createExtension((this as unknown as Client));
         const extensions = Object.entries(
           extension,
         ).reduce<PropertyDescriptorMap>((properties, [name, value]) => {
@@ -401,7 +401,7 @@ export const bindings = () => {
 
         return this;
       },
-    } as any;
+    } as unknown as BindableClient;
   };
 };
 

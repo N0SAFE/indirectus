@@ -27,6 +27,3 @@ export const toSafe = <Output>(promise: Promise<Output>): Promise<ToSafeOutput<O
         },
     );
 };`
-
-
-console.log('use utils.addons.ts')

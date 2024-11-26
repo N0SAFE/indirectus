@@ -1,8 +1,8 @@
 import type * as Directus from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 import {
   readDirectusSettings,
   updateDirectusSettings,
@@ -10,15 +10,6 @@ import {
 import ChainableBinding from "../chainable-bindable";
 
 export class DirectusSettingsSingleton extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * Read the singleton from the collection.

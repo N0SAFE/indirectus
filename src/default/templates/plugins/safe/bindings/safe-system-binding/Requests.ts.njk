@@ -9,8 +9,6 @@ import { Collections, Schema } from "../../client";
 import { toSafe, ToSafeOutput } from "../../utils/index";
 import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
 export class Requests extends ChainableBinding {
   constructor(
     client: Directus.DirectusClient<Schema> &

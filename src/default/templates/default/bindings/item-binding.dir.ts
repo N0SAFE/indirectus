@@ -1,14 +1,14 @@
 import { to_collection_name } from "../../../../default/extensions/filters/directus";
-import { Context } from "../../../../types/types";
+import type { Context } from "../../../../types/types";
 
 export const generate = (context: Context) => {
   const typesTemplate = `import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
+import type * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Schema } from "../../client";
+import type { Schema } from "../../client";
 
 export interface TypedCollectionSingletonWrapper<Collection extends object> {
   /**
@@ -33,7 +33,10 @@ export interface TypedCollectionSingletonWrapper<Collection extends object> {
   ): Promise<Output>;
 }
 
-export interface TypedCollectionItemsWrapper<Collection extends object, CollectionName extends Directus.AllCollections<Schema>> {
+export interface TypedCollectionItemsWrapper<
+  Collection extends object,
+  CollectionName extends Directus.AllCollections<Schema>,
+> {
   /**
    * Creates many items in the collection.
    */
@@ -94,8 +97,8 @@ export interface TypedCollectionItemsWrapper<Collection extends object, Collecti
   remove<Output = void>(keys: string[] | number[]): Promise<Output>;
 
   /**
-    * Aggregates items in the collection.
-    */
+   * Aggregates items in the collection.
+   */
   aggregate<
     Options extends Directus.AggregationOptions<Schema, CollectionName>,
     Output = Directus.AggregationOutput<
@@ -103,7 +106,9 @@ export interface TypedCollectionItemsWrapper<Collection extends object, Collecti
       CollectionName,
       Options
     >[number],
-  >(options: Options): Promise<Output>
+  >(
+    options: Options,
+  ): Promise<Output>;
 }
 
 export interface TypedCollectionItemWrapper<Collection extends object> {
@@ -111,8 +116,8 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
    * Create a single item in the collection.
    */
   create<
-    const Query extends DirectusSDK.Query<Schema, Collection>,
-    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection[]>,
+    Output = ApplyQueryFields<Schema, Collection[], Query["fields"]>,
   >(
     item: Partial<Collection>,
     query?: Query,
@@ -133,8 +138,8 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
    * Update a single item from the collection.
    */
   update<
-    const Query extends DirectusSDK.Query<Schema, Collection>,
-    Output = ApplyQueryFields<Schema, Collection, Query["fields"]>,
+    const Query extends DirectusSDK.Query<Schema, Collection[]>,
+    Output = ApplyQueryFields<Schema, Collection[], Query["fields"]>,
   >(
     key: string | number,
     patch: Partial<Collection>,
@@ -177,14 +182,6 @@ import { read{{ collectionName }}, update{{ collectionName }} } from '../../comm
 export class {{ collectionName }}Singleton extends ChainableBinding implements TypedCollectionSingletonWrapper<{{ collectionType }}> 
 {
   /**
-   *
-   */
-  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
-  {
-    super(client);
-  }
-
-  /**
    * Reads the {{ collection.name | to_collection_text }} singleton.
    */
   async read<{{ genericQuery }}, {{ genericOutput }}>(query?: Query): Promise<{{ applyType }}>
@@ -209,14 +206,6 @@ import { create{{ collectionName }}Item, create{{ collectionName }}Items, delete
 export class {{ collectionName }}Items extends ChainableBinding implements TypedCollectionItemsWrapper<{{ collectionType }}, {{ collectionString }}> 
 {
   /**
-   *
-   */
-  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
-  {
-    super(client);
-  }
-
-  /**
    * Creates many items in the collection.
    */
   async create<
@@ -227,7 +216,7 @@ export class {{ collectionName }}Items extends ChainableBinding implements Typed
   ): Promise<
       {{ applyType }}
   > {
-    return this.request(create{{ collectionName }}Items(items, query as any)) as unknown as Promise<{{ applyType }}>;
+    return this.request(create{{ collectionName }}Items(items, query)) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -287,19 +276,11 @@ export class {{ collectionName }}Items extends ChainableBinding implements Typed
 export class {{ collectionName }}Item extends ChainableBinding implements TypedCollectionItemWrapper<{{ collectionType }}> 
 {
   /**
-   *
-   */
-  constructor(client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>)
-  {
-    super(client);
-  }
-
-  /**
    * Create a single item in the collection.
    */
-  async create<{{ genericQuery }}, {{ genericOutput }}>(item: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
+  async create<{{ genericQueryArray }}, {{ genericOutput }}>(item: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return this.request(create{{ collectionName }}Item(item, query as any)) as unknown as Promise<{{ applyType }}>;
+    return this.request(create{{ collectionName }}Item(item, query)) as unknown as Promise<{{ applyType }}>;
   }
 
   /**
@@ -313,9 +294,9 @@ export class {{ collectionName }}Item extends ChainableBinding implements TypedC
   /**
    * Update a single item from the collection.
    */
-  async update<{{ genericQuery }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
+  async update<{{ genericQueryArray }}, {{ genericOutput }}>(key: Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number, patch: Partial<{{ collectionType }}>, query?: Query): Promise<{{ applyType }}>
   {
-    return this.request(update{{ collectionName }}Item(key, patch, query as any)) as unknown as Promise<{{ applyType }}>;
+    return this.request(update{{ collectionName }}Item(key, patch, query)) as unknown as Promise<{{ applyType }}>;
   }
 
   /**

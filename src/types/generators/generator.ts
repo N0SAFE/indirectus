@@ -4,20 +4,21 @@ import * as path from "node:path";
 
 import env from "@wolfpkgs/core/env";
 import { Options } from "@wolfpkgs/core/options";
-import chokidar, { FSWatcher } from "chokidar";
-import EventEmitter, { Listener } from "eventemitter2";
+import type chokidar from "chokidar";
+import { FSWatcher } from "chokidar";
+import EventEmitter, { type Listener } from "eventemitter2";
 import prettier from "prettier";
 import { z } from "zod";
 
-import { Registry, createRegistry } from "../registry";
-import { Schema } from "../schema";
+import { type Registry, createRegistry } from "../registry";
+import type { Schema } from "../schema";
 
 import { fetchSchema } from "../schema";
-import { TemplateRenderer, createRenderer } from "../template";
-import { TemplateFile } from "../template-loader";
+import { type TemplateRenderer, createRenderer } from "../template";
+import type { TemplateFile } from "../template-loader";
 import { PluginGenerator } from "./generator.plugin";
 import { DirGenerator } from "./generator.dir";
-import { Context } from "../types";
+import type { Context } from "../types";
 import { basePath, basePluginPath } from "../constant";
 
 export const GeneratorOptions = Options.for(() => {
@@ -144,7 +145,7 @@ export type GeneratorEvents = {
 
 export class Generator extends TypedEventEmitter<GeneratorEvents> {
   private watcher: chokidar.FSWatcher;
-  private watching: boolean = false;
+  private watching = false;
   private schema: Schema = {
     version: 0,
     collections: [],
@@ -167,7 +168,7 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
   // @ts-expect-error
   private dirGenerator: DirGenerator;
 
-  private initialized: boolean = false;
+  private initialized = false;
 
   constructor(private options: CompleteGeneratorOptions) {
     super();
@@ -413,7 +414,7 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     return this;
   }
 
-  private async runTask<T, Params extends any[], Result extends any>(
+  private async runTask<T, Params extends any[], Result>(
     name: string,
     task: (
       emit: (event: string, ...args: Params) => Promise<Result[]>,
@@ -427,7 +428,7 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       await this.emitAsync(`${name}.success` as any, result);
       return result;
     } catch (err) {
-      let wrapped = this.makeError(err);
+      const wrapped = this.makeError(err);
       await this.emitAsync(`${name}.error` as any, wrapped);
       throw err;
     } finally {

@@ -1,4 +1,4 @@
-import { DirectusCollection, DirectusField, Schema } from "./schema";
+import { DirectusCollection, DirectusField, type Schema } from "./schema";
 
 export class Context {
   constructor() {}

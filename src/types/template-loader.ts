@@ -7,13 +7,13 @@ const load = jiti(__filename, {
 });
 
 import {
-  Callback,
+  type Callback,
   FileSystemLoader,
   FileSystemLoaderOptions,
   ILoader,
-  ILoaderAsync,
+  type ILoaderAsync,
   Loader,
-  LoaderSource,
+  type LoaderSource,
 } from "nunjucks";
 import { grob } from "@wolfpkgs/core/grob";
 
@@ -156,7 +156,7 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
     const filters: Record<string, (...args: any[]) => any> = {};
 
     for (const file of files) {
-      let filter: any = load(file);
+      const filter: any = load(file);
       if (typeof filter === "object") {
         Object.assign(filters, filter);
       }
@@ -169,7 +169,7 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
     name: string,
     callback: Callback<Error, LoaderSource>,
   ): Promise<void> {
-    let type: string = "template";
+    let type = "template";
     let request: string = name;
 
     if (name.indexOf(":") > 0) {

@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { Schema } from "./schema";
+import type { Schema } from "./schema";
 import { contextFromJson, contextFromSchema, contextToJson } from "./context";
 
 const schema: Schema = {

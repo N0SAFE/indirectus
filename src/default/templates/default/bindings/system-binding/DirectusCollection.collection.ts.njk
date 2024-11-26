@@ -1,8 +1,8 @@
 import type * as Directus from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 import {
   aggregateDirectusCollectionItems,
   createDirectusCollectionItem,
@@ -15,16 +15,6 @@ import {
 import ChainableBinding from "../chainable-bindable";
 
 export class DirectusCollectionItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
-
   /**
    * Read munknown items from the collection.
    */
@@ -49,32 +39,25 @@ export class DirectusCollectionItems extends ChainableBinding {
       updateBatchDirectusCollectionItems(items, query),
     ) as unknown as Promise<Output>;
   }
-  
+
   /**
    * Aggregates the items in the collection.
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_collections">,
-    Output = Directus.AggregationOutput<Schema, 'directus_collections', Options>[number],
-  >(
-    options: Options,
-  ): Promise<
-    Output
-  > {
-    return this.request(aggregateDirectusCollectionItems<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_collections",
+      Options
+    >[number],
+  >(options: Options): Promise<Output> {
+    return this.request(
+      aggregateDirectusCollectionItems<Options>(options),
+    ).then((a) => a?.[0]) as unknown as Promise<Output>;
   }
 }
 
 export class DirectusCollectionItem extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * Create a single item in the collection.

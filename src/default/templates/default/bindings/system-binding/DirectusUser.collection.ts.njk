@@ -1,10 +1,10 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
+import type * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 
 import {
   aggregateDirectusUserItems,
@@ -22,18 +22,9 @@ import {
 } from "../../commands/DirectusUser.commands";
 import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
+
 
 export class DirectusMe extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * read current user.
@@ -57,9 +48,7 @@ export class DirectusMe extends ChainableBinding {
       Query["fields"]
     >,
   >(query?: Query): Promise<Output> {
-    return this.request(
-      readMeRoleItem(query),
-    ) as unknown as Promise<Output>;
+    return this.request(readMeRoleItem(query)) as unknown as Promise<Output>;
   }
 
   /**
@@ -80,15 +69,6 @@ export class DirectusMe extends ChainableBinding {
 }
 
 export class DirectusUserItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * Creates munknown items in the collection.
@@ -180,17 +160,21 @@ export class DirectusUserItems extends ChainableBinding {
       deleteDirectusUserItems(keys),
     ) as unknown as Promise<Output>;
   }
-  
+
   /**
    * Aggregates the items in the collection.
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_users">,
-    Output = Directus.AggregationOutput<Schema, "directus_users", Options>[number],
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_users",
+      Options
+    >[number],
   >(options: Options): Promise<Output> {
-    return this.request(
-      aggregateDirectusUserItems<Options>(options),
-    ).then((a) => a?.[0]) as unknown as Promise<Output>;
+    return this.request(aggregateDirectusUserItems<Options>(options)).then(
+      (a) => a?.[0],
+    ) as unknown as Promise<Output>;
   }
 }
 
@@ -200,10 +184,9 @@ export class DirectusUserItem extends ChainableBinding {
    *
    */
   constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
+    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
   ) {
-    super(client)
+    super(client);
     this.Me = new DirectusMe(client);
   }
 

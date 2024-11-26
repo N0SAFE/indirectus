@@ -1,6 +1,6 @@
 import * as path from "node:path";
-import { Registry } from "../registry";
-import { Schema } from "../schema";
+import type { Registry } from "../registry";
+import type { Schema } from "../schema";
 import { fsDeepTree, Tree } from "../utils/tree";
 import * as fs from 'node:fs';
 

@@ -1,4 +1,4 @@
-import { DirectusField, DirectusRelation } from "./schema";
+import type { DirectusField, DirectusRelation } from "./schema";
 
 export type RelationshipReference = {
   collection: string;

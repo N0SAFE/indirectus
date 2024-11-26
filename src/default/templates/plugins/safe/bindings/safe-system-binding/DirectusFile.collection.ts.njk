@@ -2,11 +2,11 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 
-import { toSafe, ToSafeOutput } from "../../utils/index";
+import { toSafe, type ToSafeOutput } from "../../utils/index";
 
 import {
   aggregateDirectusFileItems,
@@ -24,14 +24,6 @@ import {
 import ChainableBinding from "../chainable-bindable";
 
 export class DirectusFileItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusFile>,
@@ -50,13 +42,13 @@ export class DirectusFileItems extends ChainableBinding {
     const pathToFormDataPath = (path: (string | typeof arraySymbol)[]) => {
       const result: string[] = [];
       const first = path.shift();
-      path.forEach((part) => {
+      for (const part of path) {
         if (part === arraySymbol) {
           result.push("[]");
         } else {
           result.push(`[${part}]`);
         }
-      });
+      }
       if (first === arraySymbol) {
         return result.join("");
       }
@@ -66,11 +58,11 @@ export class DirectusFileItems extends ChainableBinding {
       item: object,
       path: (string | typeof arraySymbol)[] = [],
     ) => {
-      Object.entries(item).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(item)) {
         if (value instanceof File) {
           formData.append(pathToFormDataPath([...path, key]), value);
-        } else if (value instanceof Array) {
-          value.forEach((item) => {
+        } else if (Array.isArray(value)) {
+          for (const item of value) {
             if (item instanceof File) {
               formData.append(
                 pathToFormDataPath([...path, key, arraySymbol]),
@@ -89,7 +81,7 @@ export class DirectusFileItems extends ChainableBinding {
                 item,
               );
             }
-          });
+          }
         } else if (value instanceof Date) {
           formData.append(
             pathToFormDataPath([...path, key]),
@@ -100,13 +92,13 @@ export class DirectusFileItems extends ChainableBinding {
         } else {
           formData.append(pathToFormDataPath([...path, key]), value);
         }
-      });
+      }
       return formData;
-    };
-
-    items.forEach((item) => {
+    }
+    
+    for (const item of items) {
       populateFormData(item);
-    });
+    }
 
     return toSafe(
       this.request(
@@ -232,14 +224,6 @@ export class DirectusFileItems extends ChainableBinding {
 }
 
 export class DirectusFileItem extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> & Directus.RestClient<Schema>,
-  ) {
-    super(client);
-  }
 
   async create<
     const Query extends Directus.Query<Schema, Collections.DirectusFile>,
@@ -258,13 +242,13 @@ export class DirectusFileItem extends ChainableBinding {
     const pathToFormDataPath = (path: (string | typeof arraySymbol)[]) => {
       const result: string[] = [];
       const first = path.shift();
-      path.forEach((part) => {
+      for (const part of path) {
         if (part === arraySymbol) {
           result.push("[]");
         } else {
           result.push(`[${part}]`);
         }
-      });
+      }
       if (first === arraySymbol) {
         return result.join("");
       }
@@ -274,11 +258,11 @@ export class DirectusFileItem extends ChainableBinding {
       item: object,
       path: (string | typeof arraySymbol)[] = [],
     ) => {
-      Object.entries(item).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(item)) {
         if (value instanceof File) {
           formData.append(pathToFormDataPath([...path, key]), value);
-        } else if (value instanceof Array) {
-          value.forEach((item) => {
+        } else if (Array.isArray(value)) {
+          for (const item of value) {
             if (item instanceof File) {
               formData.append(
                 pathToFormDataPath([...path, key, arraySymbol]),
@@ -297,7 +281,7 @@ export class DirectusFileItem extends ChainableBinding {
                 item,
               );
             }
-          });
+          }
         } else if (value instanceof Date) {
           formData.append(
             pathToFormDataPath([...path, key]),
@@ -308,7 +292,7 @@ export class DirectusFileItem extends ChainableBinding {
         } else {
           formData.append(pathToFormDataPath([...path, key]), value);
         }
-      });
+      }
       return formData;
     };
 

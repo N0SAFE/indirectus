@@ -2,7 +2,7 @@ import type * as Directus from "@directus/sdk";
 
 import * as DirectusSDK from "@directus/sdk";
 
-import { Collections, Schema } from "../client";
+import type { Collections, Schema } from "../client";
 
 /**
  * read current user.
@@ -154,9 +154,7 @@ export function aggregateDirectusUserItems<
   Options extends Directus.AggregationOptions<Schema, "directus_users">,
 >(
   option: Options,
-): ReturnType<
-  typeof DirectusSDK.aggregate<Schema, "directus_users", Options>
-> {
+): ReturnType<typeof DirectusSDK.aggregate<Schema, "directus_users", Options>> {
   return DirectusSDK.aggregate<Schema, "directus_users", Options>(
     "directus_users",
     option,

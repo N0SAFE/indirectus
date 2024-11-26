@@ -1,10 +1,10 @@
 import type * as Directus from "@directus/sdk";
 
-import * as DirectusSDK from "@directus/sdk";
+import type * as DirectusSDK from "@directus/sdk";
 
-import { ApplyQueryFields } from "../../types/ApplyQueryFields";
+import type { ApplyQueryFields } from "../../types/ApplyQueryFields";
 
-import { Collections, Schema } from "../../client";
+import type { Collections, Schema } from "../../client";
 import {
   aggregateDirectusPermissionItems,
   createDirectusPermissionItem,
@@ -18,18 +18,7 @@ import {
 } from "../../commands/DirectusPermission.commands";
 import ChainableBinding from "../chainable-bindable";
 
-type DirectusSDK = typeof DirectusSDK;
-
 export class DirectusPermissionItems extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * Creates munknown items in the collection.
@@ -127,13 +116,17 @@ export class DirectusPermissionItems extends ChainableBinding {
       deleteDirectusPermissionItems(keys),
     ) as unknown as Promise<Output>;
   }
-  
+
   /**
    * Aggregates the items in the collection.
    */
   async aggregate<
     Options extends Directus.AggregationOptions<Schema, "directus_permissions">,
-    Output = Directus.AggregationOutput<Schema, "directus_permissions", Options>[number],
+    Output = Directus.AggregationOutput<
+      Schema,
+      "directus_permissions",
+      Options
+    >[number],
   >(options: Options): Promise<Output> {
     return this.request(
       aggregateDirectusPermissionItems<Options>(options),
@@ -142,15 +135,6 @@ export class DirectusPermissionItems extends ChainableBinding {
 }
 
 export class DirectusPermissionItem extends ChainableBinding {
-  /**
-   *
-   */
-  constructor(
-    client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
-  ) {
-    super(client)
-  }
 
   /**
    * Create a single item in the collection.
