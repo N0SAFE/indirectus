@@ -11,15 +11,17 @@ import prettier from "prettier";
 import { z } from "zod";
 
 import { type Registry, createRegistry } from "../registry";
-import type { Schema } from "../schema";
+import type { Schema } from "@/types/schema";
 
-import { fetchSchema } from "../schema";
+import { fetchSchema } from "@/types/schema";
 import { type TemplateRenderer, createRenderer } from "../template";
-import type { TemplateFile } from "../template-loader";
-import { PluginGenerator } from "./generator.plugin";
-import { DirGenerator } from "./generator.dir";
-import type { Context } from "../types";
-import { basePath, basePluginPath } from "../constant";
+import type { TemplateFile } from "@/types/template-loader";
+import { AddonGenerator } from "./generator.addon";
+import { DirConfiguratorOptionsType, DirGenerator } from "./generator.dir";
+import type { Context } from "@/types/types";
+import { baseDynamicPath, baseStaticPath, basePluginPath } from "@/types/constant";
+import { ConfigLoader } from "@/types/config";
+import { PluginHandler } from "@/types/plugin/index";
 
 export const GeneratorOptions = Options.for(() => {
   const e = env.loadSync(process.cwd(), {
@@ -37,7 +39,8 @@ export const GeneratorOptions = Options.for(() => {
       .optional()
       .default(e.DIRECTUS_TOKEN ?? ""),
     template: z.string().optional().default("default"),
-    config: z.string().optional().default("./.directus"),
+    cache: z.string().optional().default("./.directus"),
+    config: z.string().optional().default(ConfigLoader.defaultConfigName),
     output: z
       .string()
       .optional()
@@ -156,17 +159,12 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
   };
   private engines: Record<string, TemplateRenderer> = {};
 
-  // @ts-expect-error
-  private registry: Registry;
-
-  // @ts-expect-error
-  private addons: Record<string, any>;
-
-  // @ts-expect-error
-  private pluginGenerator: PluginGenerator;
-
-  // @ts-expect-error
-  private dirGenerator: DirGenerator;
+  private registry!: Registry;
+  private addons!: Record<string, any>;
+  private addonGenerator!: AddonGenerator;
+  private dirGenerator!: DirGenerator;
+  private config!: ConfigLoader;
+  private pluginHandler!: PluginHandler;
 
   private initialized = false;
 
@@ -193,7 +191,28 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         return;
       }
 
-      this.emit("plugins", this.options.plugins);
+      const [config, addons] = await Promise.all([
+        ConfigLoader.loadConfig(this.options.config, {
+          url: this.options.url,
+          plugins: [],
+        }),
+        this.options.plugins.reduce(
+          async (acc, plugin) =>
+            Object.assign(acc, await this.addonGenerator.getAddonMap(plugin)),
+          {},
+        ),
+      ]);
+
+      console.log(config);
+
+      this.registry = createRegistry(this.schema);
+      this.addonGenerator = new AddonGenerator(this.schema, this.registry);
+      this.dirGenerator = new DirGenerator(this.schema, this.registry);
+      this.addons = addons;
+      this.config = config;
+      this.pluginHandler = new PluginHandler(this.config.getPlugins() ?? []);
+
+      this.emit("plugins", this.options.plugins); // this as to be deprecated
 
       await this.runTask("schema", async () => {
         this.schema = await fetchSchema(
@@ -202,18 +221,9 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
             token: this.options.token,
           },
           {
-            cache: path.join(this.options.config, "cache/schema.json"),
+            cache: path.join(this.options.cache, "cache/schema.json"),
             useCache: this.options.useCache,
           },
-        );
-        this.registry = createRegistry(this.schema);
-        this.pluginGenerator = new PluginGenerator(this.schema, this.registry);
-        this.dirGenerator = new DirGenerator(this.schema, this.registry);
-
-        this.addons = await this.options.plugins.reduce(
-          async (acc, plugin) =>
-            Object.assign(acc, await this.pluginGenerator.getAddonMap(plugin)),
-          {},
         );
 
         this.initialized = true;
@@ -254,15 +264,22 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
   async generateDir(
     basePath: string,
     dir: string,
-    render: TemplateRenderer,
+    renderer: TemplateRenderer,
     addedOptions: any = {},
   ) {
-    const dirName = dir.replace('.dir.js', '')
-    const { generate } = await import(dir);
+    console.log("load " + dir);
+    console.log(await require(dir));
+    const { generate } = ((await require(dir))?.default ?? {}) as DirConfiguratorOptionsType;
+    const dirName = dir.replace(".dir.js", "");
     await this.runTask("dir", async (emit) => {
-      const { files, variables } = (await generate(
-        await this.createContext(render, addedOptions),
-      )) as {
+      if (!generate) {
+        return;
+      }
+      const { files, variables } = (await generate({
+        context: await this.createContext(renderer, addedOptions),
+        renderer,
+        plugin: this.pluginHandler,
+      })) as {
         files: {
           path: string;
           template: string;
@@ -271,21 +288,27 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         variables: Record<string, any>;
       };
       for (const file of files) {
-        await this.generateFile({
-          ...file,
-          output: path.isAbsolute(file.path) ? file.path : path.join(path.relative(basePath, dirName), file.path)
-        }, render, {
-          ...file.variables,
-          ...variables,
-          ...addedOptions,
-        });
+        await this.generateFile(
+          {
+            ...file,
+            output: path.isAbsolute(file.path)
+              ? file.path
+              : path.join(path.relative(basePath, dirName), file.path),
+          },
+          renderer,
+          {
+            ...file.variables,
+            ...variables,
+            ...addedOptions,
+          },
+        );
       }
     });
   }
 
   async generateFile(
     file: TemplateFile | { output: string; template: string },
-    render: TemplateRenderer,
+    renderer: TemplateRenderer,
     addedOptions: any = {},
   ) {
     await this.runTask("file", async (emit) => {
@@ -294,14 +317,14 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       await emit("render", file);
 
       if ("template" in file) {
-        result = await render.fromString(
+        result = await renderer.fromString(
           file.template,
-          await this.createContext(render, addedOptions),
+          await this.createContext(renderer, addedOptions),
         );
       } else {
-        result = await render(
+        result = await renderer(
           file.input,
-          await this.createContext(render, addedOptions),
+          await this.createContext(renderer, addedOptions),
         );
       }
 
@@ -317,14 +340,24 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         }
       }
 
-      const dir = path.dirname(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output));
+      const dir = path.dirname(
+        path.isAbsolute(file.output)
+          ? file.output
+          : path.join(this.options.output, file.output),
+      );
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
 
-      await fsp.writeFile(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output), result, {
-        encoding: "utf-8",
-      });
+      await fsp.writeFile(
+        path.isAbsolute(file.output)
+          ? file.output
+          : path.join(this.options.output, file.output),
+        result,
+        {
+          encoding: "utf-8",
+        },
+      );
       await this.emitAsync("file.output", file, result);
     });
   }
@@ -334,9 +367,9 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
 
     const templateName = this.options.template;
     const templateDirs = [
-      path.join(__dirname, "../../default"),
-      path.join(__dirname, "../../../default"),
-      this.options.config,
+      path.join(__dirname, "../../"),
+      path.join(__dirname, "../../../"),
+      this.options.output, // this is used for the plugin system in the future
     ].filter((dir) => fs.existsSync(dir));
 
     const key = JSON.stringify({
@@ -344,10 +377,12 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       templateDirs,
     });
 
-    const render =
+    console.log(templateDirs);
+
+    const renderer =
       this.engines[key] ?? (await createRenderer(templateName, templateDirs));
     if (!(key in this.engines)) {
-      this.engines[key] = render;
+      this.engines[key] = renderer;
     }
 
     await this.runTask("generation", async () => {
@@ -357,31 +392,35 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         // ]);
       }
 
-      for (const file of render.files) {
+      for (const file of renderer.files) {
         const targetPath = path.join(this.options.output, file.output);
         if (fs.existsSync(targetPath)) {
           await fsp.rm(targetPath);
         }
       }
 
-      for (const file of render.files) {
-        await this.generateFile(file, render);
+      for (const file of renderer.files) {
+        await this.generateFile(file, renderer);
       }
 
-      const dirsLocation = this.dirGenerator.getDirPaths(basePath);
+      const dirsLocation = this.dirGenerator.getDirPaths(baseDynamicPath);
       await Promise.all(
         dirsLocation
           .map(async (dir) => {
-            return this.generateDir(basePath, dir, render);
+            return this.generateDir(baseDynamicPath, dir, renderer);
           })
           .toArray(),
       );
+
+      console.log("no");
+
+      console.log(this.options.plugins);
     });
 
     await this.runTask("generation.plugins", async (emit) => {
       for (const plugin of this.options.plugins) {
         await emit("generate", plugin);
-        const addonFileTree = this.pluginGenerator.generateAddonTree(plugin);
+        const addonFileTree = this.addonGenerator.generateAddonTree(plugin);
 
         const list = addonFileTree
           .filter((file, p, isEnd) => {
@@ -397,14 +436,20 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
             output: path.join(...p).replace(/.njk$/i, ""),
           } as TemplateFile;
 
-          await this.generateFile(templateFile, render);
+          await this.generateFile(templateFile, renderer);
         }
-        
-        const dirsLocation = this.dirGenerator.getDirPaths(path.resolve(basePluginPath, plugin));
+
+        const dirsLocation = this.dirGenerator.getDirPaths(
+          path.resolve(basePluginPath, plugin),
+        );
         await Promise.all(
           dirsLocation
             .map(async (dir) => {
-              return this.generateDir(path.resolve(basePluginPath, plugin), dir, render);
+              return this.generateDir(
+                path.resolve(basePluginPath, plugin),
+                dir,
+                renderer,
+              );
             })
             .toArray(),
         );

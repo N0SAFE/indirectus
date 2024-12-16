@@ -266,3 +266,7 @@ class Proxier {
     }
 }
 ```
+
+add a new bindings strat to handle websockets when the client as the websocket enabled
+
+add a watch mode that detect change on the schema using the websocket and update the schema and the bindings when an update append like on the collection or fields

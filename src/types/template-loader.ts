@@ -67,7 +67,14 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
 
   public getTemplatesDirs() {
     return this.projectDirs
-      .map((dir) => path.join(dir, "templates"))
+      .map((dir) => path.join(dir, "templates", "default"))
+      .filter((dir) => fs.existsSync(dir))
+      .map((dir) => path.resolve(dir));
+  }
+  
+  public getPluginTemplatesDirs(plugin: string) {
+    return this.projectDirs
+      .map((dir) => path.join(dir, "templates", "plugins", plugin))
       .filter((dir) => fs.existsSync(dir))
       .map((dir) => path.resolve(dir));
   }

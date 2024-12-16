@@ -1,6 +1,6 @@
 import * as cc from "@wolfpkgs/core/strings";
 
-import { contains } from "../default/extensions/filters/contains";
+import { contains } from "@/extensions/filters/contains";
 
 import { type Relationship, getRelationship, isUnmapped } from "./relationships";
 import type {

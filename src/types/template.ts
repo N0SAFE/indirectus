@@ -20,6 +20,7 @@ export async function createRenderer(
   dirs: string[],
 ): Promise<TemplateRenderer> {
   const loader = new TemplateLoader(template, dirs);
+  console.log(loader.getTemplateDirs());
   if (!loader.getTemplateDirs().length) {
     throw new Error(`Could not find template "${template}"`);
   }

@@ -6,8 +6,10 @@ import { Options } from "@wolfpkgs/core/options";
 import {
   Generator,
   GeneratorOptions,
-} from "../../types/generators/generator";
+} from "@/types/generators/generator";
 import path from "node:path";
+import { ConfigLoader } from "@/types/config";
+import { cwd } from "node:process";
 
 (async function main() {
   try {
@@ -63,6 +65,12 @@ export default defineCommand({
       description: 'A list of plugins to use',
       valueHint: 'plugin1,plugin2,...',
       default: '',
+    },
+    config: {
+      type: 'string',
+      description: "the relative path to the config file",
+      valueHint: ConfigLoader.defaultConfigName,
+      default: ConfigLoader.defaultConfigName
     }
   },
 
@@ -70,9 +78,10 @@ export default defineCommand({
     const options = await GeneratorOptions.get({
       url: context.args.url,
       token: context.args.token,
-      config: context.args.dir,
+      cache: context.args.dir,
       output:
         context.args.outputDir ?? path.join(context.args.dir, "generated"),
+      config: path.isAbsolute(context.args.config) ? context.args.config : path.resolve(cwd(), context.args.config),
       template: "default",
       useCache: context.args.cache,
       plugins: context.args.plugins,

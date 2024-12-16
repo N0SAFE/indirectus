@@ -23,25 +23,30 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
-    "./src/**/*.js",
-    "./src/**/*.d.ts",
-    "./src/**/*.njk"
+    "./dist/**/*.js",
+    "./dist/**/*.d.ts",
+    "./dist/**/*.njk"
   ],
   "bin": {
-    "n0safe-indirectus": "./src/cli/index.js"
+    "n0safe-indirectus": "./dist/cli/index.js"
   },
   "license": "MIT",
   "description": "Directus Tools CLI.",
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "npm run build:src && npm run build:tests",
-    "build:src": "tsc",
-    "build:tests": "echo none",
+    "copy": "copy-and-watch src/**/*.{html,json,njk} dist/",
+    "build:types": "tsc --build --force --pretty --preserveWatchOutput --verbose --diagnostics ",
+    "build:tsup": "tsup --onSuccess \"npm run copy && resolve-tspaths\"",
+    "build": "concurrently -k -p \"[{name}]\" -n \"tsc,tsup\" -c \"blue.bold,magenta.bold\" \"npm run build:types\" \"npm run build:tsup\"",
+    "watch:types": "tsc --build --force --pretty --preserveWatchOutput --verbose --diagnostics --watch",
+    "watch:tsup": "tsup --watch --onSuccess \"npm run copy && resolve-tspaths\"",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"tsc,tsup\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run watch:types\" \"npm run watch:tsup\"",
+    "dev": "npm run watch",
     "check-types": "tsc --noEmit",
     "version": "changeset version",
     "release": "npm publish --access public",
     "ci": "npm run build && npm run release",
-    "test": "node ./src/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
+    "test": "node ./dist/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src",
+    "clean": "rimraf ./dist/**/* --glob"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",
@@ -60,14 +65,22 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@esbuild-plugins/tsconfig-paths": "^0.1.2",
+    "@swc/core": "^1.10.1",
+    "@swc/types": "^0.1.17",
     "@types/node": "^20.12.11",
     "@types/nunjucks": "^3.2.6",
     "@types/pluralize": "^0.0.33",
     "@wolfpkgs/tsconfig": "^0.2.0",
+    "concurrently": "^9.1.0",
     "conditional-type-checks": "^1.0.6",
+    "copy-and-watch": "^0.1.8",
     "prettier": "^3.3.3",
+    "resolve-tspaths": "^0.8.23",
+    "rimraf": "^5.0.10",
     "ts-toolbelt": "^9.6.0",
-    "typescript": "^5.4.5"
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
   },
   "engines": {
     "node": ">=18"
