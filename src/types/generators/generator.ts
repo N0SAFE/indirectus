@@ -15,13 +15,14 @@ import type { Schema } from "@/types/schema";
 
 import { fetchSchema } from "@/types/schema";
 import { type TemplateRenderer, createRenderer } from "../template";
-import type { TemplateFile } from "@/types/template-loader";
+import { TemplateLoader, type TemplateFile } from "@/types/template-loader";
 import { AddonGenerator } from "./generator.addon";
 import { DirConfiguratorOptionsType, DirGenerator } from "./generator.dir";
 import type { Context } from "@/types/types";
-import { baseDynamicPath, baseStaticPath, basePluginPath } from "@/types/constant";
+import { basePath } from "@/types/constant";
 import { ConfigLoader } from "@/types/config";
 import { PluginHandler } from "@/types/plugin/index";
+import { Version, Versionner } from "../version";
 
 export const GeneratorOptions = Options.for(() => {
   const e = env.loadSync(process.cwd(), {
@@ -38,7 +39,6 @@ export const GeneratorOptions = Options.for(() => {
       .string()
       .optional()
       .default(e.DIRECTUS_TOKEN ?? ""),
-    template: z.string().optional().default("default"),
     cache: z.string().optional().default("./.directus"),
     config: z.string().optional().default(ConfigLoader.defaultConfigName),
     output: z
@@ -153,11 +153,11 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     version: 0,
     collections: [],
     fields: [],
-    directus: "",
+    directus: "0.0.0",
     relations: [],
     vendor: "",
   };
-  private engines: Record<string, TemplateRenderer> = {};
+  private engines: Map<string, TemplateRenderer> = new Map();
 
   private registry!: Registry;
   private addons!: Record<string, any>;
@@ -203,17 +203,6 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         ),
       ]);
 
-      console.log(config);
-
-      this.registry = createRegistry(this.schema);
-      this.addonGenerator = new AddonGenerator(this.schema, this.registry);
-      this.dirGenerator = new DirGenerator(this.schema, this.registry);
-      this.addons = addons;
-      this.config = config;
-      this.pluginHandler = new PluginHandler(this.config.getPlugins() ?? []);
-
-      this.emit("plugins", this.options.plugins); // this as to be deprecated
-
       await this.runTask("schema", async () => {
         this.schema = await fetchSchema(
           {
@@ -226,9 +215,132 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           },
         );
 
+        this.registry = createRegistry(this.schema);
+        this.addonGenerator = new AddonGenerator(this.schema, this.registry);
+        this.dirGenerator = new DirGenerator(this.schema, this.registry);
+        this.addons = addons;
+        this.config = config;
+        this.pluginHandler = new PluginHandler(this.config.getPlugins() ?? []);
+
+        this.emit("plugins", this.options.plugins); // this as to be deprecated
+
         this.initialized = true;
       });
     });
+  }
+
+  async generate() {
+    await this.initialize();
+
+    const key = JSON.stringify({
+      basePath,
+      version: this.schema.version,
+    });
+
+    const createRenderers = async (
+      createRenderer: (version: Version) => Promise<TemplateRenderer>,
+    ) => {
+      const allPreviousVersions = Versionner.sortVersions(
+        Versionner.getAllPreviousVersions(
+          fs.readdirSync(
+            TemplateLoader.getTemplatesDirs(basePath),
+          ) as Version[],
+          this.schema.directus,
+        ),
+      );
+
+      return Promise.all(
+        allPreviousVersions.map(async (version) => {
+          return createRenderer(version);
+        }),
+      );
+    };
+
+    const renderers = await createRenderers(async (version) => {
+      const key = JSON.stringify({
+        basePath,
+        version,
+      });
+      if (!this.engines.has(key)) {
+        this.engines.set(key, await createRenderer(basePath, version));
+      }
+      return this.engines.get(key) as TemplateRenderer;
+    });
+
+    await this.runTask("generation", async () => {
+      if (this.watching) {
+        // this.watcher.add([
+        //   ...engine.directories.map((dir) => path.join(dir, "**/*.njk")),
+        // ]);
+      }
+
+      for (const renderer of renderers) {
+        await Promise.all(
+          renderer.files.map(async (file) => {
+            const targetPath = path.join(this.options.output, file.output);
+            if (fs.existsSync(targetPath)) {
+              await fsp.rm(targetPath);
+            }
+          }),
+        );
+
+        await Promise.all(
+          renderer.files.map(async (file) => this.generateFile(file, renderer)),
+        );
+
+        const dynamicDirPath = renderer.loader.getDynamicTemplatesDir();
+
+        const dirsLocation = this.dirGenerator.getDirPaths(dynamicDirPath);
+        await Promise.all(
+          dirsLocation
+            .map(async (dir) => {
+              return this.generateDir(dynamicDirPath, dir, renderer);
+            })
+            .toArray(),
+        );
+      }
+    });
+
+    return;
+
+    await this.runTask("generation.plugins", async (emit) => {
+      for (const renderer of renderers) {
+        for (const plugin of this.options.plugins) {
+          await emit("generate", plugin);
+          const addonFileTree = this.addonGenerator.generateAddonTree(plugin);
+
+          const list = addonFileTree
+            .filter((file, p, isEnd) => {
+              return path.extname(file) === ".njk" || !isEnd;
+            })
+            .reduce<[string, string[]][]>((acc, file, p) => {
+              acc.push([file, p]);
+              return acc;
+            }, []);
+          for (const [file, p] of list) {
+            const templateFile = {
+              input: file,
+              output: path.join(...p).replace(/.njk$/i, ""),
+            } as TemplateFile;
+
+            await this.generateFile(templateFile, renderer);
+          }
+
+          const pluginDirPath = renderer.loader.getPLuginTemplateDir(plugin);
+
+          const dirsLocation = this.dirGenerator.getDirPaths(pluginDirPath);
+          await Promise.all(
+            dirsLocation
+              .map(async (dir) => {
+                return this.generateDir(pluginDirPath, dir, renderer);
+              })
+              .toArray(),
+          );
+        }
+      }
+    });
+
+    return this;
   }
 
   watch() {
@@ -267,9 +379,8 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     renderer: TemplateRenderer,
     addedOptions: any = {},
   ) {
-    console.log("load " + dir);
-    console.log(await require(dir));
-    const { generate } = ((await require(dir))?.default ?? {}) as DirConfiguratorOptionsType;
+    const { generate } = ((await require(dir))?.default ??
+      {}) as DirConfiguratorOptionsType;
     const dirName = dir.replace(".dir.js", "");
     await this.runTask("dir", async (emit) => {
       if (!generate) {
@@ -287,22 +398,35 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         }[];
         variables: Record<string, any>;
       };
-      for (const file of files) {
-        await this.generateFile(
-          {
-            ...file,
-            output: path.isAbsolute(file.path)
-              ? file.path
-              : path.join(path.relative(basePath, dirName), file.path),
-          },
-          renderer,
-          {
-            ...file.variables,
-            ...variables,
-            ...addedOptions,
-          },
-        );
-      }
+      await Promise.all(
+        files.map(async (file) => {
+          const dirs = dirName.normalize().replaceAll("\\", "/").split("/");
+          const lastDirName = dirs.pop();
+
+          await this.generateFile(
+            {
+              ...file,
+              output: path.isAbsolute(file.path)
+                ? file.path
+                : path.join(
+                    path.relative(
+                      basePath,
+                      lastDirName === "index" || lastDirName?.startsWith("_")
+                        ? dirs.join("/")
+                        : dirName,
+                    ),
+                    file.path,
+                  ),
+            },
+            renderer,
+            {
+              ...file.variables,
+              ...variables,
+              ...addedOptions,
+            },
+          );
+        }),
+      );
     });
   }
 
@@ -360,103 +484,6 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       );
       await this.emitAsync("file.output", file, result);
     });
-  }
-
-  async generate() {
-    await this.initialize();
-
-    const templateName = this.options.template;
-    const templateDirs = [
-      path.join(__dirname, "../../"),
-      path.join(__dirname, "../../../"),
-      this.options.output, // this is used for the plugin system in the future
-    ].filter((dir) => fs.existsSync(dir));
-
-    const key = JSON.stringify({
-      templateName,
-      templateDirs,
-    });
-
-    console.log(templateDirs);
-
-    const renderer =
-      this.engines[key] ?? (await createRenderer(templateName, templateDirs));
-    if (!(key in this.engines)) {
-      this.engines[key] = renderer;
-    }
-
-    await this.runTask("generation", async () => {
-      if (this.watching) {
-        // this.watcher.add([
-        //   ...engine.directories.map((dir) => path.join(dir, "**/*.njk")),
-        // ]);
-      }
-
-      for (const file of renderer.files) {
-        const targetPath = path.join(this.options.output, file.output);
-        if (fs.existsSync(targetPath)) {
-          await fsp.rm(targetPath);
-        }
-      }
-
-      for (const file of renderer.files) {
-        await this.generateFile(file, renderer);
-      }
-
-      const dirsLocation = this.dirGenerator.getDirPaths(baseDynamicPath);
-      await Promise.all(
-        dirsLocation
-          .map(async (dir) => {
-            return this.generateDir(baseDynamicPath, dir, renderer);
-          })
-          .toArray(),
-      );
-
-      console.log("no");
-
-      console.log(this.options.plugins);
-    });
-
-    await this.runTask("generation.plugins", async (emit) => {
-      for (const plugin of this.options.plugins) {
-        await emit("generate", plugin);
-        const addonFileTree = this.addonGenerator.generateAddonTree(plugin);
-
-        const list = addonFileTree
-          .filter((file, p, isEnd) => {
-            return path.extname(file) === ".njk" || !isEnd;
-          })
-          .reduce<[string, string[]][]>((acc, file, p) => {
-            acc.push([file, p]);
-            return acc;
-          }, []);
-        for (const [file, p] of list) {
-          const templateFile = {
-            input: file,
-            output: path.join(...p).replace(/.njk$/i, ""),
-          } as TemplateFile;
-
-          await this.generateFile(templateFile, renderer);
-        }
-
-        const dirsLocation = this.dirGenerator.getDirPaths(
-          path.resolve(basePluginPath, plugin),
-        );
-        await Promise.all(
-          dirsLocation
-            .map(async (dir) => {
-              return this.generateDir(
-                path.resolve(basePluginPath, plugin),
-                dir,
-                renderer,
-              );
-            })
-            .toArray(),
-        );
-      }
-    });
-
-    return this;
   }
 
   private async runTask<T, Params extends any[], Result>(

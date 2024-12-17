@@ -24,6 +24,12 @@ export class MultiLineGenerator<
     return This;
   }
 
+  setSeperationSize(seperationSize: number) {
+    const This = this as unknown as MultiLineGenerator<Content>;
+    This.seperationSize = seperationSize;
+    return This;
+  }
+
   generate() {
     return this.lines
       .map((line) =>

@@ -15,7 +15,7 @@ export class DirGenerator {
 
   public generateTree(src: string) {
     if (!fs.existsSync(src)) {
-      throw new Error(`the path ${src} does not exist`);
+      return new Tree<string>();
     }
     return fsDeepTree(src);
   }

@@ -1,13 +1,10 @@
-import { CommandPluginConfig } from "@/templates/default/dynamic/commands.dir";
+import { CommandPluginConfig } from "@/templates/11.0.0/dynamic/commands/index.dir";
 import { Collection, Registry } from "../registry";
+import { BinderPluginConfig } from "@/templates/11.0.0/dynamic/bindings/item-binding/index.dir";
 
 export interface Plugin {
   commands: CommandPluginConfig;
-  binders: {
-    addProperty: (collection: Collection, registry: Registry) => string;
-    create: (collection: Collection, registry: Registry) => string;
-    copy: (collection: Collection, registry: Registry) => string;
-  }
+  binders: BinderPluginConfig;
   schema: {
     add: (collection: Collection, registry: Registry) => string;
   }

@@ -7,6 +7,7 @@ export interface TemplateRenderer {
   (file: string, context: any): Promise<string>;
   files: TemplateFile[];
   fromString: (string: string, context: any) => Promise<string>;
+  loader: TemplateLoader;
 }
 
 export interface TemplateContext {
@@ -16,15 +17,10 @@ export interface TemplateContext {
 }
 
 export async function createRenderer(
-  template: string,
-  dirs: string[],
+  basePath: string,
+  versionUsed: `${number}.${number}.${number}`
 ): Promise<TemplateRenderer> {
-  const loader = new TemplateLoader(template, dirs);
-  console.log(loader.getTemplateDirs());
-  if (!loader.getTemplateDirs().length) {
-    throw new Error(`Could not find template "${template}"`);
-  }
-
+  const loader = new TemplateLoader(basePath, versionUsed);
   const files = await loader.getFiles();
   async function render(file: string, context: any) {
     const filters = await loader.getFilters();
@@ -76,7 +72,8 @@ export async function createRenderer(
 
   return Object.assign(render, {
     files,
-    fromString: renderFromString
+    fromString: renderFromString,
+    loader
   });
 
   /*

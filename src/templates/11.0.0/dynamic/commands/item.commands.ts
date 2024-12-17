@@ -6,6 +6,20 @@ import { TemplateGenerator } from "@/lib/templating/generator/utils";
 import { VariableGenerator } from "@/lib/templating/generator/variable.generator";
 import NunjuksVariable from "@/lib/templating/string/nunjuksVariable";
 
+const keyTemplate = {
+  name: "key",
+  type: "Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}['id'] : string | number",
+}
+const keysTemplate = {
+  name: "keys",
+  type: "Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}['id'][] : string[] | number[]",
+}
+const queryTemplate = {
+  name: "query",
+  type: "Query",
+  optional: true,
+}
+
 export const imports = MultiLineGenerator.create([
   ImportGenerator.create("@directus/sdk", {
     all: true,
@@ -116,6 +130,13 @@ export const not_singleton = {
           name: "{{ genericQueryArray }}",
         },
       ],
+      params: [
+        {
+          name: "items",
+          type: `Partial<{{ collectionType }}>[]`,
+        },
+        queryTemplate,
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.createItems<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.createItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", items, query);',
@@ -134,6 +155,13 @@ export const not_singleton = {
           name: "const Query extends Directus.Query<Schema, {{ collectionType }}[]>",
         },
       ],
+      params: [
+        {
+          name: "item",
+          type: `Partial<{{ collectionType }}>`
+        },
+        queryTemplate
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.createItem<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.createItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", item, query);',
@@ -151,6 +179,9 @@ export const not_singleton = {
         {
           name: "{{ genericQuery }}",
         },
+      ],
+      params: [
+        queryTemplate
       ],
       returnType:
         "ReturnType<typeof DirectusSDK.readItems<Schema, {{ collectionString }}, Query>>",
@@ -183,6 +214,10 @@ export const not_singleton = {
           name: "{{ genericQuery }}",
         },
       ],
+      params: [
+        keyTemplate,
+        queryTemplate,
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.readItem<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.readItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", key, query);',
@@ -214,6 +249,14 @@ export const not_singleton = {
           name: "{{ genericQueryArray }}",
         },
       ],
+      params: [
+        keysTemplate,
+        {
+          name: "patch",
+          type: `Partial<{{ collectionType }}>`,
+        },
+        queryTemplate,
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.updateItems<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.updateItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", keys, patch, query);',
@@ -233,6 +276,13 @@ export const not_singleton = {
         {
           name: "{{ genericQueryArray }}",
         },
+      ],
+      params: [
+        {
+          name: "items",
+          type: `Partial<Directus.UnpackList<Collections.{{collectionName}}>>[]`,
+        },
+        queryTemplate,
       ],
       returnType:
         "ReturnType<typeof DirectusSDK.updateItemsBatch<Schema, {{ collectionString }}, Query>>",
@@ -254,6 +304,14 @@ export const not_singleton = {
           name: "{{ genericQueryArray }}",
         },
       ],
+      params: [
+        keyTemplate,
+        {
+          name: "patch",
+          type: `Partial<{{ collectionType }}>`,
+        },
+        queryTemplate,
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.updateItem<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.updateItem<Schema, {{ collectionString }}, Query>("{{ collection.name }}", key, patch, query);',
@@ -272,6 +330,9 @@ export const not_singleton = {
           name: "{{ genericQueryArray }}",
         },
       ],
+      params: [
+        keysTemplate,
+      ],
       returnType:
         "ReturnType<typeof DirectusSDK.deleteItems<Schema, {{ collectionString }}, Query>>",
       body: 'let toReturn = DirectusSDK.deleteItems<Schema, {{ collectionString }}, Query>("{{ collection.name }}", keys);',
@@ -288,6 +349,7 @@ export const not_singleton = {
     export: FunctionGenerator.create({
       name: "delete{{ collectionName }}Item",
       generics: [],
+      params: [keyTemplate],
       returnType:
         "ReturnType<typeof DirectusSDK.deleteItem<Schema, {{ collectionString }}>>",
       body: 'let toReturn = DirectusSDK.deleteItem<Schema, {{ collectionString }}>("{{ collection.name }}", key);',
@@ -306,6 +368,13 @@ export const not_singleton = {
           extends:
             "Directus.AggregationOptions<Schema, '{{ collection.name }}'>",
           name: "Options",
+        },
+      ],
+      params: [
+        {
+          name: "option",
+          type:
+            "Options",
         },
       ],
       returnType:

@@ -1,9 +1,12 @@
-export class CommentGenerator {
+import { TemplateGenerator } from "./utils";
+
+export class CommentGenerator extends TemplateGenerator {
   private contents: string[] = [];
   private forceMultiline = false;
   private forceComment = false;
 
   constructor(contents: string[] = [], options?: { forceMultiline?: boolean, forceComment?: boolean }) {
+    super()
     this.contents = contents;
     this.forceMultiline = options?.forceMultiline ?? false;
     this.forceComment = options?.forceComment ?? false;

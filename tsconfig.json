@@ -64,6 +64,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
-  ],
+, "src/templates/11.0.0/static/bindings/item-binding/types.ts.njk"  ],
   "reflection": true
 }

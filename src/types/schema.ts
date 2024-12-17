@@ -29,7 +29,7 @@ export type DirectusRelation = Directus.DirectusRelation<DirectusExtras>;
 
 export type Schema = {
   version: number;
-  directus: string;
+  directus: `${number}.${number}.${number}`;
   vendor: string;
   collections: DirectusCollection[];
   fields: DirectusField[];

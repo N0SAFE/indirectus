@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import jiti from "jiti";
+import semver from "semver";
 
 const load = jiti(__filename, {
   //debug: true,
@@ -16,144 +17,127 @@ import {
   type LoaderSource,
 } from "nunjucks";
 import { grob } from "@wolfpkgs/core/grob";
+import { Version, Versionner } from "./version";
 
-export type TemplateFile = {
-  input: string;
-  output: string;
-} | {
-  output: string,
-  template: string
-}
+export type TemplateFile =
+  | {
+      input: string;
+      output: string;
+    }
+  | {
+      output: string;
+      template: string;
+    };
 
 export class TemplateLoader extends Loader implements ILoaderAsync {
   public "async": true = true;
   public static "async"?: true | undefined = true;
 
-  private templateName: string;
+  private macrosDir: string;
+  private templatesDir: string;
 
-  private localDirs: string[];
-  private projectDirs: string[];
-  private macroDirs: string[];
-  private templatesDirs: string[];
-
-  constructor(templateName: string, projectDirs: string[]) {
+  constructor(
+    private projectDir: string,
+    private version: `${number}.${number}.${number}`,
+  ) {
     super();
-    
-    (this as any).setMaxListeners(1000)
 
-    this.templateName = templateName;
+    (this as any).setMaxListeners(1000);
 
-    this.projectDirs = projectDirs ?? [];
-
-    this.macroDirs = this.projectDirs
-      .map((dir) => path.join(dir, "macros"))
-      .filter((dir) => fs.existsSync(dir));
-
-    this.templatesDirs = this.projectDirs
-      .map((dir) => path.join(dir, "templates"))
-      .filter((dir) => fs.existsSync(dir));
-
-    this.localDirs = this.projectDirs
-      .map((dir) => path.join(dir, "templates", templateName))
-      .filter((dir) => fs.existsSync(dir));
+    this.macrosDir = path.join(projectDir, "macros");
+    this.templatesDir = path.join(projectDir, "templates");
   }
 
-  public getTemplateDirs() {
-    return this.projectDirs
-      .map((dir) => path.join(dir, "templates", this.templateName))
-      .filter((dir) => fs.existsSync(dir))
-      .map((dir) => path.resolve(dir));
+  public static getTemplatesDirs(projectDir: string) {
+    return path.join(projectDir, "templates");
   }
 
-  public getTemplatesDirs() {
-    return this.projectDirs
-      .map((dir) => path.join(dir, "templates", "default"))
-      .filter((dir) => fs.existsSync(dir))
-      .map((dir) => path.resolve(dir));
-  }
-  
-  public getPluginTemplatesDirs(plugin: string) {
-    return this.projectDirs
-      .map((dir) => path.join(dir, "templates", "plugins", plugin))
-      .filter((dir) => fs.existsSync(dir))
-      .map((dir) => path.resolve(dir));
+  public getTemplatesDir() {
+    const dirs = fs.readdirSync(this.templatesDir) as Version[];
+
+    const closest = Versionner.getCLosestVersion(dirs, this.version);
+    if (closest) {
+      return path.join(this.templatesDir, closest);
+    }
+    return path.join(
+      this.templatesDir,
+      Versionner.getSmallestVersion(dirs)!,
+    );
   }
 
-  public getMacroDirs() {
-    return this.projectDirs
-      .flatMap((dir) => [path.join(dir, "macros")])
-      .filter((dir) => fs.existsSync(dir));
+  public getPLuginTemplateDir(plugin: string) {
+    return path.join(this.templatesDir, "plugins", plugin);
   }
 
-  public getFilterDirs() {
-    return this.projectDirs
-      .flatMap((dir) => [path.join(dir, "extensions/filters")])
-      .filter((dir) => fs.existsSync(dir));
+  public getMacrosDir() {
+    return this.macrosDir;
   }
 
-  public getTagsDirs() {
-    return this.projectDirs
-      .flatMap((dir) => [path.join(dir, "extensions/tags")])
-      .filter((dir) => fs.existsSync(dir));
+  public getFiltersDir() {
+    return path.join(this.projectDir, "extensions/filters");
+  }
+
+  public getTagsDir() {
+    return path.join(this.projectDir, "extensions/tags");
+  }
+
+  public getStaticTemplatesDir() {
+    return path.join(this.getTemplatesDir(), "static");
+  }
+
+  public getDynamicTemplatesDir() {
+    return path.join(this.getTemplatesDir(), "dynamic");
   }
 
   async getFiles(): Promise<TemplateFile[]> {
-    const files: TemplateFile[] = [];
+    const root = this.getStaticTemplatesDir();
 
-    for (const root of this.getTemplateDirs()) {
-      const discovered = await grob.glob("**/*.njk", {
-        cwd: root,
-        absolute: true,
-      });
+    const discovered = await grob.glob("**/*.njk", {
+      cwd: root,
+      absolute: true,
+    });
 
-      files.push(
-        ...discovered
-          .map((file) => path.relative(root, file))
-          .map((file) => ({
-            input: file,
-            output: file.replace(/.njk$/i, ""),
-          }))
-          .filter((file) => {
-            return file.input != file.output;
-          })
-          .map((file) => ({
-            input: path.join(root, file.input),
-            output: file.output,
-          })),
-      );
-    }
+    const files: TemplateFile[] = discovered
+      .map((file) => path.relative(root, file))
+      .map((file) => ({
+        input: file,
+        output: file.replace(/.njk$/i, ""),
+      }))
+      .filter((file) => {
+        return file.input != file.output;
+      })
+      .map((file) => ({
+        input: path.join(root, file.input),
+        output: file.output,
+      }));
 
     return files.map((file) => {
-      if ('template' in file) {
-        return file
+      if ("template" in file) {
+        return file;
       }
       return {
         input: path.resolve(file.input),
         output: file.output,
-      }
+      };
     });
   }
 
   async getFilterFiles(): Promise<string[]> {
-    const files: string[] = [];
+    const root = this.getFiltersDir();
 
-    for (const dir of this.getFilterDirs()) {
-      files.push(
-        ...(
-          await grob.glob("**/*.{ts,mts,cts,js,mjs,cjs}", {
-            cwd: dir,
-            ignore: ["**/*.d.ts"],
-          })
-        )
-          .filter((name, _, files) => {
-            if (name.endsWith("js")) {
-              return files.indexOf(name.replace(/js$/i, "ts")) < 0;
-            }
-            return true;
-          })
-          .map((name) => path.join(dir, name)),
-      );
-    }
+    const files: string[] = (
+      await grob.glob("**/*.{ts,mts,cts,js,mjs,cjs}", {
+        cwd: root,
+        ignore: ["**/*.d.ts"],
+      })
+    )
+      .filter((name, _, files) => {
+        if (name.endsWith("js")) {
+          return files.indexOf(name.replace(/js$/i, "ts")) < 0;
+        }
+        return true;
+      })
+      .map((name) => path.join(root, name));
 
     return files;
   }
@@ -187,15 +171,15 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
       }
     }
 
-    let searchPaths: string[] = [];
+    let searchPath: string | null = null;
     let fullpath: string | null = null;
 
     if (type == "default") {
-      searchPaths = this.getTemplateDirs();
+      searchPath = this.getTemplatesDir();
     } else if (type == "template") {
-      searchPaths = this.getTemplatesDirs();
+      searchPath = this.getTemplatesDir();
     } else if (type == "macro") {
-      searchPaths = this.macroDirs;
+      searchPath = this.macrosDir;
     } else if (type == "module") {
       try {
         fullpath = require.resolve(request);
@@ -208,20 +192,16 @@ export class TemplateLoader extends Loader implements ILoaderAsync {
       }
     }
 
-    if (!fullpath && searchPaths.length) {
-      for (const searchDir of searchPaths) {
-        const basePath = path.resolve(searchDir);
-        const candidates = [
-          path.resolve(searchDir, request),
-          path.resolve(searchDir, `${request}.njk`),
-        ];
-        for (const candidate of candidates) {
-          if (candidate.indexOf(basePath) === 0 && fs.existsSync(candidate)) {
-            fullpath = candidate;
-            break;
-          }
-        }
-        if (fullpath) {
+    if (!fullpath && searchPath) {
+      const searchDir = searchPath;
+      const basePath = path.resolve(searchDir);
+      const candidates = [
+        path.resolve(searchDir, request),
+        path.resolve(searchDir, `${request}.njk`),
+      ];
+      for (const candidate of candidates) {
+        if (candidate.indexOf(basePath) === 0 && fs.existsSync(candidate)) {
+          fullpath = candidate;
           break;
         }
       }

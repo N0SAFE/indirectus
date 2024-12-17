@@ -1,3 +1,4 @@
+import { MultiLineGenerator } from "./arrangement.generator";
 import {
   GenericGenerator,
   GenericsGenerator,
@@ -97,9 +98,9 @@ export class FunctionParamsGenerator extends TemplateGenerator {
 export class FunctionGenerator extends TemplateGenerator {
   private generics: GenericsGenerator = new GenericsGenerator([]);
   private params: FunctionParamsGenerator;
-  private return = "";
-  private returnType = "";
-  private body = "";
+  private return
+  private returnType
+  private body: MultiLineGenerator;
   private isAsync = false;
   private isArrow = false;
   private isGenerator = false;
@@ -110,7 +111,7 @@ export class FunctionGenerator extends TemplateGenerator {
     params?: FunctionParamsGenerator | FunctionParam[];
     return?: string;
     returnType?: string;
-    body: string;
+    body: string | MultiLineGenerator;
     isAsync?: boolean;
     isArrow?: boolean;
     isGenerator?: boolean;
@@ -127,7 +128,7 @@ export class FunctionGenerator extends TemplateGenerator {
         : new FunctionParamsGenerator(options.params ?? []);
     this.returnType = options.returnType ?? "";
     this.return = options.return ?? "";
-    this.body = options.body;
+    this.body = options.body instanceof MultiLineGenerator ? options.body : new MultiLineGenerator([options.body]);
     this.isAsync = options.isAsync ?? false;
     this.isArrow = options.isArrow ?? false;
     this.isGenerator = options.isGenerator ?? false;
@@ -149,8 +150,8 @@ export class FunctionGenerator extends TemplateGenerator {
     return this;
   }
 
-  setBody(body: string) {
-    this.body = body;
+  setBody(body: string | MultiLineGenerator) {
+    this.body = body instanceof MultiLineGenerator ? body : new MultiLineGenerator([body]);
     return this;
   }
 
@@ -188,7 +189,7 @@ export class FunctionGenerator extends TemplateGenerator {
     params?: FunctionParamsGenerator | FunctionParam[];
     returnType?: string;
     return?: string;
-    body: string;
+    body: string | MultiLineGenerator;
     isAsync?: boolean;
     isArrow?: boolean;
     isGenerator?: boolean;
@@ -202,7 +203,7 @@ export class FunctionGenerator extends TemplateGenerator {
     return?: string;
     generics?: GenericsGenerator | TemplateGeneric[];
     params?: FunctionParamsGenerator | FunctionParam[];
-    body: string;
+    body: string | MultiLineGenerator;
     isAsync?: boolean;
     isArrow?: boolean;
     isGenerator?: boolean;

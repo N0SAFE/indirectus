@@ -82,7 +82,6 @@ export default defineCommand({
       output:
         context.args.outputDir ?? path.join(context.args.dir, "generated"),
       config: path.isAbsolute(context.args.config) ? context.args.config : path.resolve(cwd(), context.args.config),
-      template: "default",
       useCache: context.args.cache,
       plugins: context.args.plugins,
     });
