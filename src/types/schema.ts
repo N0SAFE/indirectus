@@ -7,6 +7,7 @@ import {
   readFields,
   readRelations,
   rest,
+  realtime,
   staticToken,
   serverPing,
 } from "@directus/sdk";
@@ -43,11 +44,127 @@ const ignoredCollections = [
   "directus_comments",
 ];
 
+export async function watchSchema(
+  directus: { url: string; token: string },
+  options: {
+    cache?: string;
+    useCache?: boolean;
+  } = {
+    useCache: false,
+  },
+  callback: (schema: Schema, signal: AbortSignal) => Promise<void>,
+) {
+  const cache = options?.cache ?? process.env.DIRECTUS_SCHEMA_CACHE;
+  const useCache =
+    options?.useCache ?? (process.env.DIRECTUS_SCHEMA_CACHE && true);
+
+  let raw: Schema | null = null;
+
+  if (cache) {
+    const cacheDir = path.dirname(cache);
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+    }
+
+    if (fs.existsSync(cache)) {
+      if (!fs.statSync(cache).isFile()) {
+        throw new Error("Cache path is not a file");
+      }
+      if (useCache) {
+        try {
+          raw = JSON.parse(fs.readFileSync(cache, "utf-8")) as any;
+        } catch (e) {
+          raw = null;
+        }
+      }
+    }
+  }
+
+  if (!raw) {
+    interface Schema {
+      directus_users: {
+        wtf: string;
+      };
+      directus_collections: {
+        system?: boolean;
+        sort?: number;
+      };
+      directus_fields: {
+        system?: boolean;
+        sort?: number;
+      };
+      directus_relations: {
+        system?: boolean;
+        sort?: number;
+      };
+    }
+
+    let is_rebuilding = false;
+    let has_queue = false;
+    let last_signal = new AbortController();
+
+    async function consumeAsyncGenerator(
+      gen: Promise<AsyncGenerator<Directus.SubscriptionOutput<Schema, keyof Schema, undefined, Directus.SubscriptionEvents>, any, any>>,
+    ) {
+      for await (const value of await gen) {
+        if (value.event === 'init') {
+          continue;
+        }
+        console.log('new', {
+          is_rebuilding,
+          has_queue,
+        })
+        if (is_rebuilding) {
+          last_signal.abort();
+        }
+        last_signal = new AbortController()
+        is_rebuilding = true;
+        await callback(await fetchSchema(directus, options), last_signal.signal)
+        is_rebuilding = false;
+      }
+    }
+
+    const client = createDirectus<Schema>(directus.url)
+      .with(rest())
+      .with(realtime())
+      .with(staticToken(directus.token))
+
+      if (client.globals.WebSocket === undefined) {
+        client.globals.WebSocket = require('ws') // this ensures that the ws package is used
+      }
+
+    try {
+      const pong = await client.request(serverPing());
+      if (pong != "pong") {
+        throw new Error(
+          `Server did not respond with 'pong'.\nPerhaps URL is invalid: ${directus.url}\n\nATTENTION:Note that the URL must point to Directus root (for example, do not include /admin)`,
+        );
+      }
+    } catch (e) {
+      throw new Error(
+        `Failed to ping Directus server at ${directus.url}: ${e.message}`,
+      );
+    }
+
+    try {
+      await client.connect()
+      const collections = client.subscribe("directus_collections").then(({subscription}) => subscription);
+      const fields = client.subscribe("directus_fields").then(({subscription}) => subscription);
+      const relations = client.subscribe("directus_relations").then(({subscription}) => subscription);
+  
+      await Promise.all([consumeAsyncGenerator(collections), consumeAsyncGenerator(fields), consumeAsyncGenerator(relations)]);
+    } catch (e) {
+      console.log(e)
+    }
+  } 
+}
+
 export async function fetchSchema(
   directus: { url: string; token: string },
   options: {
     cache?: string;
     useCache?: boolean;
+    signal?: AbortSignal
   } = {
     useCache: false,
   },

@@ -128,6 +128,7 @@ export default defineCommand({
     })
 
     await generator.initialize();
-    await generator.generate();
+    await generator.watch(generator.generate.bind(generator));
+    // await generator.generate();
   },
 });

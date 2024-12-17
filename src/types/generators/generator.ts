@@ -13,7 +13,7 @@ import { z } from "zod";
 import { type Registry, createRegistry } from "../registry";
 import type { Schema } from "../schema";
 
-import { fetchSchema } from "../schema";
+import { fetchSchema, watchSchema } from "../schema";
 import { type TemplateRenderer, createRenderer } from "../template";
 import type { TemplateFile } from "../template-loader";
 import { PluginGenerator } from "./generator.plugin";
@@ -221,11 +221,35 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     });
   }
 
-  watch() {
+  watch(cb: (signal: AbortSignal) => void) {
     this.watching = true;
     this.watcher.on("all", async (event, path) => {
       await this.generate();
     });
+    watchSchema(
+      {
+        url: this.options.url,
+        token: this.options.token,
+      },
+      {
+        cache: path.join(this.options.config, "cache/schema.json"),
+        useCache: this.options.useCache,
+      },
+      async (schema, signal) => {
+        this.schema = schema;
+        this.registry = createRegistry(this.schema);
+        this.pluginGenerator = new PluginGenerator(this.schema, this.registry);
+        this.dirGenerator = new DirGenerator(this.schema, this.registry);
+
+        this.addons = await this.options.plugins.reduce(
+          async (acc, plugin) =>
+            Object.assign(acc, await this.pluginGenerator.getAddonMap(plugin)),
+          {},
+        );
+
+        cb(signal);
+      },
+    );
     return this;
   }
 
@@ -257,7 +281,7 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
     render: TemplateRenderer,
     addedOptions: any = {},
   ) {
-    const dirName = dir.replace('.dir.js', '')
+    const dirName = dir.replace(".dir.js", "");
     const { generate } = await import(dir);
     await this.runTask("dir", async (emit) => {
       const { files, variables } = (await generate(
@@ -271,14 +295,20 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         variables: Record<string, any>;
       };
       for (const file of files) {
-        await this.generateFile({
-          ...file,
-          output: path.isAbsolute(file.path) ? file.path : path.join(path.relative(basePath, dirName), file.path)
-        }, render, {
-          ...file.variables,
-          ...variables,
-          ...addedOptions,
-        });
+        await this.generateFile(
+          {
+            ...file,
+            output: path.isAbsolute(file.path)
+              ? file.path
+              : path.join(path.relative(basePath, dirName), file.path),
+          },
+          render,
+          {
+            ...file.variables,
+            ...variables,
+            ...addedOptions,
+          },
+        );
       }
     });
   }
@@ -317,19 +347,29 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
         }
       }
 
-      const dir = path.dirname(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output));
+      const dir = path.dirname(
+        path.isAbsolute(file.output)
+          ? file.output
+          : path.join(this.options.output, file.output),
+      );
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
 
-      await fsp.writeFile(path.isAbsolute(file.output) ? file.output : path.join(this.options.output, file.output), result, {
-        encoding: "utf-8",
-      });
+      await fsp.writeFile(
+        path.isAbsolute(file.output)
+          ? file.output
+          : path.join(this.options.output, file.output),
+        result,
+        {
+          encoding: "utf-8",
+        },
+      );
       await this.emitAsync("file.output", file, result);
     });
   }
 
-  async generate() {
+  async generate(signal: AbortSignal) {
     await this.initialize();
 
     const templateName = this.options.template;
@@ -344,6 +384,9 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       templateDirs,
     });
 
+    if (signal.aborted) {
+      return;
+    }
     const render =
       this.engines[key] ?? (await createRenderer(templateName, templateDirs));
     if (!(key in this.engines)) {
@@ -360,15 +403,24 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
       for (const file of render.files) {
         const targetPath = path.join(this.options.output, file.output);
         if (fs.existsSync(targetPath)) {
+          if (signal.aborted) {
+            return;
+          }
           await fsp.rm(targetPath);
         }
       }
 
       for (const file of render.files) {
+        if (signal.aborted) {
+          return;
+        }
         await this.generateFile(file, render);
       }
 
       const dirsLocation = this.dirGenerator.getDirPaths(basePath);
+      if (signal.aborted) {
+        return;
+      }
       await Promise.all(
         dirsLocation
           .map(async (dir) => {
@@ -376,10 +428,19 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
           })
           .toArray(),
       );
+      if (signal.aborted) {
+        return;
+      }
     });
+    if (signal.aborted) {
+      return;
+    }
 
     await this.runTask("generation.plugins", async (emit) => {
       for (const plugin of this.options.plugins) {
+        if (signal.aborted) {
+          return;
+        }
         await emit("generate", plugin);
         const addonFileTree = this.pluginGenerator.generateAddonTree(plugin);
 
@@ -399,17 +460,30 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
 
           await this.generateFile(templateFile, render);
         }
-        
-        const dirsLocation = this.dirGenerator.getDirPaths(path.resolve(basePluginPath, plugin));
+        if (signal.aborted) {
+          return;
+        }
+
+        const dirsLocation = this.dirGenerator.getDirPaths(
+          path.resolve(basePluginPath, plugin),
+        );
         await Promise.all(
           dirsLocation
             .map(async (dir) => {
-              return this.generateDir(path.resolve(basePluginPath, plugin), dir, render);
+              return this.generateDir(
+                path.resolve(basePluginPath, plugin),
+                dir,
+                render,
+              );
             })
             .toArray(),
         );
       }
     });
+
+    if (signal.aborted) {
+      return;
+    }
 
     return this;
   }
