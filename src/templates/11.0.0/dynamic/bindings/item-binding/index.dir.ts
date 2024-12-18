@@ -14,58 +14,141 @@ import { pascal_case } from "@/extensions/filters/string_cases";
 import $ from "pluralize";
 import { CommentGenerator } from "@/lib/templating/generator/comment.generator";
 import {
+  ClassGenerator,
   ClassMethodGenerator,
   ClassPropertyGenerator,
 } from "@/lib/templating/generator/class.generator";
+import { Methods } from "@/types/shape/ItemBindings";
+
+function classGetter(
+  keys: [
+    keyof Methods,
+    Methods[keyof Methods],
+  ],
+) {
+  const [className, propName] = keys;
+  const classGenerator = ItemTemplates.classes[className];
+  if (!classGenerator) {
+    return null;
+  }
+  if (!propName) {
+    return classGenerator();
+  }
+  const method = (() => {
+    const generator = classGenerator()
+      .getMethods()
+      .find((method) => {
+        if (method instanceof ClassMethodGenerator) {
+          return method.getName() === propName;
+        } else if (method instanceof MultiLineGenerator) {
+          return method.some((item) => {
+            if (item instanceof ClassMethodGenerator) {
+              return item.getName() === propName;
+            }
+            return false;
+          });
+        }
+        throw new Error("not all use cases are covered");
+      });
+    if (!generator) {
+      return null;
+    }
+    if (generator instanceof MultiLineGenerator) {
+      return generator.find((item) => {
+        if (item instanceof ClassMethodGenerator) {
+          return item.getName() === propName;
+        }
+        return false;
+      }) as ClassMethodGenerator;
+    }
+    return generator;
+  })();
+  return method;
+}
+
+function get(key: `Class.${keyof Methods}`): ClassGenerator
+function get(
+  key: `Class.${keyof Methods}.${Methods[keyof Methods]}`,
+): ClassMethodGenerator;
+function get(key: `Variable.${keyof typeof ItemTemplates.variables}`): string;
+function get(key: `${"Class" | "Variable"}.${string}`) {
+  const [namespace, ...rest] = key.split(".") as [
+    AllNamspace<typeof key>,
+    ...string[],
+  ];
+  if (namespace === "Class") {
+    return classGetter(
+      rest as [
+        keyof Methods,
+        Methods[keyof Methods],
+      ],
+    )
+  } else if (namespace === "Variable") {
+    return ItemTemplates.variables[
+      rest.join(".") as keyof typeof ItemTemplates.variables
+    ];
+  }
+  return null;
+}
 
 export type BinderPluginConfig = {
   add: <C extends Collection>(options: {
     collection: C;
     registry: Registry;
-    get: (
-      key: `${keyof ItemTemplates.Methods}.${ItemTemplates.Methods[keyof ItemTemplates.Methods]}`,
-    ) => string | TemplateGenerator | null;
+    get: typeof get;
   }) => {
     imports:
       | (ImportGenerator | string)[]
       | MultiLineGenerator<ImportGenerator | string>;
     nunjuksVariables: Record<string, NunjuksVariable>;
     classes: {
-      Singleton: Record<
-        ItemTemplates.SingletonMethods,
-        (
-          | string
-          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
-          | ClassMethodGenerator
-          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
-          | ClassPropertyGenerator
-        )[]
-      >;
-      Items: Record<
-        ItemTemplates.ItemsMethods,
-        (
-          | string
-          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
-          | ClassMethodGenerator
-          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
-          | ClassPropertyGenerator
-        )[]
-      >;
-      Item: Record<
-        ItemTemplates.ItemMethods,
-        (
-          | string
-          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
-          | ClassMethodGenerator
-          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
-          | ClassPropertyGenerator
-        )[]
-      >;
+      Singleton: ItemTemplates.ClassesOptions<"Singleton">;
+      Items: ItemTemplates.ClassesOptions<"Items">;
+      Item: ItemTemplates.ClassesOptions<"Item">;
     };
     variables: Record<string, any>;
     exports: (TemplateGenerator | string)[];
   };
 };
+
+type AllNamspace<T extends `${string}.${string}`> =
+  T extends `${infer A}.${infer B}` ? A : never;
+type PropertyByNamespace<
+  T extends `${string}.${string}`,
+  N extends string,
+> = T extends `${N}.${infer B}` ? B : never;
+
+function mergeClassesOptions<N extends keyof Methods>(
+  acc: ItemTemplates.ClassesOptions<N>,
+  toAdd: ItemTemplates.ClassesOptions<N>,
+): ItemTemplates.ClassesOptions<N> {
+  const methodLinesKey = Object.keys({
+    ...acc.methodLines,
+    ...toAdd.methodLines,
+  }) as unknown as (keyof NonNullable<
+    ItemTemplates.ClassesOptions<N>["methodLines"]
+  >)[];
+  return {
+    methods: [...(acc.methods ?? []), ...(toAdd.methods ?? [])],
+    properties: [...(acc.properties ?? []), ...(toAdd.properties ?? [])],
+    methodLines: {
+      ...(methodLinesKey.reduce(
+        (acc, key) => {
+          return {
+            ...acc,
+            [key]: [
+              ...(acc?.[key] ?? []),
+              ...(toAdd?.methodLines?.[key] ?? []),
+            ],
+          };
+        },
+        {} as NonNullable<ItemTemplates.ClassesOptions<N>["methodLines"]>,
+      ) as unknown as NonNullable<
+        ItemTemplates.ClassesOptions<N>["methodLines"]
+      >),
+    },
+  };
+}
 
 export default dirConfigurator({
   generate: async ({ context, plugin }) => {
@@ -94,59 +177,78 @@ export default dirConfigurator({
               bindingPlugin.value.add({
                 collection,
                 registry: context.registry,
-                get: function (key) {
-                  const [className, propName] = key.split(".") as [
-                    keyof ItemTemplates.Methods,
-                    ItemTemplates.Methods[keyof ItemTemplates.Methods],
-                  ];
-                  const classGenerator = ItemTemplates.classes[className];
-                  if (!classGenerator) {
-                    return null;
-                  }
-                  const method = (() => {
-                    const generator = classGenerator
-                      .getMethods()
-                      .find((method) => {
-                        if (method instanceof ClassMethodGenerator) {
-                          return method.getName() === propName;
-                        } else if (method instanceof MultiLineGenerator) {
-                          return method.some((item) => {
-                            if (item instanceof ClassMethodGenerator) {
-                              return item.getName() === propName;
-                            }
-                            return false;
-                          });
-                        }
-                        throw new Error("not all use cases are covered");
-                      });
-                    if (!generator) {
-                      return null;
-                    }
-                    if (generator instanceof MultiLineGenerator) {
-                      return generator.find((item) => {
-                        if (item instanceof ClassMethodGenerator) {
-                          return item.getName() === propName;
-                        }
-                        return false;
-                      }) as ClassMethodGenerator;
-                    }
-                    return generator;
-                  })();
-                  return method;
-                },
+                get,
               }),
             );
 
             return {
               path: `./${to_collection_name(context, collection.name.toString())}.commands.ts`,
               template: `
-              ${[ItemTemplates.imports, ...toAdds.map((toAdd) => toAdd.imports)]}
               ${[MultiLineGenerator.create(Object.values(ItemTemplates.variables)), ...toAdds.map((toAdd) => toAdd.nunjuksVariables)]}
+              ${[ItemTemplates.imports(collection), ...toAdds.map((toAdd) => toAdd.imports)]}
               {% if collection.is_singleton %}
-              ${ItemTemplates.classes.Singleton}
+              ${ExportGenerator.create(
+                ItemTemplates.classes.Singleton(
+                  toAdds.reduce(
+                    (acc, toAdd) => {
+                      return mergeClassesOptions(acc, toAdd.classes.Singleton);
+                    },
+                    {
+                      methods: [],
+                      properties: [],
+                      methodLines: {
+                        read: [],
+                        update: [],
+                      },
+                    } as ItemTemplates.ClassesOptions<"Singleton">,
+                  ),
+                ),
+              )}
               {% else %}
               ${MultiLineGenerator.create(
-                [ItemTemplates.classes.Items, ItemTemplates.classes.Item],
+                [
+                  ExportGenerator.create(
+                    ItemTemplates.classes.Items(
+                      toAdds.reduce(
+                        (acc, toAdd) => {
+                          return mergeClassesOptions(acc, toAdd.classes.Items);
+                        },
+                        {
+                          methods: [],
+                          properties: [],
+                          methodLines: {
+                            aggregate: [],
+                            create: [],
+                            find: [],
+                            query: [],
+                            remove: [],
+                            update: [],
+                            updateBatch: [],
+                          },
+                        } as ItemTemplates.ClassesOptions<"Items">,
+                      ),
+                    ),
+                  ),
+                  ExportGenerator.create(
+                    ItemTemplates.classes.Item(
+                      toAdds.reduce(
+                        (acc, toAdd) => {
+                          return mergeClassesOptions(acc, toAdd.classes.Item);
+                        },
+                        {
+                          methods: [],
+                          properties: [],
+                          methodLines: {
+                            create: [],
+                            update: [],
+                            get: [],
+                            remove: [],
+                          },
+                        } as ItemTemplates.ClassesOptions<"Item">,
+                      ),
+                    ),
+                  ),
+                ],
                 { seperationSize: 2 },
               )}
               {% endif %}

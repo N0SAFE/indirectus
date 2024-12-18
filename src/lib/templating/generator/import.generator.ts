@@ -124,7 +124,7 @@ export class ImportGenerator<
         },
       )}`;
     } else {
-      return `import ${this.type ? "type " : ""}${this.default ? (this.named.length > 0 ? `${this.default}, ` : this.default) : ""}${wrapInBraces(this.named.join(", "))} from ${new StringGenerator(
+      return `import ${this.type ? "type " : ""}${this.default ? (this.named.length > 0 ? `${this.default}, ` : this.default) : ""}${this.named.length > 0 ? wrapInBraces(this.named.join(", ")) : ""} from ${new StringGenerator(
         this.from,
         {
           quote: "double",
