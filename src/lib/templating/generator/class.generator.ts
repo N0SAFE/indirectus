@@ -3,9 +3,14 @@ import { CommentGenerator } from "./comment.generator";
 import {
   FunctionGenerator,
   FunctionParam,
+  FunctionParamGenerator,
   FunctionParamsGenerator,
 } from "./function.generator";
-import { GenericsGenerator, TemplateGeneric } from "./generic.generator";
+import {
+  GenericGenerator,
+  GenericsGenerator,
+  TemplateGeneric,
+} from "./generic.generator";
 import { TemplateGenerator, wrapInBraces, wrapInParentheses } from "./utils";
 
 export class ClassMethodGenerator extends TemplateGenerator {
@@ -39,7 +44,10 @@ export class ClassMethodGenerator extends TemplateGenerator {
         ? options.params
         : new FunctionParamsGenerator(options.params ?? []);
     this.returnType = options.return;
-    this.body = options.body instanceof MultiLineGenerator ? options.body : new MultiLineGenerator([options.body]);
+    this.body =
+      options.body instanceof MultiLineGenerator
+        ? options.body
+        : new MultiLineGenerator([options.body]);
     this.isAsync = options.isAsync ?? this.isAsync;
     this.isArrow = options.isArrow ?? this.isArrow;
     this.isGenerator = options.isGenerator ?? this.isGenerator;
@@ -49,40 +57,87 @@ export class ClassMethodGenerator extends TemplateGenerator {
     this.name = name;
     return this;
   }
+  
+  getName() {
+    return this.name;
+  }
 
   setGenerics(generics: GenericsGenerator) {
     this.generics = generics;
     return this;
+  }
+  
+  addGeneric(generic: TemplateGeneric | GenericGenerator) {
+    this.generics?.addGeneric(generic);
+    return this;
+  }
+  
+  getGenerics() {
+    return this.generics;
   }
 
   setParams(params: FunctionParamsGenerator) {
     this.params = params;
     return this;
   }
+  
+  addParam(param: FunctionParamGenerator) {
+    this.params?.addParam(param);
+    return this;
+  }
+  
+  getParams() {
+    return this.params;
+  }
 
   setReturnType(returnType: string) {
     this.returnType = returnType;
     return this;
+  }
+  
+  getReturnType() {
+    return this.returnType;
   }
 
   setBody(body: string | MultiLineGenerator) {
     this.body = MultiLineGenerator.create([body]);
     return this;
   }
+  
+  addBody(body: string) {
+    this.body.addLine(body);
+    return this;
+  }
+  
+  getBody() {
+    return this.body;
+  }
 
   setIsAsync(isAsync: boolean) {
     this.isAsync = isAsync;
     return this;
+  }
+  
+  getIsAsync() {
+    return this.isAsync;
   }
 
   setIsArrow(isArrow: boolean) {
     this.isArrow = isArrow;
     return this;
   }
+  
+  getIsArrow() {
+    return this.isArrow;
+  }
 
   setIsGenerator(isGenerator: boolean) {
     this.isGenerator = isGenerator;
     return this;
+  }
+  
+  getIsGenerator() {
+    return this.isGenerator;
   }
 
   generate() {
@@ -267,6 +322,117 @@ export class ClassGenerator {
           ),
         )
       : (options?.methods ?? MultiLineGenerator.create([]));
+  }
+
+  setGenerics(generics: GenericsGenerator) {
+    this.generics = generics;
+    return this;
+  }
+
+  addGeneric(generic: TemplateGeneric | GenericGenerator) {
+    this.generics.addGeneric(generic);
+    return this;
+  }
+  
+  getGenerics() {
+    return this.generics;
+  }
+
+  setExtended(extended: string) {
+    this.extended = extended;
+    return this;
+  }
+
+  getExtended() {
+    return this.extended;
+  }
+
+  setImplemented(implemented: string[]) {
+    this.implemented = implemented;
+    return this;
+  }
+
+  addImplemented(implemented: string) {
+    this.implemented.push(implemented);
+    return this;
+  }
+  
+  getImplemented() {
+    return this.implemented;
+  }
+
+  setProperties(
+    properties:
+      | ClassPropertyGenerator[]
+      | Parameters<typeof ClassPropertyGenerator.generate>[0][]
+      | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>[],
+  ) {
+    this.properties = Array.isArray(properties)
+      ? MultiLineGenerator.create(
+          properties.map((prop) =>
+            prop instanceof MultiLineGenerator
+              ? prop
+              : prop instanceof ClassPropertyGenerator
+                ? prop
+                : ClassPropertyGenerator.create(prop),
+          ),
+        )
+      : properties;
+    return this;
+  }
+
+  addProperty(
+    property:
+      | ClassPropertyGenerator
+      | Parameters<typeof ClassPropertyGenerator.generate>[0],
+  ) {
+    this.properties.addLine(
+      property instanceof ClassPropertyGenerator
+        ? property
+        : ClassPropertyGenerator.create(property),
+    );
+    return this;
+  }
+  
+  getProperties() {
+    return this.properties;
+  }
+
+  setMethods(
+    methods:
+      | ClassMethodGenerator[]
+      | Parameters<typeof ClassMethodGenerator.generate>[0][]
+      | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>[],
+  ) {
+    this.methods = Array.isArray(methods)
+      ? MultiLineGenerator.create(
+          methods.map((method) =>
+            method instanceof MultiLineGenerator
+              ? method
+              : method instanceof ClassMethodGenerator
+                ? method
+                : ClassMethodGenerator.create(method),
+          ),
+        )
+      : methods;
+    return this;
+  }
+
+  addMethod(
+    method:
+      | ClassMethodGenerator
+      | Parameters<typeof ClassMethodGenerator.generate>[0],
+  ) {
+    this.methods.addLine(
+      method instanceof ClassMethodGenerator
+        ? method
+        : ClassMethodGenerator.create(method),
+    );
+    return this;
+  }
+  
+  getMethods() {
+    return this.methods;
   }
 
   generate() {

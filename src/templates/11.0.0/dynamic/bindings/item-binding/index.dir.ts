@@ -1,7 +1,7 @@
 import { to_collection_name } from "@/extensions/filters/directus";
 import { dirConfigurator } from "@/types/generators/generator.dir";
 import { Collection, Registry } from "@/types/registry";
-import * as itemTemplates from "./item.collection";
+import * as ItemTemplates from "./item.collection";
 import * as fs from "node:fs";
 import { ImportGenerator } from "@/lib/templating/generator/import.generator";
 import { TemplateGenerator } from "@/lib/templating/generator/utils";
@@ -12,23 +12,56 @@ import { ExportGenerator } from "@/lib/templating/generator/export.generator";
 import { toPascal } from "@wolfpkgs/core/strings";
 import { pascal_case } from "@/extensions/filters/string_cases";
 import $ from "pluralize";
-
-export type ToGetSingleton = keyof typeof itemTemplates.is_singleton;
-
-export type ToGetNotSingleton = keyof typeof itemTemplates.is_not_singleton;
-
-export type ToGet = ToGetSingleton | ToGetNotSingleton;
+import { CommentGenerator } from "@/lib/templating/generator/comment.generator";
+import {
+  ClassMethodGenerator,
+  ClassPropertyGenerator,
+} from "@/lib/templating/generator/class.generator";
 
 export type BinderPluginConfig = {
   add: <C extends Collection>(options: {
     collection: C;
     registry: Registry;
-    get: (prop: ToGet) => string | TemplateGenerator | null;
+    get: (
+      key: `${keyof ItemTemplates.Methods}.${ItemTemplates.Methods[keyof ItemTemplates.Methods]}`,
+    ) => string | TemplateGenerator | null;
   }) => {
     imports:
       | (ImportGenerator | string)[]
       | MultiLineGenerator<ImportGenerator | string>;
     nunjuksVariables: Record<string, NunjuksVariable>;
+    classes: {
+      Singleton: Record<
+        ItemTemplates.SingletonMethods,
+        (
+          | string
+          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
+          | ClassMethodGenerator
+          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
+          | ClassPropertyGenerator
+        )[]
+      >;
+      Items: Record<
+        ItemTemplates.ItemsMethods,
+        (
+          | string
+          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
+          | ClassMethodGenerator
+          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
+          | ClassPropertyGenerator
+        )[]
+      >;
+      Item: Record<
+        ItemTemplates.ItemMethods,
+        (
+          | string
+          | MultiLineGenerator<CommentGenerator | ClassMethodGenerator>
+          | ClassMethodGenerator
+          | MultiLineGenerator<CommentGenerator | ClassPropertyGenerator>
+          | ClassPropertyGenerator
+        )[]
+      >;
+    };
     variables: Record<string, any>;
     exports: (TemplateGenerator | string)[];
   };
@@ -61,18 +94,45 @@ export default dirConfigurator({
               bindingPlugin.value.add({
                 collection,
                 registry: context.registry,
-                get: (prop: ToGet) => {
-                  if (collection.is_singleton) {
-                    return (
-                      itemTemplates.is_singleton[prop as ToGetSingleton]
-                        .export ?? null
-                    );
-                  } else {
-                    return (
-                      itemTemplates.is_not_singleton[prop as ToGetNotSingleton]
-                        .export ?? null
-                    );
+                get: function (key) {
+                  const [className, propName] = key.split(".") as [
+                    keyof ItemTemplates.Methods,
+                    ItemTemplates.Methods[keyof ItemTemplates.Methods],
+                  ];
+                  const classGenerator = ItemTemplates.classes[className];
+                  if (!classGenerator) {
+                    return null;
                   }
+                  const method = (() => {
+                    const generator = classGenerator
+                      .getMethods()
+                      .find((method) => {
+                        if (method instanceof ClassMethodGenerator) {
+                          return method.getName() === propName;
+                        } else if (method instanceof MultiLineGenerator) {
+                          return method.some((item) => {
+                            if (item instanceof ClassMethodGenerator) {
+                              return item.getName() === propName;
+                            }
+                            return false;
+                          });
+                        }
+                        throw new Error("not all use cases are covered");
+                      });
+                    if (!generator) {
+                      return null;
+                    }
+                    if (generator instanceof MultiLineGenerator) {
+                      return generator.find((item) => {
+                        if (item instanceof ClassMethodGenerator) {
+                          return item.getName() === propName;
+                        }
+                        return false;
+                      }) as ClassMethodGenerator;
+                    }
+                    return generator;
+                  })();
+                  return method;
                 },
               }),
             );
@@ -80,26 +140,13 @@ export default dirConfigurator({
             return {
               path: `./${to_collection_name(context, collection.name.toString())}.commands.ts`,
               template: `
-              ${[itemTemplates.imports, ...toAdds.map((toAdd) => toAdd.imports)]}
-              ${[MultiLineGenerator.create(Object.values(itemTemplates.variables)), ...toAdds.map((toAdd) => toAdd.nunjuksVariables)]}
+              ${[ItemTemplates.imports, ...toAdds.map((toAdd) => toAdd.imports)]}
+              ${[MultiLineGenerator.create(Object.values(ItemTemplates.variables)), ...toAdds.map((toAdd) => toAdd.nunjuksVariables)]}
               {% if collection.is_singleton %}
-              ${MultiLineGenerator.create(
-                Object.values(itemTemplates.is_singleton).map((item) =>
-                  MultiLineGenerator.create([
-                    item.comment,
-                    ExportGenerator.create(item.export),
-                  ]),
-                ),
-                { seperationSize: 2 },
-              )}
+              ${ItemTemplates.classes.Singleton}
               {% else %}
               ${MultiLineGenerator.create(
-                Object.values(itemTemplates.not_singleton).map((item) =>
-                  MultiLineGenerator.create([
-                    item.comment,
-                    ExportGenerator.create(item.export),
-                  ]),
-                ),
+                [ItemTemplates.classes.Items, ItemTemplates.classes.Item],
                 { seperationSize: 2 },
               )}
               {% endif %}

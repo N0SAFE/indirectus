@@ -11,6 +11,30 @@ export class MultiLineGenerator<
     this.lines = lines;
     this.seperationSize = options?.seperationSize ? options.seperationSize <= 0 ? 1 : options.seperationSize : 1;
   }
+  
+  forEach(callback: (line: Content) => void) {
+    this.lines.forEach(callback);
+  }
+  
+  find(predicate: (line: Content) => boolean) {
+    return this.lines.find(predicate);
+  }
+  
+  every(predicate: (line: Content) => boolean) {
+    return this.lines.every(predicate);
+  }
+  
+  some(predicate: (line: Content) => boolean) {
+    return this.lines.some(predicate);
+  }
+  
+  filter(predicate: (line: Content) => boolean) {
+    return this.lines.filter(predicate);
+  }
+  
+  map<NewContent extends string | TemplateGenerator>(predicate: (line: Content) => NewContent) {
+    return this.lines.map(predicate);
+  }
 
   setLines<NewContent extends string | TemplateGenerator>(lines: NewContent[]) {
     const This = this as unknown as MultiLineGenerator<NewContent>;
@@ -23,11 +47,19 @@ export class MultiLineGenerator<
     This.lines.push(line);
     return This;
   }
+  
+  getLines() {
+    return this.lines;
+  }
 
   setSeperationSize(seperationSize: number) {
     const This = this as unknown as MultiLineGenerator<Content>;
     This.seperationSize = seperationSize;
     return This;
+  }
+  
+  getSeperationSize() {
+    return this.seperationSize;
   }
 
   generate() {

@@ -146,8 +146,37 @@ export const variables = {
   applyType: '{% set applyType  = "Output" %}',
 };
 
-export const is_singleton = [
-  ClassGenerator.create("{{ collectionName }}Singleton", {
+export type SingletonMethods = "read" | "update";
+export type ItemsMethods =
+  | "create"
+  | "query"
+  | "find"
+  | "update"
+  | "updateBatch"
+  | "remove"
+  | "aggregate";
+export type ItemMethods = "create" | "get" | "update" | "remove";
+export type Methods = {
+  Singleton: SingletonMethods;
+  Items: ItemsMethods;
+  Item: ItemMethods;
+}
+
+export type Naming<
+  CollectionName extends string,
+  IsSingleton extends boolean,
+> = IsSingleton extends true
+  ? {
+      [key in `${CollectionName}Singleton`]: SingletonMethods;
+    }
+  : {
+      [key in `${CollectionName}Items`]: ItemsMethods;
+    } & {
+      [key in `${CollectionName}Item`]: ItemMethods;
+    };
+
+export const classes = {
+  Singleton: ClassGenerator.create("{{ collectionName }}Singleton", {
     extended: "ChainableBinding",
     implemented: ["TypedCollectionSingletonWrapper<{{ collectionType }}>"],
     methods: [
@@ -158,7 +187,7 @@ export const is_singleton = [
         ),
         ClassMethodGenerator.create({
           body: "return this.request(read{{ collectionName }}(query)) as unknown as Promise<{{ applyType }}>;",
-          name: "read",
+          name: "read" satisfies SingletonMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -168,26 +197,12 @@ export const is_singleton = [
         ),
         ClassMethodGenerator.create({
           body: "return this.request(update{{ collectionName }}(patch, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "update",
+          name: "update" satisfies SingletonMethods,
         }),
       ]),
     ],
   }),
-];
-
-export type Naming<CollectionName extends string, IsSingleton extends boolean> = IsSingleton extends true
-  ? {
-    [key in `${CollectionName}Singleton`]: `create${CollectionName}Singleton` | `update${CollectionName}Singleton` | `read${CollectionName}Singleton`;
-  }
-  : {
-    [key in `${CollectionName}Items`]: `create${CollectionName}Items` | `read${CollectionName}Items` | `find${CollectionName}Items` | `update${CollectionName}Items` | `update${CollectionName}ItemsBatch` | `delete${CollectionName}Items` | `aggregate${CollectionName}Items`;
-  } & {
-    [key in `${CollectionName}Item`]: `create${CollectionName}Item` | `read${CollectionName}Item` | `update${CollectionName}Item` | `delete${CollectionName}Item`;
-  };
-
-
-export const is_not_singleton = [
-  ClassGenerator.create("{{ collectionName }}Items", {
+  Items: ClassGenerator.create("{{ collectionName }}Items", {
     extended: "ChainableBinding",
     implemented: [
       "TypedCollectionItemsWrapper<{{ collectionType }}, {{ collectionString }}>",
@@ -199,7 +214,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(create{{ collectionName }}Items(items, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "create",
+          name: "create" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -208,7 +223,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(read{{ collectionName }}Items(query)) as unknown as Promise<{{ applyType }}>;",
-          name: "query",
+          name: "query" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -218,7 +233,7 @@ export const is_not_singleton = [
         ),
         ClassMethodGenerator.create({
           body: "return this.request(read{{ collectionName }}Items({\n        ...query,\n        limit: 1,\n      })).then(items => items?.[0]) as unknown as Promise<{{ applyType }} | undefined>;",
-          name: "find",
+          name: "find" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -227,7 +242,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(update{{ collectionName }}Items(keys, patch, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "update",
+          name: "update" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -237,7 +252,7 @@ export const is_not_singleton = [
         ),
         ClassMethodGenerator.create({
           body: "return this.request(update{{ collectionName }}ItemsBatch(items, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "updateBatch",
+          name: "updateBatch" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -246,7 +261,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(delete{{ collectionName }}Items(keys)) as unknown as Promise<{{ applyType }}>;",
-          name: "remove",
+          name: "remove" satisfies ItemsMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -255,12 +270,12 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(\n aggregate{{ collectionName }}Items<Options>(options),\n).then((a) => a?.[0]) as unknown as Promise<Output>;",
-          name: "aggregate",
+          name: "aggregate" satisfies ItemsMethods,
         }),
       ]),
     ],
   }),
-  ClassGenerator.create("{{ collectionName }}Item", {
+  Item: ClassGenerator.create("{{ collectionName }}Item", {
     extended: "ChainableBinding",
     implemented: ["TypedCollectionItemWrapper<{{ collectionType }}>"],
     methods: [
@@ -270,7 +285,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(create{{ collectionName }}Item(item, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "create",
+          name: "create" satisfies ItemMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -279,7 +294,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(read{{ collectionName }}Item(key, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "get",
+          name: "get" satisfies ItemMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -288,7 +303,7 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(update{{ collectionName }}Item(key, patch, query)) as unknown as Promise<{{ applyType }}>;",
-          name: "update",
+          name: "update" satisfies ItemMethods,
         }),
       ]),
       MultiLineGenerator.create([
@@ -297,9 +312,11 @@ export const is_not_singleton = [
         }),
         ClassMethodGenerator.create({
           body: "return this.request(delete{{ collectionName }}Item(key)) as unknown as Promise<{{ applyType }}>;",
-          name: "remove",
+          name: "remove" satisfies ItemMethods,
         }),
       ]),
     ],
   }),
-];
+} satisfies {
+  [key in keyof Methods]: ClassGenerator;
+}
