@@ -6,3 +6,5 @@ export interface Classes {
     Items?: (options?:ClassesOptions<"Items">) => ClassGenerator;
     Item?: (options?:ClassesOptions<"Item">) => ClassGenerator;
 }
+
+export type BindingType = 'Item' | 'System'

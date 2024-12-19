@@ -1,7 +1,7 @@
 import { to_collection_name } from "@/extensions/filters/directus";
 import { dirConfigurator } from "@/types/generators/generator.dir";
 import { Collection, Registry } from "@/types/registry";
-import * as itemTemplates from "./item.commands";
+import * as itemTemplates from "./item/index.commands.generator";
 import * as fs from "node:fs";
 import { ImportGenerator } from "@/lib/templating/generator/import.generator";
 import { TemplateGenerator } from "@/lib/templating/generator/utils";
@@ -13,13 +13,19 @@ import { toPascal } from "@wolfpkgs/core/strings";
 import { pascal_case } from "@/extensions/filters/string_cases";
 import $ from "pluralize";
 
-export type ToGetSingleton = keyof typeof itemTemplates.is_singleton;
+export type ToGetSingleton = keyof typeof itemTemplates.methods.Singleton;
 
-export type ToGetNotSingleton = keyof typeof itemTemplates.not_singleton;
+export type ToGetNotSingleton =
+  | keyof typeof itemTemplates.methods.Items
+  | keyof typeof itemTemplates.methods.Item;
 
 export type ToGet = ToGetSingleton | ToGetNotSingleton;
 
 export type CommandPluginConfig = {
+  generate: <C extends Collection>(options: {
+    collection: C;
+    registry: Registry;
+  })
   add: <C extends Collection>(options: {
     collection: C;
     registry: Registry;
@@ -57,7 +63,7 @@ export default dirConfigurator({
           toPascal(collection.name.toString()).replace(".commands", ""),
         ),
       );
-    }
+    };
 
     return {
       files: [
@@ -86,13 +92,15 @@ export default dirConfigurator({
                 get: (prop: ToGet) => {
                   if (collection.is_singleton) {
                     return (
-                      itemTemplates.is_singleton[prop as ToGetSingleton]
+                      itemTemplates.methods.Singleton[prop as ToGetSingleton]
                         .export ?? null
                     );
                   } else {
                     return (
-                      itemTemplates.not_singleton[prop as ToGetNotSingleton]
-                        .export ?? null
+                      {
+                        ...itemTemplates.methods.Items,
+                        ...itemTemplates.methods.Item,
+                      }[prop as ToGetNotSingleton].export ?? null
                     );
                   }
                 },
@@ -106,7 +114,7 @@ export default dirConfigurator({
               ${[MultiLineGenerator.create(Object.values(itemTemplates.variables)), ...toAdds.map((toAdd) => toAdd.nunjuksVariables)]}
               {% if collection.is_singleton %}
               ${MultiLineGenerator.create(
-                Object.values(itemTemplates.is_singleton).map((item) =>
+                Object.values(itemTemplates.methods.Singleton).map((item) =>
                   MultiLineGenerator.create([
                     item.comment,
                     ExportGenerator.create(item.export),
@@ -116,7 +124,10 @@ export default dirConfigurator({
               )}
               {% else %}
               ${MultiLineGenerator.create(
-                Object.values(itemTemplates.not_singleton).map((item) =>
+                Object.values({
+                  ...itemTemplates.methods.Items,
+                  ...itemTemplates.methods.Item,
+                }).map((item) =>
                   MultiLineGenerator.create([
                     item.comment,
                     ExportGenerator.create(item.export),

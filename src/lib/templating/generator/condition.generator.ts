@@ -1,124 +1,201 @@
 import { TemplateGenerator } from "./utils";
 
-export class IfConditionGenerator extends TemplateGenerator {
-  private condition = "";
-  private body = "";
+export class IfConditionGenerator<
+  Condition extends string = string,
+  Body extends string = string,
+> extends TemplateGenerator {
+  private condition = "" as Condition;
+  private body = "" as Body;
 
-  constructor(condition: string, body: string) {
+  constructor(condition: Condition, body: Body) {
     super();
     this.condition = condition;
     this.body = body;
   }
 
-  setCondition(condition: string) {
-    this.condition = condition;
-    return this;
+  setCondition<NewCondition extends string = string>(condition: NewCondition) {
+    const This = this as unknown as IfConditionGenerator<NewCondition, Body>;
+    This.condition = condition;
+    return This;
   }
 
-  setBody(body: string) {
-    this.body = body;
-    return this;
+  setBody<NewBody extends string = string>(body: NewBody) {
+    const This = this as unknown as IfConditionGenerator<Condition, NewBody>;
+    This.body = body;
+    return This;
   }
 
   generate() {
     return `if (${this.condition}) {\n${this.body}\n}`;
   }
+
+  clone() {
+    return new IfConditionGenerator(this.condition, this.body) as this;
+  }
+
+  static create<
+    Condition extends string = string,
+    Body extends string = string,
+  >(condition: Condition, body: Body) {
+    return new IfConditionGenerator(condition, body);
+  }
+
+  static generate<
+    Condition extends string = string,
+    Body extends string = string,
+  >(condition: Condition, body: Body) {
+    return IfConditionGenerator.create(condition, body).generate();
+  }
 }
 
-export class ElseIfConditionGenerator extends TemplateGenerator {
-  private condition = "";
-  private body = "";
+export class ElseIfConditionGenerator<
+  Condition extends string = string,
+  Body extends string = string,
+> extends TemplateGenerator {
+  private condition = "" as Condition;
+  private body = "" as Body;
 
-  constructor(condition: string, body: string) {
+  constructor(condition: Condition, body: Body) {
     super();
     this.condition = condition;
     this.body = body;
   }
 
-  setCondition(condition: string) {
-    this.condition = condition;
-    return this;
+  setCondition<NewCondition extends string = string>(condition: NewCondition) {
+    const This = this as unknown as ElseIfConditionGenerator<
+      NewCondition,
+      Body
+    >;
+    This.condition = condition;
+    return This;
   }
 
-  setBody(body: string) {
-    this.body = body;
-    return this;
+  setBody<NewBody extends string = string>(body: NewBody) {
+    const This = this as unknown as ElseIfConditionGenerator<
+      Condition,
+      NewBody
+    >;
+    This.body = body;
+    return This;
   }
 
   generate() {
     return `else if (${this.condition}) {\n${this.body}\n}`;
   }
 
-  static create(condition: string, body: string) {
+  clone() {
+    return new ElseIfConditionGenerator(this.condition, this.body) as this;
+  }
+
+  static create<
+    Condition extends string = string,
+    Body extends string = string,
+  >(condition: Condition, body: Body) {
     return new ElseIfConditionGenerator(condition, body);
   }
 
-  static generate(condition: string, body: string) {
+  static generate<
+    Condition extends string = string,
+    Body extends string = string,
+  >(condition: Condition, body: Body) {
     return ElseIfConditionGenerator.create(condition, body).generate();
   }
 }
 
-export class ElseConditionGenerator extends TemplateGenerator {
-  private body = "";
+export class ElseConditionGenerator<
+  Body extends string = string,
+> extends TemplateGenerator {
+  private body = "" as Body;
 
-  constructor(body: string) {
+  constructor(body: Body) {
     super();
     this.body = body;
   }
 
-  setBody(body: string) {
-    this.body = body;
-    return this;
+  setBody<NewBody extends string = string>(body: NewBody) {
+    const This = this as unknown as ElseConditionGenerator<NewBody>;
+    This.body = body;
+    return This;
   }
 
   generate() {
     return `else {\n${this.body}\n}`;
   }
 
-  static create(body: string) {
+  clone() {
+    return new ElseConditionGenerator(this.body) as this;
+  }
+
+  static create<Body extends string = string>(body: Body) {
     return new ElseConditionGenerator(body);
   }
 
-  static generate(body: string) {
+  static generate<Body extends string = string>(body: Body) {
     return ElseConditionGenerator.create(body).generate();
   }
 }
 
-export class SwitchConditionGenerator extends TemplateGenerator {
-  private condition = "";
+export class SwitchConditionGenerator<
+  Condition extends string = string,
+  Case extends { condition: string; body: string } = {
+    condition: string;
+    body: string;
+  },
+  Default extends string = string,
+> extends TemplateGenerator {
+  private condition = "" as Condition;
   private cases: {
     condition: string;
     body: string;
-  }[] = [];
-  private defaultCase?: string = "";
+  }[] = [] as Case[];
+  private defaultCase? = "" as Default;
 
   constructor(
-    condition: string,
+    condition: Condition,
     options?: {
-      cases?: { condition: string; body: string }[];
-      defaultCase?: string;
+      cases?: Case[];
+      defaultCase?: Default;
     },
   ) {
-    0;
     super();
     this.condition = condition;
     this.cases = options?.cases ?? [];
     this.defaultCase = options?.defaultCase;
   }
 
-  setCondition(condition: string) {
-    this.condition = condition;
-    return this;
+  setCondition<NewCondition extends string = string>(condition: NewCondition) {
+    const This = this as unknown as SwitchConditionGenerator<
+      NewCondition,
+      Case,
+      Default
+    >;
+    This.condition = condition;
+    return This;
   }
 
-  addCase(condition: string, body: string) {
-    this.cases.push({ condition, body });
-    return this;
+  addCase<
+    NewCase extends { condition: string; body: string } = {
+      condition: string;
+      body: string;
+    },
+  >(newCase: NewCase) {
+    const This = this as unknown as SwitchConditionGenerator<
+      Condition,
+      Case | NewCase,
+      Default
+    >;
+    This.cases.push(newCase);
+    return This;
   }
 
-  setDefaultCase(body: string) {
-    this.defaultCase = body;
-    return this;
+  setDefaultCase<NewDefault extends string = string>(body: NewDefault) {
+    const This = this as unknown as SwitchConditionGenerator<
+      Condition,
+      Case,
+      NewDefault
+    >;
+    This.defaultCase = body;
+    return This;
   }
 
   generate() {
@@ -129,40 +206,65 @@ export class SwitchConditionGenerator extends TemplateGenerator {
       )}\n${this.defaultCase ? `default: {\n${this.defaultCase}\n` : ""}\n`;
   }
 
-  static create(
-    condition: string,
+  clone() {
+    return new SwitchConditionGenerator(this.condition, {
+      cases: this.cases.map(({ condition, body }) => ({ condition, body })),
+      defaultCase: this.defaultCase,
+    }) as this;
+  }
+
+  static create<
+    Condition extends string = string,
+    Case extends { condition: string; body: string } = {
+      condition: string;
+      body: string;
+    },
+    Default extends string = string,
+  >(
+    condition: Condition,
     options?: {
-      cases?: { condition: string; body: string }[];
-      defaultCase?: string;
+      cases?: Case[];
+      defaultCase?: Default;
     },
   ) {
     return new SwitchConditionGenerator(condition, options);
   }
 
-  static generate(
-    condition: string,
+  static generate<
+    Condition extends string = string,
+    Case extends { condition: string; body: string } = {
+      condition: string;
+      body: string;
+    },
+    Default extends string = string,
+  >(
+    condition: Condition,
     options?: {
-      cases?: { condition: string; body: string }[];
-      defaultCase?: string;
+      cases?: Case[];
+      defaultCase?: Default;
     },
   ) {
     return SwitchConditionGenerator.create(condition, options).generate();
   }
 }
 
-export class ConditionGenerator extends TemplateGenerator {
-  private ifCondition: IfConditionGenerator;
-  private ifElseConditions?: ElseIfConditionGenerator[];
-  private elseCondition?: ElseConditionGenerator;
+export class ConditionGenerator<
+  IfCondition extends IfConditionGenerator = IfConditionGenerator,
+  ElseIfCondition extends ElseIfConditionGenerator = ElseIfConditionGenerator,
+  ElseCondition extends ElseConditionGenerator = ElseConditionGenerator,
+> extends TemplateGenerator {
+  private ifCondition: IfCondition;
+  private ifElseConditions?: ElseIfCondition[];
+  private elseCondition?: ElseCondition;
 
   constructor(
-    ifCondition: IfConditionGenerator | { condition: string; body: string },
+    ifCondition: IfCondition | { condition: string; body: string },
     options?: {
       ifElseConditions?:
-        | ElseIfConditionGenerator[]
+        | ElseIfCondition[]
         | { condition: string; body: string }[];
       elseCondition?:
-        | ElseConditionGenerator
+        | ElseCondition
         | {
             body: string;
           };
@@ -172,57 +274,122 @@ export class ConditionGenerator extends TemplateGenerator {
     this.ifCondition =
       ifCondition instanceof IfConditionGenerator
         ? ifCondition
-        : new IfConditionGenerator(ifCondition.condition, ifCondition.body);
-    this.ifElseConditions =
-      options?.ifElseConditions?.map((condition) =>
-        condition instanceof ElseIfConditionGenerator
-          ? condition
-          : new ElseIfConditionGenerator(condition.condition, condition.body),
-      ) ?? [];
+        : (new IfConditionGenerator(
+            ifCondition.condition,
+            ifCondition.body,
+          ) as IfCondition);
+    this.ifElseConditions = (options?.ifElseConditions?.map((condition) =>
+      condition instanceof ElseIfConditionGenerator
+        ? condition
+        : new ElseIfConditionGenerator(condition.condition, condition.body),
+    ) ?? []) as ElseIfCondition[];
     this.elseCondition = options?.elseCondition
       ? options?.elseCondition instanceof ElseConditionGenerator
         ? options?.elseCondition
-        : new ElseConditionGenerator(options?.elseCondition?.body || "")
+        : (new ElseConditionGenerator(
+            options?.elseCondition?.body || "",
+          ) as ElseCondition)
       : undefined;
   }
 
-  setIfCondition(condition: string, body: string) {
-    this.ifCondition = new IfConditionGenerator(condition, body);
+  setIfCondition<
+    NewIfCondition extends IfConditionGenerator = IfConditionGenerator,
+  >(condition: NewIfCondition | { condition: string; body: string }) {
+    const This = this as unknown as ConditionGenerator<
+      NewIfCondition,
+      ElseIfCondition,
+      ElseCondition
+    >;
+    This.ifCondition =
+      condition instanceof IfConditionGenerator
+        ? condition
+        : (new IfConditionGenerator(
+            condition.condition,
+            condition.body,
+          ) as NewIfCondition);
     return this;
   }
 
-  setIfElseConditions(conditions: { condition: string; body: string }[]) {
-    this.ifElseConditions = conditions.map(
-      ({ condition, body }) => new ElseIfConditionGenerator(condition, body),
-    );
-    return this;
+  setIfElseConditions<
+    NewElseIfCondition extends
+      ElseIfConditionGenerator = ElseIfConditionGenerator,
+  >(conditions: (NewElseIfCondition | { condition: string; body: string })[]) {
+    const This = this as unknown as ConditionGenerator<
+      IfCondition,
+      NewElseIfCondition,
+      ElseCondition
+    >;
+    This.ifElseConditions = conditions.map((condition) =>
+      condition instanceof ElseIfConditionGenerator
+        ? condition
+        : new ElseIfConditionGenerator(condition.condition, condition.body),
+    ) as NewElseIfCondition[];
+    return This;
   }
 
-  setElseCondition(body: string) {
-    this.elseCondition = new ElseConditionGenerator(body);
-    return this;
+  setElseCondition<
+    NewElseCondition extends ElseConditionGenerator = ElseConditionGenerator,
+  >(body: NewElseCondition | { body: string }) {
+    const This = this as unknown as ConditionGenerator<
+      IfCondition,
+      ElseIfCondition,
+      NewElseCondition
+    >;
+    This.elseCondition =
+      body instanceof ElseConditionGenerator
+        ? body
+        : (new ElseConditionGenerator(body.body) as NewElseCondition);
+    return This;
   }
 
-  addIfElseCondition(condition: string, body: string) {
-    if (!this.ifElseConditions) {
-      this.ifElseConditions = [];
+  addIfElseCondition<
+    NewElseIfCondition extends
+      ElseIfConditionGenerator = ElseIfConditionGenerator,
+  >(condition: NewElseIfCondition | { condition: string; body: string }) {
+    const This = this as unknown as ConditionGenerator<
+      IfCondition,
+      NewElseIfCondition | ElseIfCondition,
+      ElseCondition
+    >;
+    if (!This.ifElseConditions) {
+      This.ifElseConditions = [];
     }
-    this.ifElseConditions.push(new ElseIfConditionGenerator(condition, body));
-    return this;
+    This.ifElseConditions.push(
+      condition instanceof ElseIfConditionGenerator
+        ? condition
+        : (new ElseIfConditionGenerator(
+            condition.condition,
+            condition.body,
+          ) as NewElseIfCondition),
+    );
+    return This;
   }
 
   generate() {
     return `${this.ifCondition.generate()}${this.ifElseConditions?.map((condition) => condition.generate() || []).join("")}${this.elseCondition?.generate() ?? ""}`;
   }
 
-  static create(
-    ifCondition: IfConditionGenerator | { condition: string; body: string },
+  clone() {
+    return new ConditionGenerator(this.ifCondition.clone(), {
+      ifElseConditions: this.ifElseConditions?.map((condition) =>
+        condition.clone(),
+      ),
+      elseCondition: this.elseCondition?.clone(),
+    }) as this;
+  }
+
+  static create<
+    IfCondition extends IfConditionGenerator = IfConditionGenerator,
+    ElseIfCondition extends ElseIfConditionGenerator = ElseIfConditionGenerator,
+    ElseCondition extends ElseConditionGenerator = ElseConditionGenerator,
+  >(
+    ifCondition: IfCondition | { condition: string; body: string },
     options?: {
       ifElseConditions?:
-        | ElseIfConditionGenerator[]
+        | ElseIfCondition[]
         | { condition: string; body: string }[];
       elseCondition?:
-        | ElseConditionGenerator
+        | ElseCondition
         | {
             body: string;
           };
@@ -231,14 +398,18 @@ export class ConditionGenerator extends TemplateGenerator {
     return new ConditionGenerator(ifCondition, options);
   }
 
-  static generate(
-    ifCondition: IfConditionGenerator | { condition: string; body: string },
+  static generate<
+    IfCondition extends IfConditionGenerator = IfConditionGenerator,
+    ElseIfCondition extends ElseIfConditionGenerator = ElseIfConditionGenerator,
+    ElseCondition extends ElseConditionGenerator = ElseConditionGenerator,
+  >(
+    ifCondition: IfCondition | { condition: string; body: string },
     options?: {
       ifElseConditions?:
-        | ElseIfConditionGenerator[]
+        | ElseIfCondition[]
         | { condition: string; body: string }[];
       elseCondition?:
-        | ElseConditionGenerator
+        | ElseCondition
         | {
             body: string;
           };

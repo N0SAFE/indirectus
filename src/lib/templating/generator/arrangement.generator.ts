@@ -1,7 +1,7 @@
 import { TemplateGenerator } from "./utils";
 
 export class MultiLineGenerator<
-  Content extends string | TemplateGenerator = string | TemplateGenerator
+  Content extends string | TemplateGenerator = string | TemplateGenerator,
 > extends TemplateGenerator {
   private lines: Content[] = [];
   private seperationSize = 1;
@@ -9,30 +9,36 @@ export class MultiLineGenerator<
   constructor(lines: Content[], options?: { seperationSize?: number }) {
     super();
     this.lines = lines;
-    this.seperationSize = options?.seperationSize ? options.seperationSize <= 0 ? 1 : options.seperationSize : 1;
+    this.seperationSize = options?.seperationSize
+      ? options.seperationSize <= 0
+        ? 1
+        : options.seperationSize
+      : 1;
   }
-  
+
   forEach(callback: (line: Content) => void) {
     this.lines.forEach(callback);
   }
-  
+
   find(predicate: (line: Content) => boolean) {
     return this.lines.find(predicate);
   }
-  
+
   every(predicate: (line: Content) => boolean) {
     return this.lines.every(predicate);
   }
-  
+
   some(predicate: (line: Content) => boolean) {
     return this.lines.some(predicate);
   }
-  
+
   filter(predicate: (line: Content) => boolean) {
     return this.lines.filter(predicate);
   }
-  
-  map<NewContent extends string | TemplateGenerator>(predicate: (line: Content) => NewContent) {
+
+  map<NewContent extends string | TemplateGenerator>(
+    predicate: (line: Content) => NewContent,
+  ) {
     return this.lines.map(predicate);
   }
 
@@ -47,7 +53,7 @@ export class MultiLineGenerator<
     This.lines.push(line);
     return This;
   }
-  
+
   getLines() {
     return this.lines;
   }
@@ -57,7 +63,7 @@ export class MultiLineGenerator<
     This.seperationSize = seperationSize;
     return This;
   }
-  
+
   getSeperationSize() {
     return this.seperationSize;
   }
@@ -70,13 +76,28 @@ export class MultiLineGenerator<
       .join("\n".repeat(this.seperationSize));
   }
 
-  static create<Content extends string | TemplateGenerator>(lines: Content[], options?: { seperationSize?: number }) {
+  clone() {
+    return new MultiLineGenerator<Content>(
+      this.lines.map((line) => {
+        if (line instanceof TemplateGenerator) {
+          return line.clone() as Content;
+        }
+        return line;
+      }),
+      { seperationSize: this.seperationSize },
+    ) as this;
+  }
+
+  static create<Content extends string | TemplateGenerator>(
+    lines: Content[],
+    options?: { seperationSize?: number },
+  ) {
     return new MultiLineGenerator<Content>(lines, options);
   }
 
   static generate<Content extends string | TemplateGenerator>(
     lines: Content[],
-    options?: { seperationSize?: number }
+    options?: { seperationSize?: number },
   ) {
     return MultiLineGenerator.create<Content>(lines, options).generate();
   }

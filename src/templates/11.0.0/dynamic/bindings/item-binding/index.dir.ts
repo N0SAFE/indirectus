@@ -18,7 +18,7 @@ import {
   ClassMethodGenerator,
   ClassPropertyGenerator,
 } from "@/lib/templating/generator/class.generator";
-import { Methods } from "@/types/shape/ItemBindings";
+import { Methods } from "@/types/shape/Bindings/ItemBindings";
 
 function classGetter(
   keys: [

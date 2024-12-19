@@ -1,17 +1,25 @@
 import { TemplateGenerator } from "./utils";
 
-export type TemplateGeneric = {
+export type TemplateGeneric<
+  Name extends string = string,
+  Extends extends string | undefined = string | undefined,
+  Default extends string | undefined = string | undefined,
+> = {
   name: string;
   extends?: string;
   default?: string;
 };
 
-export class GenericGenerator extends TemplateGenerator {
+export class GenericGenerator<
+  Name extends string = string,
+  Extends extends string | undefined = string | undefined,
+  Default extends string | undefined = string | undefined,
+> extends TemplateGenerator {
   private name: string;
   private ext?: string;
   private def?: string;
 
-  constructor(generic: TemplateGeneric) {
+  constructor(generic: TemplateGeneric<Name, Extends, Default>) {
     super();
     this.name = generic.name;
     this.ext = generic.extends;
@@ -37,44 +45,60 @@ export class GenericGenerator extends TemplateGenerator {
     return `${this.name}${this.ext ? ` extends ${this.ext}` : ""}${this.def ? ` = ${this.def}` : ""}`;
   }
 
+  clone() {
+    return new GenericGenerator({
+      name: this.name,
+      extends: this.ext,
+      default: this.def,
+    }) as this;
+  }
+
   static create(generic: TemplateGeneric) {
     return new GenericGenerator(generic);
   }
-  
+
   static generate(generic: TemplateGeneric) {
     return GenericGenerator.create(generic).generate();
   }
 }
 
-export class GenericsGenerator extends TemplateGenerator {
-  private generics: GenericGenerator[] = [];
+export class GenericsGenerator<
+  Genenerics extends GenericGenerator = GenericGenerator,
+> extends TemplateGenerator {
+  private generics: Genenerics[] = [];
 
-  constructor(generics: TemplateGeneric[] | GenericGenerator[]) {
+  constructor(generics: (Genenerics | TemplateGeneric)[]) {
     super();
 
     this.generics = generics.map((generic) =>
       generic instanceof GenericGenerator
         ? generic
         : GenericGenerator.create(generic),
-    );
+    ) as Genenerics[];
   }
 
-  setGenerics(generics: TemplateGeneric[] | GenericGenerator[]) {
-    this.generics = generics.map((generic) =>
+  setGenerics<NewGenerics extends GenericGenerator = GenericGenerator>(
+    generics: (Genenerics | TemplateGeneric)[],
+  ) {
+    const This = this as unknown as GenericsGenerator<NewGenerics>;
+    This.generics = generics.map((generic) =>
       generic instanceof GenericGenerator
         ? generic
         : GenericGenerator.create(generic),
-    );
-    return this;
+    ) as NewGenerics[];
+    return This;
   }
-  
-  addGeneric(generic: TemplateGeneric | GenericGenerator) {
-    this.generics.push(
+
+  addGeneric<NewGeneric extends GenericGenerator = GenericGenerator>(
+    generic: Genenerics | TemplateGeneric,
+  ) {
+    const This = this as unknown as GenericsGenerator<Genenerics | NewGeneric>;
+    This.generics.push(
       generic instanceof GenericGenerator
         ? generic
-        : GenericGenerator.create(generic),
+        : (GenericGenerator.create(generic) as Genenerics | NewGeneric),
     );
-    return this;
+    return This;
   }
 
   generate() {
@@ -84,11 +108,19 @@ export class GenericsGenerator extends TemplateGenerator {
     return `<${this.generics.map((g) => g.generate()).join(", ")}>`;
   }
 
-  static create(generics: TemplateGeneric[] | GenericGenerator[]) {
+  clone() {
+    return new GenericsGenerator([...this.generics]) as this;
+  }
+
+  static create<Genenerics extends GenericGenerator = GenericGenerator>(
+    generics: (Genenerics | TemplateGeneric)[],
+  ) {
     return new GenericsGenerator(generics);
   }
-  
-  static generate(generics: TemplateGeneric[] | GenericGenerator[]) {
+
+  static generate<Genenerics extends GenericGenerator = GenericGenerator>(
+    generics: (Genenerics | TemplateGeneric)[],
+  ) {
     return GenericsGenerator.create(generics).generate();
   }
 }

@@ -1,10 +1,10 @@
 import { CommandPluginConfig } from "@/templates/11.0.0/dynamic/commands/index.dir";
 import { Collection, Registry } from "../registry";
 import { BinderPluginConfig } from "@/templates/11.0.0/dynamic/bindings/item-binding/index.dir";
-import { Methods, Variables } from "../shape/ItemBindings";
+import { Methods, Variables } from "../shape/Bindings/ItemBindings";
 import { ClassGenerator, ClassMethodGenerator } from "@/lib/templating/generator/class.generator";
 import { MultiLineGenerator } from "@/lib/templating/generator/arrangement.generator";
-import { Classes } from "../shape/Bindings";
+import { BindingType, Classes } from "../shape/Bindings";
 
 type AllNamspace<T extends `${string}.${string}`> =
   T extends `${infer A}.${infer B}` ? A : never;
@@ -60,12 +60,12 @@ function bindingsClassGetter(
   return method;
 }
 
-function get<Key extends `Class.${keyof Methods}`>(key: Key, options: {
+function get<Key extends `Bindings.${BindingType}.Class.${keyof Methods}`>(key: Key, options: {
   bindings: {
     classes: Classes;
   }
 }): ClassGenerator
-function get<Key extends `Class.${keyof Methods}.${Methods[keyof Methods]}`>(
+function get<Key extends `Bindings.${BindingType}.Class.${keyof Methods}.${Methods[keyof Methods]}`>(
   key: Key,
   options: {
     bindings: {
@@ -73,7 +73,7 @@ function get<Key extends `Class.${keyof Methods}.${Methods[keyof Methods]}`>(
     }
   },
 ): ClassMethodGenerator;
-function get<Key extends `Variable.${keyof Variables}`>(key: Key, options: {
+function get<Key extends `Bindings.${BindingType}.Variable.${keyof Variables}`>(key: Key, options: {
   bindings: {
     variables: Variables;
   }
@@ -105,7 +105,17 @@ function get<Key extends `${"Class" | "Variable"}.${string}`>(key: Key, options:
   return null;
 }
 
+export type PluginOptions = {
+  registry: Registry
+  generator: {
+    commands: CommandPluginConfig
+  }
+}
+
 export interface Plugin {
+  (options: {
+
+  })
   commands: CommandPluginConfig;
   binders: BinderPluginConfig;
   schema: {

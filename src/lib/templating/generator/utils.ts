@@ -1,5 +1,7 @@
 export abstract class TemplateGenerator {
   abstract generate(): string;
+
+  abstract clone(): this;
   
   public readonly toString = () => this.generate();
 }

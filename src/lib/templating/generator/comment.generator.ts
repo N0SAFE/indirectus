@@ -1,35 +1,54 @@
 import { TemplateGenerator } from "./utils";
 
-export class CommentGenerator extends TemplateGenerator {
-  private contents: string[] = [];
-  private forceMultiline = false;
-  private forceComment = false;
+export class CommentGenerator<
+  Content extends string = string,
+  ForceMultiline extends boolean = false,
+  ForceComment extends boolean = false,
+> extends TemplateGenerator {
+  private contents = [] as Content[];
+  private forceMultiline = false as ForceMultiline;
+  private forceComment = false as ForceComment;
 
-  constructor(contents: string[] = [], options?: { forceMultiline?: boolean, forceComment?: boolean }) {
-    super()
+  constructor(
+    contents: Content[] = [],
+    options?: { forceMultiline?: ForceMultiline; forceComment?: ForceComment },
+  ) {
+    super();
     this.contents = contents;
-    this.forceMultiline = options?.forceMultiline ?? false;
-    this.forceComment = options?.forceComment ?? false;
+    this.forceMultiline = options?.forceMultiline ?? (false as ForceMultiline);
+    this.forceComment = options?.forceComment ?? (false as ForceComment);
   }
 
-  setContents(contents: string[]) {
-    this.contents = contents;
-    return this;
+  setContents<
+    NewContent extends string,
+  >(contents: NewContent[]) {
+    const This = this as unknown as CommentGenerator<NewContent, ForceMultiline, ForceComment>;
+    This.contents = contents;
+    return This;
   }
 
-  addContent(content: string) {
-    this.contents.push(content);
-    return this;
+  addContent<
+    NewContent extends string,
+  >(content: NewContent) {
+    const This = this as unknown as CommentGenerator<NewContent, ForceMultiline, ForceComment>;
+    This.contents.push(content);
+    return This;
   }
 
-  setForceMultiline(forceMultiline: boolean) {
-    this.forceMultiline = forceMultiline;
-    return this;
+  setForceMultiline<
+    NewForceMultiline extends boolean,
+  >(forceMultiline: NewForceMultiline) {
+    const This = this as unknown as CommentGenerator<Content, NewForceMultiline, ForceComment>;
+    This.forceMultiline = forceMultiline;
+    return This;
   }
-  
-  setForceComment(forceComment: boolean) {
-    this.forceComment = forceComment;
-    return this;
+
+  setForceComment<
+    NewForceComment extends boolean,
+  >(forceComment: NewForceComment) {
+    const This = this as unknown as CommentGenerator<Content, ForceMultiline, NewForceComment>;
+    This.forceComment = forceComment;
+    return This;
   }
 
   generate() {
@@ -44,11 +63,26 @@ export class CommentGenerator extends TemplateGenerator {
         : `/**\n${this.contents.map((content) => ` * ${content}`).join("\n* ")}\n */`;
   }
 
-  static create(contents: string[], options?: { forceMultiline?: boolean, forceComment?: boolean }) {
+  clone() {
+    return new CommentGenerator([...this.contents], {
+      forceMultiline: this.forceMultiline,
+      forceComment: this.forceComment,
+    }) as this;
+  }
+
+  static create<
+    Content extends string = string,
+    ForceMultiline extends boolean = false,
+    ForceComment extends boolean = false,
+  >(contents: Content[] = [], options?: { forceMultiline?: ForceMultiline; forceComment?: ForceComment }) {
     return new CommentGenerator(contents, options);
   }
 
-  static generate(contents: string[], options?: { forceMultiline?: boolean, forceComment?: boolean }) {
+  static generate<
+    Content extends string = string,
+    ForceMultiline extends boolean = false,
+    ForceComment extends boolean = false,
+  >(contents: Content[] = [], options?: { forceMultiline?: ForceMultiline; forceComment?: ForceComment }) {
     return CommentGenerator.create(contents, options).generate();
   }
 }

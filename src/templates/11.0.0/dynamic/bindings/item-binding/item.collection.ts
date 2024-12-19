@@ -7,7 +7,7 @@ import {
 import { CommentGenerator } from "@/lib/templating/generator/comment.generator";
 import { ImportGenerator } from "@/lib/templating/generator/import.generator";
 import { Collection } from "@/types/registry";
-import { ItemMethods, ItemsMethods, Methods, SingletonMethods } from "@/types/shape/ItemBindings";
+import { ItemMethods, ItemsMethods, Methods, SingletonMethods } from "@/types/shape/Bindings/ItemBindings";
 
 export const imports = (collection: Collection) =>
   MultiLineGenerator.create([

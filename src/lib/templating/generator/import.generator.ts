@@ -6,68 +6,116 @@ import { TemplateGenerator, wrapInBraces } from "./utils";
 // import default, { wrapInBraces } from "./utils";
 // import * from '';
 
-export class NamedImportGenerator extends TemplateGenerator {
-  private as?: string;
-  private name: string;
+export class NamedImportGenerator<
+  Name extends string = string,
+  As extends string | undefined = undefined,
+> extends TemplateGenerator {
+  private as?: As;
+  private name: Name;
 
-  constructor(name: string, options?: { as?: string }) {
+  constructor(name: Name, options?: { as?: As }) {
     super();
     this.as = options?.as;
     this.name = name;
+  }
+
+  setAs<NewAs extends string | undefined>(as: NewAs) {
+    const This = this as unknown as NamedImportGenerator<Name, NewAs>;
+    This.as = as;
+    return This;
+  }
+
+  setName<NewName extends string>(name: NewName) {
+    const This = this as unknown as NamedImportGenerator<NewName, As>;
+    This.name = name;
+    return This;
   }
 
   generate() {
     return `${this.name}${this.as ? ` as ${this.as}` : ""}`;
   }
 
-  static create(name: string, options?: { as?: string }) {
+  clone() {
+    return new NamedImportGenerator(this.name, { as: this.as }) as this;
+  }
+
+  static create<
+    Name extends string = string,
+    As extends string | undefined = undefined,
+  >(name: Name, options?: { as?: As }) {
     return new NamedImportGenerator(name, options);
   }
 
-  static generate(name: string, options?: { as?: string }) {
+  static generate<
+    Name extends string = string,
+    As extends string | undefined = undefined,
+  >(name: Name, options?: { as?: As }) {
     return NamedImportGenerator.create(name, options).generate();
   }
 }
 
+export type TemplateImportOptions<
+  GlobalAll extends boolean = false,
+  Type extends GlobalAll extends true ? never : boolean = GlobalAll extends true
+    ? never
+    : boolean,
+  AllAs extends GlobalAll extends true
+    ? string | true
+    : undefined = GlobalAll extends true ? string | true : undefined,
+  Default extends GlobalAll extends false
+    ? string
+    : undefined = GlobalAll extends false ? string : undefined,
+  Named extends GlobalAll extends false
+    ? NamedImportGenerator
+    : never = GlobalAll extends false ? NamedImportGenerator : never,
+> = { all?: GlobalAll; type?: Type } & (GlobalAll extends true
+  ? { as: AllAs }
+  : {
+      default?: Default;
+      named?: Named[];
+    });
+
 export class ImportGenerator<
-  GlobalAll extends boolean = boolean,
+  From extends string = string,
+  GlobalAll extends boolean = false,
+  Type extends GlobalAll extends true ? never : boolean = GlobalAll extends true
+    ? never
+    : boolean,
+  AllAs extends GlobalAll extends true
+    ? string | true
+    : undefined = GlobalAll extends true ? string | true : undefined,
+  Default extends GlobalAll extends false
+    ? string
+    : undefined = GlobalAll extends false ? string : undefined,
+  Named extends GlobalAll extends false
+    ? NamedImportGenerator
+    : never = GlobalAll extends false ? NamedImportGenerator : never,
 > extends TemplateGenerator {
-  private from: string; // from 'path'
+  private from: From; // from 'path'
   private all: GlobalAll;
-  private type?: boolean;
+  private type?: Type;
 
-  private allAs?: string | true; // if true: import * from ''; if string: import * as from ''; if undefined other option (can't be set if all is false)
+  private allAs?: AllAs; // if true: import * from ''; if string: import * as from ''; if undefined other option (can't be set if all is false)
 
-  private default?: string; // import default from 'path' (can't be set if all is true)
-  private named: NamedImportGenerator[] = []; // import { a, b, c } from 'path' (can't be set if all is true)
+  private default?: Default; // import default from 'path' (can't be set if all is true)
+  private named: Named[] = [] as Named[]; // import { a, b, c } from 'path' (can't be set if all is true)
 
   constructor(
-    from: string,
-    options?: { all?: GlobalAll; type?: boolean } & (GlobalAll extends true
-      ? { as: string | true }
-      : {
-          default?: string;
-          named?: (
-            | NamedImportGenerator
-            | {
-                name: string;
-                as?: string;
-              }
-          )[];
-        }),
+    from: From,
+    options?: TemplateImportOptions<GlobalAll, Type, AllAs, Default, Named>,
   ) {
     super();
     this.from = from;
-    this.type = options?.type ?? false;
+    this.type = options?.type ?? (false as Type);
     this.all = options?.all ?? (false as GlobalAll);
     if (options?.all) {
-      const Opts = options as { as: string | true };
+      const Opts = options as { as: AllAs };
       this.allAs = Opts.as;
     } else {
       const Opts = options as {
-        default?: string;
+        default?: Default;
         named?: (
-          | NamedImportGenerator
+          | Named
           | {
               name: string;
               as?: string;
@@ -75,44 +123,95 @@ export class ImportGenerator<
         )[];
       };
       this.default = Opts?.default;
-      this.named =
-        Opts?.named?.map((named) =>
-          named instanceof NamedImportGenerator
-            ? named
-            : new NamedImportGenerator(named.name, { as: named.as }),
-        ) ?? [];
+      this.named = (Opts?.named?.map((named) =>
+        named instanceof NamedImportGenerator
+          ? named
+          : new NamedImportGenerator(named.name, { as: named.as }),
+      ) ?? []) as Named[];
     }
   }
 
-  setAll<All extends GlobalAll>(
-    all: All,
-    options: All extends true
-      ? { as: string | true }
-      : { default?: string; named?: NamedImportGenerator[] },
+  setAll<
+    NewGlobalAll extends boolean,
+    NewAllAs extends NewGlobalAll extends true ? string | true : undefined,
+    NewDefault extends NewGlobalAll extends false ? string : undefined,
+    NewNamed extends NewGlobalAll extends false ? NamedImportGenerator : never,
+  >(
+    all: NewGlobalAll,
+    options: NewGlobalAll extends true
+      ? { as: NewAllAs }
+      : {
+          default?: NewDefault;
+          named?: (
+            | NewNamed
+            | {
+                name: string;
+                as?: string;
+              }
+          )[];
+        },
   ) {
-    this.all = all;
+    const This = this as unknown as ImportGenerator<
+      From,
+      NewGlobalAll,
+      NewGlobalAll extends true ? never : boolean,
+      NewAllAs,
+      NewDefault,
+      NewNamed
+    >;
+    This.all = all;
     if (all) {
-      const Opts = options as { as: string | true };
-      this.allAs = Opts.as;
+      const Opts = options as { as: NewAllAs };
+      This.allAs = Opts.as;
     } else {
       const Opts = options as {
-        default?: string;
-        named?: NamedImportGenerator[];
+        default?: NewDefault;
+        named?: (
+          | NewNamed
+          | {
+              name: string;
+              as?: string;
+            }
+        )[];
       };
-      this.default = Opts.default;
-      this.named = Opts.named ?? [];
+      This.default = Opts.default;
+      This.named = Opts.named?.map((named) =>
+        named instanceof NamedImportGenerator
+          ? named
+          : new NamedImportGenerator(named.name, { as: named.as }),
+      ) as NewNamed[];
     }
-    return this;
+    return This;
   }
 
-  setType(type: boolean) {
-    this.type = type;
-    return this;
+  setType<
+    NewType extends GlobalAll extends true
+      ? never
+      : boolean = GlobalAll extends true ? never : boolean,
+  >(type: NewType) {
+    const This = this as unknown as ImportGenerator<
+      From,
+      GlobalAll,
+      NewType,
+      AllAs,
+      Default,
+      Named
+    >;
+    This.type = type;
+    return This;
   }
 
-  setFrom(from: string) {
-    this.from = from;
-    return this;
+  setFrom<NewFrom extends string>(from: NewFrom) {
+    const This = this as unknown as ImportGenerator<
+      NewFrom,
+      GlobalAll,
+      Type,
+      AllAs,
+      Default,
+      Named
+    >;
+    This.from = from;
+    return This;
   }
 
   generate() {
@@ -133,38 +232,68 @@ export class ImportGenerator<
     }
   }
 
-  static create<GlobalAll extends boolean>(
-    from: string,
-    options?: { all?: GlobalAll; type?: boolean } & (GlobalAll extends true
-      ? { as: string | true }
-      : {
-          default?: string;
-          named?: (
-            | NamedImportGenerator
-            | {
-                name: string;
-                as?: string;
-              }
-          )[];
-        }),
+  clone() {
+    return new ImportGenerator<From, GlobalAll, Type, AllAs, Default, Named>(
+      this.from,
+      (this.all
+        ? { all: true, type: this.type, as: this.allAs as AllAs }
+        : {
+            all: false,
+            type: this.type,
+            default: this.default,
+            named: this.named.map((named) => named.clone()),
+          }) as unknown as {
+        all?: GlobalAll;
+        type?: Type;
+      } & (GlobalAll extends true
+        ? { as: AllAs }
+        : {
+            default?: Default;
+            named?: Named[];
+          }),
+    ) as this;
+  }
+
+  static create<
+    From extends string = string,
+    GlobalAll extends boolean = false,
+    Type extends GlobalAll extends true
+      ? never
+      : boolean = GlobalAll extends true ? never : boolean,
+    AllAs extends GlobalAll extends true
+      ? string | true
+      : undefined = GlobalAll extends true ? string | true : undefined,
+    Default extends GlobalAll extends false
+      ? string
+      : undefined = GlobalAll extends false ? string : undefined,
+    Named extends GlobalAll extends false
+      ? NamedImportGenerator
+      : never = GlobalAll extends false ? NamedImportGenerator : never,
+  >(
+    from: From,
+    options?: TemplateImportOptions<GlobalAll, Type, AllAs, Default, Named>,
   ) {
     return new ImportGenerator(from, options);
   }
 
-  static generate<GlobalAll extends boolean>(
-    from: string,
-    options?: { all?: GlobalAll; type?: boolean } & (GlobalAll extends true
-      ? { as: string | true }
-      : {
-          default?: string;
-          named?: (
-            | NamedImportGenerator
-            | {
-                name: string;
-                as?: string;
-              }
-          )[];
-        }),
+  static generate<
+    From extends string = string,
+    GlobalAll extends boolean = false,
+    Type extends GlobalAll extends true
+      ? never
+      : boolean = GlobalAll extends true ? never : boolean,
+    AllAs extends GlobalAll extends true
+      ? string | true
+      : undefined = GlobalAll extends true ? string | true : undefined,
+    Default extends GlobalAll extends false
+      ? string
+      : undefined = GlobalAll extends false ? string : undefined,
+    Named extends GlobalAll extends false
+      ? NamedImportGenerator
+      : never = GlobalAll extends false ? NamedImportGenerator : never,
+  >(
+    from: From,
+    options?: TemplateImportOptions<GlobalAll, Type, AllAs, Default, Named>,
   ) {
     return ImportGenerator.create(from, options).generate();
   }
