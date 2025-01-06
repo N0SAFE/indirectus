@@ -32,6 +32,7 @@ import {
     SingletonMethods,
 } from "@/types/shape/Bindings/ItemBindings";
 import { TemplateRenderer } from "@/types/template";
+import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
 
 export default (
     registry: Registry,
@@ -200,145 +201,19 @@ export default (
                             "collection.is_singleton",
                             IdentifierGenerator.create(
                                 `Bindings<${collection.name}>.Item.exports.Singleton`,
-                                ClassGenerator.create(
-                                    "{{ collectionName }}Singleton",
-                                    {
-                                        extended: "ChainableBinding",
-                                        implemented: [
-                                            "TypedCollectionSingletonWrapper<{{ collectionType }}>",
-                                        ],
-                                        methods: [
-                                            MultiLineGenerator.create([
-                                                CommentGenerator.create(
-                                                    [
-                                                        "Reads the {{ collection.name | to_collection_text }} singleton.",
-                                                    ],
-                                                    {
-                                                        forceMultiline: true,
-                                                    },
-                                                ),
-                                                IdentifierGenerator.create(
-                                                    `Bindings<${collection.name}>.Item.exports.Singleton.read`,
-                                                    ClassMethodGenerator.create(
-                                                        {
-                                                            isAsync: true,
-                                                            generics:
-                                                                GenericsTypeGenerator.create(
-                                                                    [
-                                                                        GenericTypeGenerator.create(
-                                                                            {
-                                                                                name: "{{ genericQuery }}",
-                                                                            },
-                                                                        ),
-                                                                        GenericTypeGenerator.create(
-                                                                            {
-                                                                                name: "{{ genericOutput }}",
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                            params: FunctionParamsGenerator.create(
-                                                                [
-                                                                    FunctionParamGenerator.create(
-                                                                        {
-                                                                            name: "query",
-                                                                            type: "Query",
-                                                                            optional:
-                                                                                true,
-                                                                        },
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                            returnType:
-                                                                "Promise<{{ applyType }}>",
-                                                            body: [
-                                                                "let toReturn = this.request(read{{ collectionName }}(query)) as unknown as Promise<{{ applyType }}>;",
-                                                            ],
-                                                            return: "return toReturn;",
-                                                            name: "read" satisfies SingletonMethods,
-                                                        },
-                                                    ),
-                                                ),
-                                            ]),
-                                            MultiLineGenerator.create([
-                                                CommentGenerator.create(
-                                                    [
-                                                        "Updates the {{ collection.name | to_collection_text }} singleton.",
-                                                    ],
-                                                    {
-                                                        forceMultiline: true,
-                                                    },
-                                                ),
-                                                IdentifierGenerator.create(
-                                                    `Bindings<${collection.name}>.Item.exports.Singleton.update`,
-                                                    ClassMethodGenerator.create(
-                                                        {
-                                                            isAsync: true,
-                                                            generics:
-                                                                GenericsTypeGenerator.create(
-                                                                    [
-                                                                        GenericTypeGenerator.create(
-                                                                            {
-                                                                                name: "{{ genericQuery }}",
-                                                                            },
-                                                                        ),
-                                                                        GenericTypeGenerator.create(
-                                                                            {
-                                                                                name: "{{ genericOutput }}",
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                            params: FunctionParamsGenerator.create(
-                                                                [
-                                                                    FunctionParamGenerator.create(
-                                                                        {
-                                                                            name: "patch",
-                                                                            type: "Partial<{{ collectionType }}>",
-                                                                        },
-                                                                    ),
-                                                                    FunctionParamGenerator.create(
-                                                                        {
-                                                                            name: "query",
-                                                                            type: "Query",
-                                                                            optional:
-                                                                                true,
-                                                                        },
-                                                                    ),
-                                                                ],
-                                                            ),
-                                                            returnType:
-                                                                "Promise<{{ applyType }}>",
-                                                            body: [
-                                                                "let toReturn = this.request(update{{ collectionName }}(patch, query)) as unknown as Promise<{{ applyType }}>;",
-                                                            ],
-                                                            return: "return toReturn;",
-                                                            name: "update" satisfies SingletonMethods,
-                                                        },
-                                                    ),
-                                                ),
-                                            ]),
-                                        ],
-                                    },
-                                ),
-                            ),
-                        ),
-                        else: NunjucksElseConditionGenerator.create(
-                            MultiLineGenerator.create([
-                                IdentifierGenerator.create(
-                                    `Bindings<${collection.name}>.Item.exports.Items`,
+                                ExportGenerator.create(
                                     ClassGenerator.create(
-                                        "{{ collectionName }}Items",
+                                        "{{ collectionName }}Singleton",
                                         {
                                             extended: "ChainableBinding",
                                             implemented: [
-                                                "TypedCollectionItemsWrapper<{{ collectionType }}, {{ collectionString }}>",
+                                                "TypedCollectionSingletonWrapper<{{ collectionType }}>",
                                             ],
                                             methods: [
                                                 MultiLineGenerator.create([
                                                     CommentGenerator.create(
                                                         [
-                                                            "Creates many items in the collection.",
+                                                            "Reads the {{ collection.name | to_collection_text }} singleton.",
                                                         ],
                                                         {
                                                             forceMultiline:
@@ -346,120 +221,7 @@ export default (
                                                         },
                                                     ),
                                                     IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.create`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
-                                                                        [
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericQueryArray }}",
-                                                                                },
-                                                                            ),
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericOutputArray }}",
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "items",
-                                                                                type: "Partial<{{ collectionType }}>[]",
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(create{{ collectionName }}Items(items, query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "create" satisfies ItemsMethods,
-                                                            },
-                                                        ),
-                                                    ),
-                                                ]),
-
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Read many items from the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.query`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
-                                                                        [
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericQuery }}",
-                                                                                },
-                                                                            ),
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericOutputArray }}",
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(read{{ collectionName }}Items(query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "query" satisfies ItemsMethods,
-                                                            },
-                                                        ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Read the first item from the collection matching the query.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.find`,
+                                                        `Bindings<${collection.name}>.Item.exports.Singleton.read`,
                                                         ClassMethodGenerator.create(
                                                             {
                                                                 isAsync: true,
@@ -491,12 +253,12 @@ export default (
                                                                     ],
                                                                 ),
                                                                 returnType:
-                                                                    "Promise<{{ applyType }} | undefined>",
+                                                                    "Promise<{{ applyType }}>",
                                                                 body: [
-                                                                    "let toReturn = this.request(read{{ collectionName }}Items({...query,limit: 1})).then(items => items?.[0]) as unknown as Promise<{{ applyType }} | undefined>;",
+                                                                    "let toReturn = this.request(read{{ collectionName }}(query)) as unknown as Promise<{{ applyType }}>;",
                                                                 ],
                                                                 return: "return toReturn;",
-                                                                name: "find" satisfies ItemsMethods,
+                                                                name: "read" satisfies SingletonMethods,
                                                             },
                                                         ),
                                                     ),
@@ -504,7 +266,7 @@ export default (
                                                 MultiLineGenerator.create([
                                                     CommentGenerator.create(
                                                         [
-                                                            "Update many items in the collection.",
+                                                            "Updates the {{ collection.name | to_collection_text }} singleton.",
                                                         ],
                                                         {
                                                             forceMultiline:
@@ -512,7 +274,7 @@ export default (
                                                         },
                                                     ),
                                                     IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.update`,
+                                                        `Bindings<${collection.name}>.Item.exports.Singleton.update`,
                                                         ClassMethodGenerator.create(
                                                             {
                                                                 isAsync: true,
@@ -521,24 +283,18 @@ export default (
                                                                         [
                                                                             GenericTypeGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericQueryArray }}",
+                                                                                    name: "{{ genericQuery }}",
                                                                                 },
                                                                             ),
                                                                             GenericTypeGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericOutputArray }}",
+                                                                                    name: "{{ genericOutput }}",
                                                                                 },
                                                                             ),
                                                                         ],
                                                                     ),
                                                                 params: FunctionParamsGenerator.create(
                                                                     [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "keys",
-                                                                                type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]',
-                                                                            },
-                                                                        ),
                                                                         FunctionParamGenerator.create(
                                                                             {
                                                                                 name: "patch",
@@ -558,166 +314,10 @@ export default (
                                                                 returnType:
                                                                     "Promise<{{ applyType }}>",
                                                                 body: [
-                                                                    "let toReturn = this.request(update{{ collectionName }}Items(keys, patch, query)) as unknown as Promise<{{ applyType }}>;",
+                                                                    "let toReturn = this.request(update{{ collectionName }}(patch, query)) as unknown as Promise<{{ applyType }}>;",
                                                                 ],
                                                                 return: "return toReturn;",
-                                                                name: "update" satisfies ItemsMethods,
-                                                            },
-                                                        ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "update many items in the collection with batch",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.updateBatch`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
-                                                                        [
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericQueryArray }}",
-                                                                                },
-                                                                            ),
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericOutputArray }}",
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "items",
-                                                                                type: "Partial<Directus.UnpackList<Collections.{{collectionName}}>>[]",
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(update{{ collectionName }}ItemsBatch(items, query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "updateBatch" satisfies ItemsMethods,
-                                                            },
-                                                        ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Remove many items in the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.remove`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
-                                                                        [
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "{{ genericOutputVoid }}",
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "keys",
-                                                                                type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]',
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(delete{{ collectionName }}Items(keys)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "remove" satisfies ItemsMethods,
-                                                            },
-                                                        ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Aggregates the items in the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Items.aggregate`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
-                                                                        [
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "Options extends Directus.AggregationOptions<Schema, {{ collectionString }}>",
-                                                                                },
-                                                                            ),
-                                                                            GenericTypeGenerator.create(
-                                                                                {
-                                                                                    name: "Output = Directus.AggregationOutput<Schema, {{ collectionString }}, Options>[number]",
-                                                                                },
-                                                                            ),
-                                                                        ],
-                                                                    ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "options",
-                                                                                type: "Options",
-                                                                            },
-                                                                        ),
-                                                                    ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<Output>",
-                                                                body: [
-                                                                    "let toReturn = this.request(aggregate{{ collectionName }}Items<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "aggregate" satisfies ItemsMethods,
+                                                                name: "update" satisfies SingletonMethods,
                                                             },
                                                         ),
                                                     ),
@@ -726,247 +326,667 @@ export default (
                                         },
                                     ),
                                 ),
+                            ),
+                        ),
+                        else: NunjucksElseConditionGenerator.create(
+                            MultiLineGenerator.create([
+                                IdentifierGenerator.create(
+                                    `Bindings<${collection.name}>.Item.exports.Items`,
+                                    ExportGenerator.create(
+                                        ClassGenerator.create(
+                                            "{{ collectionName }}Items",
+                                            {
+                                                extended: "ChainableBinding",
+                                                implemented: [
+                                                    "TypedCollectionItemsWrapper<{{ collectionType }}, {{ collectionString }}>",
+                                                ],
+                                                methods: [
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Creates many items in the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.create`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQueryArray }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputArray }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "items",
+                                                                                    type: "Partial<{{ collectionType }}>[]",
+                                                                                },
+                                                                            ),
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(create{{ collectionName }}Items(items, query)) as unknown as Promise<{{ applyType }}>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "create" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Read many items from the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.query`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQuery }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputArray }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(read{{ collectionName }}Items(query)) as unknown as Promise<{{ applyType }}>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "query" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Read the first item from the collection matching the query.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.find`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQuery }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutput }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }} | undefined>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(read{{ collectionName }}Items({...query,limit: 1})).then(items => items?.[0]) as unknown as Promise<{{ applyType }} | undefined>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "find" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Update many items in the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.update`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQueryArray }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputArray }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "keys",
+                                                                                    type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]',
+                                                                                },
+                                                                            ),
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "patch",
+                                                                                    type: "Partial<{{ collectionType }}>",
+                                                                                },
+                                                                            ),
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(update{{ collectionName }}Items(keys, patch, query)) as unknown as Promise<{{ applyType }}>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "update" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "update many items in the collection with batch",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.updateBatch`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQueryArray }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputArray }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "items",
+                                                                                    type: "Partial<Directus.UnpackList<Collections.{{collectionName}}>>[]",
+                                                                                },
+                                                                            ),
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(update{{ collectionName }}ItemsBatch(items, query)) as unknown as Promise<{{ applyType }}>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "updateBatch" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Remove many items in the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.remove`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputVoid }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "keys",
+                                                                                    type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"][] : string[] | number[]',
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(delete{{ collectionName }}Items(keys)) as unknown as Promise<{{ applyType }}>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "remove" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Aggregates the items in the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Items.aggregate`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "Options extends Directus.AggregationOptions<Schema, {{ collectionString }}>",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "Output = Directus.AggregationOutput<Schema, {{ collectionString }}, Options>[number]",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
+                                                                        [
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "options",
+                                                                                    type: "Options",
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    returnType:
+                                                                        "Promise<Output>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(aggregate{{ collectionName }}Items<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;",
+                                                                    ],
+                                                                    return: "return toReturn;",
+                                                                    name: "aggregate" satisfies ItemsMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                ],
+                                            },
+                                        ),
+                                    ),
+                                ),
                                 IdentifierGenerator.create(
                                     `Bindings<${collection.name}>.Item.exports.Item`,
-                                    ClassGenerator.create(
-                                        "{{ collectionName }}Item",
-                                        {
-                                            extended: "ChainableBinding",
-                                            implemented: [
-                                                "TypedCollectionItemWrapper<{{ collectionType }}>",
-                                            ],
-                                            methods: [
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Create a single item in the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Item.create`,
-                                                        ClassMethodGenerator.create(
+                                    ExportGenerator.create(
+                                        ClassGenerator.create(
+                                            "{{ collectionName }}Item",
+                                            {
+                                                extended: "ChainableBinding",
+                                                implemented: [
+                                                    "TypedCollectionItemWrapper<{{ collectionType }}>",
+                                                ],
+                                                methods: [
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Create a single item in the collection.",
+                                                            ],
                                                             {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
+                                                                forceMultiline:
+                                                                    true,
+                                                            },
+                                                        ),
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Item.create`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQueryArray }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutput }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
                                                                         [
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericQueryArray }}",
+                                                                                    name: "item",
+                                                                                    type: "Partial<{{ collectionType }}>",
                                                                                 },
                                                                             ),
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericOutput }}",
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
                                                                                 },
                                                                             ),
                                                                         ],
                                                                     ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "item",
-                                                                                type: "Partial<{{ collectionType }}>",
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(create{{ collectionName }}Item(item, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(create{{ collectionName }}Item(item, query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "create" satisfies ItemMethods,
+                                                                    return: "return toReturn;",
+                                                                    name: "create" satisfies ItemMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Read a single item from the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
                                                             },
                                                         ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Read a single item from the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Item.get`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Item.get`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQuery }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutput }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
                                                                         [
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericQuery }}",
+                                                                                    name: "key",
+                                                                                    type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
                                                                                 },
                                                                             ),
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericOutput }}",
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
                                                                                 },
                                                                             ),
                                                                         ],
                                                                     ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "key",
-                                                                                type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(read{{ collectionName }}Item(key, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(read{{ collectionName }}Item(key, query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "get" satisfies ItemMethods,
+                                                                    return: "return toReturn;",
+                                                                    name: "get" satisfies ItemMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Update a single item from the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
                                                             },
                                                         ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Update a single item from the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Item.update`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Item.update`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericQueryArray }}",
+                                                                                    },
+                                                                                ),
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutput }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
                                                                         [
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericQueryArray }}",
+                                                                                    name: "key",
+                                                                                    type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
                                                                                 },
                                                                             ),
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericOutput }}",
+                                                                                    name: "patch",
+                                                                                    type: "Partial<{{ collectionType }}>",
+                                                                                },
+                                                                            ),
+                                                                            FunctionParamGenerator.create(
+                                                                                {
+                                                                                    name: "query",
+                                                                                    type: "Query",
+                                                                                    optional:
+                                                                                        true,
                                                                                 },
                                                                             ),
                                                                         ],
                                                                     ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "key",
-                                                                                type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "patch",
-                                                                                type: "Partial<{{ collectionType }}>",
-                                                                            },
-                                                                        ),
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "query",
-                                                                                type: "Query",
-                                                                                optional:
-                                                                                    true,
-                                                                            },
-                                                                        ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(update{{ collectionName }}Item(key, patch, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(update{{ collectionName }}Item(key, patch, query)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "update" satisfies ItemMethods,
+                                                                    return: "return toReturn;",
+                                                                    name: "update" satisfies ItemMethods,
+                                                                },
+                                                            ),
+                                                        ),
+                                                    ]),
+                                                    MultiLineGenerator.create([
+                                                        CommentGenerator.create(
+                                                            [
+                                                                "Remove a single item in the collection.",
+                                                            ],
+                                                            {
+                                                                forceMultiline:
+                                                                    true,
                                                             },
                                                         ),
-                                                    ),
-                                                ]),
-                                                MultiLineGenerator.create([
-                                                    CommentGenerator.create(
-                                                        [
-                                                            "Remove a single item in the collection.",
-                                                        ],
-                                                        {
-                                                            forceMultiline:
-                                                                true,
-                                                        },
-                                                    ),
-                                                    IdentifierGenerator.create(
-                                                        `Bindings<${collection.name}>.Item.exports.Item.remove`,
-                                                        ClassMethodGenerator.create(
-                                                            {
-                                                                isAsync: true,
-                                                                generics:
-                                                                    GenericsTypeGenerator.create(
+                                                        IdentifierGenerator.create(
+                                                            `Bindings<${collection.name}>.Item.exports.Item.remove`,
+                                                            ClassMethodGenerator.create(
+                                                                {
+                                                                    isAsync:
+                                                                        true,
+                                                                    generics:
+                                                                        GenericsTypeGenerator.create(
+                                                                            [
+                                                                                GenericTypeGenerator.create(
+                                                                                    {
+                                                                                        name: "{{ genericOutputVoid }}",
+                                                                                    },
+                                                                                ),
+                                                                            ],
+                                                                        ),
+                                                                    params: FunctionParamsGenerator.create(
                                                                         [
-                                                                            GenericTypeGenerator.create(
+                                                                            FunctionParamGenerator.create(
                                                                                 {
-                                                                                    name: "{{ genericOutputVoid }}",
+                                                                                    name: "key",
+                                                                                    type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
                                                                                 },
                                                                             ),
                                                                         ],
                                                                     ),
-                                                                params: FunctionParamsGenerator.create(
-                                                                    [
-                                                                        FunctionParamGenerator.create(
-                                                                            {
-                                                                                name: "key",
-                                                                                type: 'Collections.{{collectionName}} extends {id: number | string} ? Collections.{{collectionName}}["id"] : string | number',
-                                                                            },
-                                                                        ),
+                                                                    returnType:
+                                                                        "Promise<{{ applyType }}>",
+                                                                    body: [
+                                                                        "let toReturn = this.request(delete{{ collectionName }}Item(key)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                ),
-                                                                returnType:
-                                                                    "Promise<{{ applyType }}>",
-                                                                body: [
-                                                                    "let toReturn = this.request(delete{{ collectionName }}Item(key)) as unknown as Promise<{{ applyType }}>;",
-                                                                ],
-                                                                return: "return toReturn;",
-                                                                name: "remove" satisfies ItemMethods,
-                                                            },
+                                                                    return: "return toReturn;",
+                                                                    name: "remove" satisfies ItemMethods,
+                                                                },
+                                                            ),
                                                         ),
-                                                    ),
-                                                ]),
-                                            ],
-                                        },
+                                                    ]),
+                                                ],
+                                            },
+                                        ),
                                     ),
                                 ),
                             ]),

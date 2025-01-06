@@ -482,10 +482,6 @@ export default (
                                 name: "TypedClient",
                                 content: ObjectTypeGenerator.create(
                                     registry.collections // ! this type does not work in the TypeDeclarator generator because it as to be cast as a string but with the cast as a string we cannot use the getChildrenByIdentifier function so we add to create a custom generator to handle the object type but for the typescript type system and not the js system
-                                        .filter(
-                                            (collection) =>
-                                                !collection.is_system,
-                                        )
                                         .reduce(
                                             (acc, collection) => {
                                                 const collectionName =

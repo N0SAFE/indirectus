@@ -31,7 +31,7 @@ export class ObjectTypeGenerator<
     generate() {
         return `${wrapInBraces(
             Object.entries(this.content)
-                .map(([key, value]) => `"${key}": ${value}`)
+                .map(([key, value]) => `${key}: ${value}`)
                 .join(", "),
         )}`;
     }
