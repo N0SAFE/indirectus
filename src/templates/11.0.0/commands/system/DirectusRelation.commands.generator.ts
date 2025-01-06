@@ -61,8 +61,8 @@ export default () =>
                             ]),
                             ExportGenerator.create(
                                 VariableDeclaratorGenerator.create(
-                                    `read${collectionName}`,
-                                    `read${collectionName}Item`,
+                                    {name: `read${collectionName}`,
+                                    value: `read${collectionName}Item`, keyword: 'const'}
                                 ),
                             ),
                         ]),
@@ -92,8 +92,8 @@ export default () =>
                             ]),
                             ExportGenerator.create(
                                 VariableDeclaratorGenerator.create(
-                                    `list${collectionName}`,
-                                    `read${collectionName}Items`,
+                                    {name: `list${collectionName}`,
+                                    value: `read${collectionName}Items`, keyword: 'const'}
                                 ),
                             ),
                         ]),

@@ -1,4 +1,3 @@
-
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
 import {
@@ -278,10 +277,11 @@ export function defaultReadsVariable<CollectionName extends string>(
                 },
             ),
             ExportGenerator.create(
-                VariableDeclaratorGenerator.create(
-                    `list${capitalize(collectionName)}`,
-                    `read${capitalize(collectionName)}Items`,
-                ),
+                VariableDeclaratorGenerator.create({
+                    name: `list${capitalize(collectionName)}`,
+                    value: `read${capitalize(collectionName)}Items`,
+                    keyword: "const",
+                }),
             ),
         ]),
     );
@@ -336,10 +336,11 @@ export function defaultReadVariable<CollectionName extends string>(
                 },
             ),
             ExportGenerator.create(
-                VariableDeclaratorGenerator.create(
-                    `read${capitalize(collectionName)}`,
-                    `read${capitalize(collectionName)}Item`,
-                ),
+                VariableDeclaratorGenerator.create({
+                    name: `read${capitalize(collectionName)}`,
+                    value: `read${capitalize(collectionName)}Item`,
+                    keyword: "const",
+                }),
             ),
         ]),
     );

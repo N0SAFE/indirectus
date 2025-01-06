@@ -13,8 +13,8 @@ export class DirectoryGenerator<
         | TemplateStringGenerator
         | TemplateFileGenerator,
 > extends TemplateFileGenerator {
-    getChildrenByIdentifier = getChildrenByIdentifier
-    
+    getChildrenByIdentifier = getChildrenByIdentifier;
+
     private struct: Record<string, Content>;
 
     constructor(struct: Record<string, Content>) {
@@ -55,53 +55,63 @@ export class DirectoryGenerator<
     }
 
     async generate(basePath: string) {
-        for (const [key, value] of Object.entries(this.struct)) {
-            if (Array.isArray(value)) {
-                for (const item of value) {
-                    if (item instanceof TemplateFileGenerator) {
-                        fs.mkdirSync(`${basePath}/${key}`);
-                        item.generate(`${basePath}/${key}`);
+        await Promise.all(
+            Object.entries(this.struct).map(async ([key, value]) => {
+                if (Array.isArray(value)) {
+                    for (const item of value) {
+                        if (item instanceof TemplateFileGenerator) {
+                            fs.mkdirSync(`${basePath}/${key}`);
+                            await item.generate(`${basePath}/${key}`);
+                        } else {
+                            const file = item.generate();
+                            await this.writeFileWithPrettier(
+                                `${basePath}/${key}`,
+                                file,
+                            );
+                        }
+                    }
+                } else {
+                    if (value instanceof TemplateFileGenerator) {
+                        fs.mkdirSync(`${basePath}/${key}`, {
+                            recursive: true,
+                        });
+                        await value.generate(`${basePath}/${key}`);
                     } else {
-                        const file = item.generate();
-                        this.writeFileWithPrettier(`${basePath}/${key}`, file);
+                        const file = value.generate();
+                        await this.writeFileWithPrettier(
+                            `${basePath}/${key}`,
+                            file,
+                        );
                     }
                 }
-            } else {
-                if (value instanceof TemplateFileGenerator) {
-                    fs.mkdirSync(`${basePath}/${key}`, {
-                        recursive: true,
-                    });
-                    value.generate(`${basePath}/${key}`);
-                } else {
-                    const file = value.generate();
-                    this.writeFileWithPrettier(`${basePath}/${key}`, file);
-                }
-            }
-        }
+            }),
+        );
     }
 
     async dryRun(basePath: string) {
-        for (const [key, value] of Object.entries(this.struct)) {
-            if (Array.isArray(value)) {
-                for (const item of value) {
-                    if (item instanceof TemplateFileGenerator) {
+        await Promise.all(
+            Object.entries(this.struct).map(async ([key, value]) => {
+                if (Array.isArray(value)) {
+                    for (const item of value) {
+                        if (item instanceof TemplateFileGenerator) {
+                            console.log(`mkdir ${basePath}/${key}`);
+                            await item.dryRun(`${basePath}/${key}`);
+                        } else {
+                            const file = item.generate();
+                            console.log(`write ${basePath}/${key}`);
+                        }
+                    }
+                } else {
+                    if (value instanceof TemplateFileGenerator) {
                         console.log(`mkdir ${basePath}/${key}`);
-                        item.dryRun(`${basePath}/${key}`);
+                        await value.dryRun(`${basePath}/${key}`);
                     } else {
-                        const file = item.generate();
+                        const file = value.generate();
                         console.log(`write ${basePath}/${key}`);
                     }
                 }
-            } else {
-                if (value instanceof TemplateFileGenerator) {
-                    console.log(`mkdir ${basePath}/${key}`);
-                    value.dryRun(`${basePath}/${key}`);
-                } else {
-                    const file = value.generate();
-                    console.log(`write ${basePath}/${key}`);
-                }
-            }
-        }
+            }),
+        );
     }
 
     clone() {

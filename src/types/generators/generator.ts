@@ -14,7 +14,11 @@ import { type Registry, createRegistry } from "../registry";
 import type { Schema } from "@/types/schema";
 
 import { fetchSchema } from "@/types/schema";
-import { TemplateContext, type TemplateRenderer, createRenderer } from "../template";
+import {
+    TemplateContext,
+    type TemplateRenderer,
+    createRenderer,
+} from "../template";
 import { TemplateLoader, type TemplateFile } from "@/types/template-loader";
 import { AddonGenerator } from "./generator.addon";
 import { DirConfiguratorOptionsType, DirGenerator } from "./generator.dir";
@@ -251,14 +255,35 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
             version: this.schema.version,
         });
 
-        const createRenderers = async (
-            createRenderer: (version: Version) => Promise<TemplateRenderer>,
+        const createRenderers = async <T>(
+            createRenderer: (version: Version) => Promise<T>,
         ) => {
+            console.log(
+                "restr ",
+                fs
+                    .readdirSync(TemplateLoader.getTemplatesDirs(basePath))
+                    .filter((name) =>
+                        fs
+                            .statSync(
+                                path.resolve(
+                                    TemplateLoader.getTemplatesDirs(basePath),
+                                    name,
+                                ),
+                            )
+                            .isDirectory(),
+                    ) as Version[],
+            );
+            const templatesPath = TemplateLoader.getTemplatesDirs(basePath);
             const allPreviousVersions = Versionner.sortVersions(
                 Versionner.getAllPreviousVersions(
-                    fs.readdirSync(
-                        TemplateLoader.getTemplatesDirs(basePath),
-                    ) as Version[],
+                    fs
+                        .readdirSync(templatesPath)
+                        .filter((name) =>
+                            fs
+                                .statSync(path.resolve(templatesPath, name))
+                                .isDirectory(),
+                        )
+                        .filter((v): v is Version => !!Versionner.valid(v)),
                     this.schema.directus,
                 ),
             );
@@ -279,11 +304,14 @@ export class Generator extends TypedEventEmitter<GeneratorEvents> {
                 this.engines.set(key, await createRenderer(basePath, version));
             }
             console.log("Generating version", version);
-            console.log(this.registry.collections)
-            v11Generator(this.registry, {
+
+            const startTime = Date.now();
+            await v11Generator(this.registry, {
                 ctx: await this.createContext(this.engines.get(key)!),
                 renderer: this.engines.get(key)!,
             }).generate(this.options.output);
+            console.log("Time taken", Date.now() - startTime);
+
             return this.engines.get(key) as TemplateRenderer;
         });
 

@@ -43,6 +43,14 @@ export class Versionner {
         return versions.sort(semver.compare);
     }
 
+    public static compare = semver.compare;
+
+    public static compareIdentifiers = semver.compareIdentifiers;
+
+    public static valid = semver.valid;
+
+    public static satisfies = semver.satisfies;
+
     public static getAllPreviousVersions(
         versions: Version[],
         versionToCheck: Version,

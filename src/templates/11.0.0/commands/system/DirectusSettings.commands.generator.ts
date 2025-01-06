@@ -75,10 +75,11 @@ export default () =>
                             CommentGenerator.create([
                                 `Read the ${pascalToSpace(collectionName)} singleton.`,
                             ]),
-                            VariableDeclaratorGenerator.create(
-                                `get${collectionName}`,
-                                `read${collectionName}`,
-                            ),
+                            VariableDeclaratorGenerator.create({
+                                name: `get${collectionName}`,
+                                value: `read${collectionName}`,
+                                keyword: "const",
+                            }),
                         ]),
                     ),
                     IdentifierGenerator.create(

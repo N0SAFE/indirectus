@@ -66,10 +66,11 @@ export default () =>
                                 },
                             ),
                             ExportGenerator.create(
-                                VariableDeclaratorGenerator.create(
-                                    `list${capitalize(collectionName)}`,
-                                    `read${capitalize(collectionName)}Items`,
-                                ),
+                                VariableDeclaratorGenerator.create({
+                                    name: `list${capitalize(collectionName)}`,
+                                    value: `read${capitalize(collectionName)}Items`,
+                                    keyword: "const",
+                                }),
                             ),
                         ]),
                     ),
@@ -113,10 +114,11 @@ export default () =>
                                 },
                             ),
                             ExportGenerator.create(
-                                VariableDeclaratorGenerator.create(
-                                    `read${capitalize(collectionName)}`,
-                                    `read${capitalize(collectionName)}Item`,
-                                ),
+                                VariableDeclaratorGenerator.create({
+                                    name: `read${capitalize(collectionName)}`,
+                                    value: `read${capitalize(collectionName)}Item`,
+                                    keyword: "const",
+                                }),
                             ),
                         ]),
                     ),

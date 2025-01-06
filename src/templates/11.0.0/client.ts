@@ -33,6 +33,7 @@ import {
 } from "@/lib/templating/generator/type/generic.generator";
 import { pluralize, singularize } from "@/extensions/filters/inflections";
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
+import { ObjectTypeGenerator } from "@/lib/templating/generator/type/object.generator";
 
 export default (
     registry: Registry,
@@ -479,63 +480,73 @@ export default (
                         MultiLineGenerator.create([
                             TypeDeclaratorGenerator.create({
                                 name: "TypedClient",
-                                content: registry.collections // ! this type does not work in the TypeDeclarator generator because it as to be cast as a string but with the cast as a string we cannot use the getChildrenByIdentifier function so we add to create a custom generator to handle the object type but for the typescript type system and not the js system
-                                    .filter(
-                                        (collection) => !collection.is_system,
-                                    )
-                                    .reduce(
-                                        (acc, collection) => {
-                                            const collectionName =
-                                                to_collection_name(
-                                                    ctx,
-                                                    collection.name.raw,
-                                                );
-                                            const collectionNamePlural =
-                                                pluralize(ctx, collectionName);
-                                            const collectionNameSingular =
-                                                singularize(
-                                                    ctx,
-                                                    collectionName,
-                                                );
-                                            if (collection.is_system) {
-                                                if (collection.is_singleton) {
-                                                    // {{ collection.name | to_collection_name | to_collection_string  }}: SystemBinding.{{ collectionName }}Singleton;
+                                content: ObjectTypeGenerator.create(
+                                    registry.collections // ! this type does not work in the TypeDeclarator generator because it as to be cast as a string but with the cast as a string we cannot use the getChildrenByIdentifier function so we add to create a custom generator to handle the object type but for the typescript type system and not the js system
+                                        .filter(
+                                            (collection) =>
+                                                !collection.is_system,
+                                        )
+                                        .reduce(
+                                            (acc, collection) => {
+                                                const collectionName =
+                                                    to_collection_name(
+                                                        ctx,
+                                                        collection.name.raw,
+                                                    );
+                                                const collectionNamePlural =
+                                                    pluralize(
+                                                        ctx,
+                                                        collectionName,
+                                                    );
+                                                const collectionNameSingular =
+                                                    singularize(
+                                                        ctx,
+                                                        collectionName,
+                                                    );
+                                                if (collection.is_system) {
+                                                    if (
+                                                        collection.is_singleton
+                                                    ) {
+                                                        // {{ collection.name | to_collection_name | to_collection_string  }}: SystemBinding.{{ collectionName }}Singleton;
 
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionName)}`
-                                                    ] =
-                                                        `SystemBinding.${collectionName}Singleton`;
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionName)}`
+                                                        ] =
+                                                            `SystemBinding.${collectionName}Singleton`;
+                                                    } else {
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionNamePlural)}`
+                                                        ] =
+                                                            `SystemBinding.${collectionName}Items`;
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionNameSingular)}`
+                                                        ] =
+                                                            `SystemBinding.${collectionName}Item`;
+                                                    }
                                                 } else {
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionNamePlural)}`
-                                                    ] =
-                                                        `SystemBinding.${collectionName}Items`;
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionNameSingular)}`
-                                                    ] =
-                                                        `SystemBinding.${collectionName}Item`;
+                                                    if (
+                                                        collection.is_singleton
+                                                    ) {
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionName)}`
+                                                        ] =
+                                                            `ItemBinding.${collectionName}Singleton`;
+                                                    } else {
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionNamePlural)}`
+                                                        ] =
+                                                            `ItemBinding.${collectionName}Items`;
+                                                        acc[
+                                                            `${to_collection_string(ctx, collectionNameSingular)}`
+                                                        ] =
+                                                            `ItemBinding.${collectionName}Item`;
+                                                    }
                                                 }
-                                            } else {
-                                                if (collection.is_singleton) {
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionName)}`
-                                                    ] =
-                                                        `ItemBinding.${collectionName}Singleton`;
-                                                } else {
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionNamePlural)}`
-                                                    ] =
-                                                        `ItemBinding.${collectionName}Items`;
-                                                    acc[
-                                                        `${to_collection_string(ctx, collectionNameSingular)}`
-                                                    ] =
-                                                        `ItemBinding.${collectionName}Item`;
-                                                }
-                                            }
-                                            return acc;
-                                        },
-                                        {} as Record<string, string>,
-                                    ),
+                                                return acc;
+                                            },
+                                            {} as Record<string, string>,
+                                        ),
+                                ),
                             }),
                             `& { [K in keyof SystemBinding.Requests]: SystemBinding.Requests[K]; };`,
                         ]),
@@ -557,7 +568,6 @@ export default (
                         ),
                     ]),
                 ),
-                
             ]),
             renderer,
             ctx,
