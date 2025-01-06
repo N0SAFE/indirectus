@@ -24,23 +24,23 @@ A local `.directus` folder will be created containing schema cache + the generat
 
 The `.directus/generated/client.ts` exports:
 
-- Readable code.
-- A `Schema` type with all your schema mappings (use it while creating the client with the SDK's `createDirectus<Schema>` method.)
-- Several functions to pass to `client.request(fn)` to make data fetching cleaner.
-- It's smart enough to dig into some commonly used interfaces in order to fetch their possible values (you'll see them as an union), but unfortunatle the SDK at the moment will strip them out (SDK bug?)
+-   Readable code.
+-   A `Schema` type with all your schema mappings (use it while creating the client with the SDK's `createDirectus<Schema>` method.)
+-   Several functions to pass to `client.request(fn)` to make data fetching cleaner.
+-   It's smart enough to dig into some commonly used interfaces in order to fetch their possible values (you'll see them as an union), but unfortunatle the SDK at the moment will strip them out (SDK bug?)
 
 ## Links
 
-- https://github.com/linefusion/indirectus/
-- https://www.npmjs.com/package/indirectus
+-   https://github.com/linefusion/indirectus/
+-   https://www.npmjs.com/package/indirectus
 
 # Contributing
 
 Easiest way to develop, build and test is:
 
-- Make sure to `pnpm install`
-- Keep a terminal running `pnpm dev`
-- Test CLI commands with `pnpm indirectus`, for example `pnpm indirectus sdk generate`
-  - To make it easier, create a `.env` file on the workspace root containing your server settings
-    - `DIRECTUS_URL=http://....`
-    - `DIRECTUS_TOKEN=.....`
+-   Make sure to `pnpm install`
+-   Keep a terminal running `pnpm dev`
+-   Test CLI commands with `pnpm indirectus`, for example `pnpm indirectus sdk generate`
+    -   To make it easier, create a `.env` file on the workspace root containing your server settings
+        -   `DIRECTUS_URL=http://....`
+        -   `DIRECTUS_TOKEN=.....`

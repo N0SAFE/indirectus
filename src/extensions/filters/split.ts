@@ -1,9 +1,9 @@
 import type { TemplateContext } from "@/types/template";
 
 export function split(
-  context: TemplateContext,
-  value: string,
-  splitter: string,
+    context: TemplateContext,
+    value: string,
+    splitter: string,
 ) {
-  return `${value}`.split(splitter);
+    return `${value}`.split(splitter);
 }

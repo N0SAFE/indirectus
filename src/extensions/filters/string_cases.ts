@@ -2,9 +2,9 @@ import * as cc from "@wolfpkgs/core/strings";
 import type { TemplateContext } from "@/types/template";
 
 function stringifyFirst(fn: (...args: any[]) => any) {
-  return (context: TemplateContext, first: any, ...args: any[]) => {
-    return fn(`${first}`, ...args).toString();
-  };
+    return (context: TemplateContext, first: any, ...args: any[]) => {
+        return fn(`${first}`, ...args).toString();
+    };
 }
 
 export const ada_case = stringifyFirst(cc.toAda);

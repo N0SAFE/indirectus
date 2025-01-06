@@ -26,4 +26,4 @@ export const toSafe = <Output>(promise: Promise<Output>): Promise<ToSafeOutput<O
           data: never;
         },
     );
-};`
+};`;

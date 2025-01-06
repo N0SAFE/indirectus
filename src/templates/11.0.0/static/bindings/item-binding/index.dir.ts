@@ -2,7 +2,7 @@ import { to_collection_name } from "@/extensions/filters/directus";
 import type { Context } from "@/types/types";
 
 export const generate = (context: Context) => {
-  const typesTemplate = `import type * as Directus from "@directus/sdk";
+    const typesTemplate = `import type * as Directus from "@directus/sdk";
 
 import type * as DirectusSDK from "@directus/sdk";
 
@@ -153,7 +153,7 @@ export interface TypedCollectionItemWrapper<Collection extends object> {
 }
 `;
 
-  const perCollection = `{% set collectionName = collection.name | to_collection_name %}
+    const perCollection = `{% set collectionName = collection.name | to_collection_name %}
 {% set collectionString = collection.name | to_collection_string %}
 {% set collectionType = ["Collections.", collection.name | to_collection_name] | join %}
 {% set genericQuery = ["const Query extends Directus.Query<Schema, ", collectionType, ">"] | join %}
@@ -310,35 +310,36 @@ export class {{ collectionName }}Item extends ChainableBinding implements TypedC
 
 {% endif %}`;
 
-  return {
-    files: [
-      {
-        path: "./index.ts",
-        template: context.registry.collections
-          .filter((collection) => {
-            return !collection.is_system;
-          })
-          .reduce((acc, collection) => {
-            return `${acc}export * from './${to_collection_name(context, collection.name.toString())}.collection';\n`;
-          }, "") + `export * as types from './types';`,
-      },
-      {
-        path: "./types.ts",
-        template: typesTemplate,
-      },
-      ...context.registry.collections
-        .filter((collection) => {
-          return !collection.is_system;
-        })
-        .map((collection) => {
-          return {
-            path: `./${to_collection_name(context, collection.name.toString())}.collection.ts`,
-            template: perCollection,
-            variables: {
-              collection,
+    return {
+        files: [
+            {
+                path: "./index.ts",
+                template:
+                    context.registry.collections
+                        .filter((collection) => {
+                            return !collection.is_system;
+                        })
+                        .reduce((acc, collection) => {
+                            return `${acc}export * from './${to_collection_name(context, collection.name.toString())}.collection';\n`;
+                        }, "") + `export * as types from './types';`,
             },
-          };
-        }),
-    ],
-  };
+            {
+                path: "./types.ts",
+                template: typesTemplate,
+            },
+            ...context.registry.collections
+                .filter((collection) => {
+                    return !collection.is_system;
+                })
+                .map((collection) => {
+                    return {
+                        path: `./${to_collection_name(context, collection.name.toString())}.collection.ts`,
+                        template: perCollection,
+                        variables: {
+                            collection,
+                        },
+                    };
+                }),
+        ],
+    };
 };
