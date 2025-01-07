@@ -17,7 +17,7 @@ import {
     defaultAggregateFunction,
 } from "./generics";
 
-const collectionName = "DirectusRevision";
+const collectionName = "DirectusRevisions";
 
 export default () =>
     IdentifierGenerator.create(

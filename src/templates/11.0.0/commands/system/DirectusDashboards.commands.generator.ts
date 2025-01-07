@@ -17,7 +17,7 @@ import {
 } from "./generics";
 import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 
-const collectionName = "DirectusDashboard";
+const collectionName = "DirectusDashboards";
 
 export default () =>
     IdentifierGenerator.create(

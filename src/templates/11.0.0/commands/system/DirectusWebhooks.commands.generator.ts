@@ -17,7 +17,7 @@ import {
     defaultAggregateFunction,
 } from "./generics";
 
-const collectionName = "DirectusWebhook";
+const collectionName = "DirectusWebhooks";
 
 export default () =>
     IdentifierGenerator.create(

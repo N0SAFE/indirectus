@@ -35,10 +35,10 @@ export class FunctionParamGenerator<
 > extends TemplateStringGenerator {
     getChildrenByIdentifier = getChildrenByIdentifier;
 
-    private name = "" as Name;
-    private type = "" as Type;
-    private optional = false as Optional;
-    private defaultValue = "" as DefaultValue;
+    protected name = "" as Name;
+    protected type = "" as Type;
+    protected optional = false as Optional;
+    protected defaultValue = "" as DefaultValue;
 
     constructor(
         param: TemplateFunctionParam<Name, Type, Optional, DefaultValue>,
@@ -217,7 +217,7 @@ export class FunctionGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body | string;
+        body?: Body | string;
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;
@@ -239,7 +239,7 @@ export class FunctionGenerator<
         this.body =
             options.body instanceof MultiLineGenerator
                 ? options.body
-                : (new MultiLineGenerator([options.body]) as unknown as Body);
+                : (new MultiLineGenerator(options.body ? [options.body] : []) as unknown as Body);
         this.isAsync = options.isAsync ?? (false as IsAsync);
         this.isArrow = options.isArrow ?? (false as IsArrow);
         this.isGenerator = options.isGenerator ?? (false as IsGenerator);
@@ -417,7 +417,7 @@ export class FunctionGenerator<
             params: this.params.clone(),
             returnType: this.returnType,
             return: this.return,
-            body: this.body.clone(),
+            body: this.body?.clone(),
             isAsync: this.isAsync,
             isArrow: this.isArrow,
             isGenerator: this.isGenerator,
@@ -448,7 +448,7 @@ export class FunctionGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body;
+        body?: Body;
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;
@@ -472,7 +472,7 @@ export class FunctionGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body;
+        body?: Body;
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;

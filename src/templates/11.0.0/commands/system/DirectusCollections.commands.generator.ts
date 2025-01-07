@@ -20,8 +20,9 @@ import {
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
+import { singular } from "pluralize";
 
-const collectionName = "DirectusCollection";
+const collectionName = "DirectusCollections";
 
 export default () =>
     IdentifierGenerator.create(
@@ -91,7 +92,7 @@ export default () =>
                                     params: FunctionParamsGenerator.create([
                                         FunctionParamGenerator.create({
                                             name: "key",
-                                            type: `Collections.${collectionName} extends { collection: number | string } ? Collections.${collectionName}["collection"] : string | number`,
+                                            type: `Collections.${singular(collectionName)} extends { collection: number | string } ? Collections.${singular(collectionName)}["collection"] : string | number`,
                                         }),
                                     ]),
                                     generics: GenericsTypeGenerator.create([]),
@@ -145,7 +146,7 @@ export default () =>
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "patch",
-                                            type: `Partial<Collections.${collectionName}>`,
+                                            type: `Partial<Collections.${singular(collectionName)}>`,
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "query",
@@ -180,7 +181,7 @@ export default () =>
                                     params: FunctionParamsGenerator.create([
                                         FunctionParamGenerator.create({
                                             name: "items",
-                                            type: `Directus.NestedPartial<Collections.${collectionName}>[]`,
+                                            type: `Directus.NestedPartial<Collections.${singular(collectionName)}>[]`,
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "query",
@@ -215,7 +216,7 @@ export default () =>
                                     params: FunctionParamsGenerator.create([
                                         FunctionParamGenerator.create({
                                             name: "key",
-                                            type: `Collections.${collectionName} extends { collection: number | string } ? Collections.${collectionName}["collection"] : string | number`,
+                                            type: `Collections.${singular(collectionName)} extends { collection: number | string } ? Collections.${singular(collectionName)}["collection"] : string | number`,
                                         }),
                                     ]),
                                     generics: GenericsTypeGenerator.create([]),

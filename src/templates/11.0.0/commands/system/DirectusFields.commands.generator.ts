@@ -17,8 +17,9 @@ import {
     FunctionParamsGenerator,
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
+import { singular } from "pluralize";
 
-const collectionName = "DirectusField";
+const collectionName = "DirectusFields";
 
 export default () =>
     IdentifierGenerator.create(
@@ -107,7 +108,7 @@ export default () =>
                                 params: FunctionParamsGenerator.create([
                                     FunctionParamGenerator.create({
                                         name: "key",
-                                        type: "Collections.DirectusField extends { collection: number | string } ? Collections.DirectusField['collection'] : string | number",
+                                        type: `Collections.${singular(collectionName)} extends { collection: number | string } ? Collections.${singular(collectionName)}['collection'] : string | number`,
                                     }),
                                     FunctionParamGenerator.create({
                                         name: "field",

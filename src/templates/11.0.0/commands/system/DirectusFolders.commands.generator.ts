@@ -17,7 +17,7 @@ import {
     defaultUpdatesFunction,
 } from "./generics";
 
-const collectionName = "DirectusFolder";
+const collectionName = "DirectusFolders";
 
 export default () =>
     IdentifierGenerator.create(

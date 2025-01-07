@@ -24,11 +24,12 @@ import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generato
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
 import {
     FunctionGenerator,
+    FunctionParamGenerator,
     FunctionParamsGenerator,
 } from "@/lib/templating/generator/ts/function.generator";
-import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
+import { GenericsTypeGenerator, GenericTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 
-const collectionName = "DirectusFile";
+const collectionName = "DirectusFiles";
 
 export default () =>
     IdentifierGenerator.create(
@@ -55,16 +56,22 @@ export default () =>
                             ),
                             ExportGenerator.create(
                                 FunctionGenerator.create({
-                                    name: `read${capitalize(collectionName)}Item`,
+                                    name: `read${capitalize(collectionName)}ArrayBuffer`,
                                     params: FunctionParamsGenerator.create([
                                         PARAMS.key(collectionName),
-                                        PARAMS.query(collectionName),
+                                        FunctionParamGenerator.create({
+                                            name: "assetQuery",
+                                            type: "Directus.AssetsQuery",
+                                        })
                                     ]),
                                     generics: GenericsTypeGenerator.create([
-                                        GENERICS.Query(collectionName),
+                                        GenericTypeGenerator.create({
+                                            name: "AssetsQuery",
+                                            extends: "Directus.AssetsQuery",
+                                        })
                                     ]),
-                                    body: `let toReturn = DirectusSDK.readAssetArrayBuffer<Schema, Query>(key, query);`,
-                                    returnType: `ReturnType<typeof DirectusSDK.readAssetArrayBuffer<Schema, Query>>`,
+                                    body: `let toReturn = DirectusSDK.readAssetArrayBuffer<Schema>(key, assetQuery);`,
+                                    returnType: `ReturnType<typeof DirectusSDK.readAssetArrayBuffer<Schema>>`,
                                     return: "toReturn",
                                 }),
                             ),
@@ -83,16 +90,22 @@ export default () =>
                             ),
                             ExportGenerator.create(
                                 FunctionGenerator.create({
-                                    name: `read${capitalize(collectionName)}Item`,
+                                    name: `read${capitalize(collectionName)}Blob`,
                                     params: FunctionParamsGenerator.create([
                                         PARAMS.key(collectionName),
-                                        PARAMS.query(collectionName),
+                                        FunctionParamGenerator.create({
+                                            name: "assetQuery",
+                                            type: "Directus.AssetsQuery",
+                                        })
                                     ]),
                                     generics: GenericsTypeGenerator.create([
-                                        GENERICS.Query(collectionName),
+                                        GenericTypeGenerator.create({
+                                            name: "AssetsQuery",
+                                            extends: "Directus.AssetsQuery",
+                                        })
                                     ]),
-                                    body: `let toReturn = DirectusSDK.readAssetBlob<Schema, Query>(key, query);`,
-                                    returnType: `ReturnType<typeof DirectusSDK.readAssetBlob<Schema, Query>>`,
+                                    body: `let toReturn = DirectusSDK.readAssetBlob<Schema>(key, assetQuery);`,
+                                    returnType: `ReturnType<typeof DirectusSDK.readAssetBlob<Schema>>`,
                                     return: "toReturn",
                                 }),
                             ),
@@ -111,23 +124,27 @@ export default () =>
                             ),
                             ExportGenerator.create(
                                 FunctionGenerator.create({
-                                    name: `read${capitalize(collectionName)}Item`,
+                                    name: `read${capitalize(collectionName)}Stream`,
                                     params: FunctionParamsGenerator.create([
                                         PARAMS.key(collectionName),
-                                        PARAMS.query(collectionName),
+                                        FunctionParamGenerator.create({
+                                            name: "assetQuery",
+                                            type: "Directus.AssetsQuery",
+                                        })
                                     ]),
                                     generics: GenericsTypeGenerator.create([
-                                        GENERICS.Query(collectionName),
+                                        GenericTypeGenerator.create({
+                                            name: "AssetsQuery",
+                                            extends: "Directus.AssetsQuery",
+                                        })
                                     ]),
-                                    body: `let toReturn = DirectusSDK.readAssetRaw<Schema, Query>(key, query);`,
-                                    returnType: `ReturnType<typeof DirectusSDK.readAssetRaw<Schema, Query>>`,
+                                    body: `let toReturn = DirectusSDK.readAssetRaw<Schema>(key, assetQuery);`,
+                                    returnType: `ReturnType<typeof DirectusSDK.readAssetRaw<Schema>>`,
                                     return: "toReturn",
                                 }),
                             ),
                         ]),
                     ),
-                    defaultCreateFunction(collectionName, "createFile"),
-                    defaultCreatesFunction(collectionName, "createFiles"),
                     defaultUpdateFunction(collectionName, "updateFile"),
                     defaultUpdatesFunction(collectionName, "updateFiles"),
                     defaultDeleteFunction(collectionName, "deleteFile"),

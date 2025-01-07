@@ -17,7 +17,7 @@ import {
     defaultUpdatesFunction,
 } from "./generics";
 
-const collectionName = "DirectusFlow";
+const collectionName = "DirectusFlows";
 
 export default () =>
     IdentifierGenerator.create(

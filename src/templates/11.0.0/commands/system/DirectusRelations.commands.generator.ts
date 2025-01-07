@@ -7,6 +7,7 @@ import {
     defaultAggregateFunction,
     pascalToSpace,
     PARAMS,
+    GENERICS,
 } from "./generics";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
@@ -16,8 +17,10 @@ import {
     FunctionParamsGenerator,
 } from "@/lib/templating/generator/ts/function.generator";
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
+import { singular } from "pluralize";
+import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 
-const collectionName = "DirectusRelation";
+const collectionName = "DirectusRelations";
 
 export default () =>
     IdentifierGenerator.create(
@@ -39,7 +42,7 @@ export default () =>
                                     params: FunctionParamsGenerator.create([
                                         FunctionParamGenerator.create({
                                             name: "key",
-                                            type: `Collections.${collectionName} extends { collection: number | string } ? Collections.${collectionName}["collection"] : string | number`,
+                                            type: `Collections.${singular(collectionName)} extends { collection: number | string } ? Collections.${singular(collectionName)}["collection"] : string | number`,
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "field",
@@ -110,7 +113,7 @@ export default () =>
                                     params: FunctionParamsGenerator.create([
                                         FunctionParamGenerator.create({
                                             name: "item",
-                                            type: `Partial<Collections.${collectionName}>`,
+                                            type: `Partial<Collections.${singular(collectionName)}>`,
                                         }),
                                     ]),
                                     returnType: `ReturnType<typeof DirectusSDK.createRelation<Schema>>`,
@@ -140,9 +143,12 @@ export default () =>
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "patch",
-                                            type: `Partial<Collections.${collectionName}>`,
+                                            type: `Partial<Collections.${singular(collectionName)}>`,
                                         }),
                                         PARAMS.query(collectionName),
+                                    ]),
+                                    generics: GenericsTypeGenerator.create([
+                                        GENERICS.Query(collectionName)
                                     ]),
                                     returnType: `ReturnType<typeof DirectusSDK.updateRelation<Schema, Query>>`,
                                     body: `let toReturn = DirectusSDK.updateRelation<Schema, Query>(collection, field, patch, query);`,

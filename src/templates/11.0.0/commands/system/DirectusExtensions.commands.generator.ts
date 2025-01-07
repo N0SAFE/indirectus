@@ -29,8 +29,9 @@ import {
     FunctionParamsGenerator,
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
+import { singular } from "pluralize";
 
-const collectionName = "DirectusExtension";
+const collectionName = "DirectusExtensions";
 
 export default () =>
     IdentifierGenerator.create(
@@ -84,7 +85,7 @@ export default () =>
                                         }),
                                         FunctionParamGenerator.create({
                                             name: "data",
-                                            type: `Directus.NestedPartial<Directus.${collectionName}<Schema>>`,
+                                            type: `Directus.NestedPartial<Directus.${singular(collectionName)}<Schema>>`,
                                         }),
                                     ]),
                                     generics: GenericsTypeGenerator.create([]),

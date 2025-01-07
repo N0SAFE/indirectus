@@ -17,7 +17,7 @@ import {
     defaultAggregateFunction,
 } from "./generics";
 
-const collectionName = "DirectusVersion";
+const collectionName = "DirectusVersions";
 
 export default () =>
     IdentifierGenerator.create(
@@ -27,16 +27,16 @@ export default () =>
             IdentifierGenerator.create(
                 `Commands<${collectionName}>.System.exports`,
                 MultiLineGenerator.create([
-                    defaultReadsFunction(collectionName, "readVersions"),
-                    defaultReadsVariable(collectionName),
-                    defaultReadFunction(collectionName, "readVersion"),
-                    defaultReadVariable(collectionName),
-                    defaultCreateFunction(collectionName, "createVersion"),
-                    defaultCreatesFunction(collectionName, "createVersions"),
-                    defaultUpdateFunction(collectionName, "updateVersion"),
-                    defaultUpdatesFunction(collectionName, "updateVersions"),
-                    defaultDeleteFunction(collectionName, "deleteVersion"),
-                    defaultDeletesFunction(collectionName, "deleteVersions"),
+                    // defaultReadsFunction(collectionName, "readVersions"),
+                    // defaultReadsVariable(collectionName),
+                    // defaultReadFunction(collectionName, "readVersion"),
+                    // defaultReadVariable(collectionName),
+                    // defaultCreateFunction(collectionName, "createVersion"),
+                    // defaultCreatesFunction(collectionName, "createVersions"),
+                    // defaultUpdateFunction(collectionName, "updateVersion"),
+                    // defaultUpdatesFunction(collectionName, "updateVersions"),
+                    // defaultDeleteFunction(collectionName, "deleteVersion"),
+                    // defaultDeletesFunction(collectionName, "deleteVersions"), all of these function are only available on the sdk after the v11 version
                     defaultAggregateFunction(collectionName),
                 ]),
             ),

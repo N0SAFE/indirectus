@@ -28,7 +28,7 @@ import {
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 
-const collectionName = "DirectusUser";
+const collectionName = "DirectusUsers";
 
 export default () =>
     IdentifierGenerator.create(
@@ -48,44 +48,43 @@ export default () =>
                                 FunctionGenerator.create({
                                     name: `readMeItem`,
                                     params: FunctionParamsGenerator.create([
-                                        PARAMS.key(collectionName),
                                         PARAMS.query(collectionName),
                                     ]),
                                     generics: GenericsTypeGenerator.create([
                                         GENERICS.Query(collectionName),
                                     ]),
-                                    body: `let toReturn = DirectusSDK.readMe<Schema, Query>(key, query);`,
+                                    body: `let toReturn = DirectusSDK.readMe<Schema, Query>(query);`,
                                     returnType: `ReturnType<typeof DirectusSDK.readMe<Schema, Query>>`,
                                     return: "toReturn",
                                 }),
                             ),
                         ]),
                     ),
-                    IdentifierGenerator.create(
-                        `Commands<${collectionName}>.System.exports.readMeRoleItem`,
-                        MultiLineGenerator.create([
-                            CommentGenerator.create(
-                                [`read current user role.`],
-                                {
-                                    forceMultiline: true,
-                                },
-                            ),
-                            ExportGenerator.create(
-                                FunctionGenerator.create({
-                                    name: `readMeRoleItem`,
-                                    params: FunctionParamsGenerator.create([
-                                        PARAMS.query(collectionName),
-                                    ]),
-                                    generics: GenericsTypeGenerator.create([
-                                        GENERICS.Query(collectionName),
-                                    ]),
-                                    body: `let toReturn = DirectusSDK.readRolesMe<Schema, Query>(query);`,
-                                    returnType: `ReturnType<typeof DirectusSDK.readRolesMe<Schema, Query>>`,
-                                    return: "toReturn",
-                                }),
-                            ),
-                        ]),
-                    ),
+                    // IdentifierGenerator.create( 
+                    //     `Commands<${collectionName}>.System.exports.readMeRoleItem`,
+                    //     MultiLineGenerator.create([
+                    //         CommentGenerator.create(
+                    //             [`read current user role.`],
+                    //             {
+                    //                 forceMultiline: true,
+                    //             },
+                    //         ),
+                    //         ExportGenerator.create(
+                    //             FunctionGenerator.create({
+                    //                 name: `readMeRoleItem`,
+                    //                 params: FunctionParamsGenerator.create([
+                    //                     PARAMS.query(collectionName),
+                    //                 ]),
+                    //                 generics: GenericsTypeGenerator.create([
+                    //                     GENERICS.Query(collectionName),
+                    //                 ]),
+                    //                 body: `let toReturn = DirectusSDK.readRolesMe<Schema, Query>(query);`,
+                    //                 returnType: `ReturnType<typeof DirectusSDK.readRolesMe<Schema, Query>>`,
+                    //                 return: "toReturn",
+                    //             }),
+                    //         ),
+                    //     ]),
+                    // ), this type only exist on the sdk after the v11 version
                     IdentifierGenerator.create(
                         `Commands<${collectionName}>.System.exports.updateMeItem`,
                         MultiLineGenerator.create([

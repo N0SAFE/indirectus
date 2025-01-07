@@ -13,6 +13,7 @@ import { IdentifierGenerator } from "@/lib/templating/generator/struct/identifie
 import { ImportGenerator } from "@/lib/templating/generator/ts/import.generator";
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
 import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
+import { singular } from "pluralize";
 
 export const PARAMS = {
     query: <CollectionName extends string>(collectionName: CollectionName) =>
@@ -24,27 +25,27 @@ export const PARAMS = {
     key: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
             name: "key",
-            type: `Collections.${collectionName} extends {id: number | string} ? Collections.${collectionName}['id'] : string | number`,
+            type: `Collections.${singular(collectionName)} extends {id: number | string} ? Collections.${singular(collectionName)}['id'] : string | number`,
         }),
     keys: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
             name: "keys",
-            type: `Collections.${collectionName} extends {id: number | string} ? Collections.${collectionName}['id'][] : string[] | number[]`,
+            type: `Collections.${singular(collectionName)} extends {id: number | string} ? Collections.${singular(collectionName)}['id'][] : string[] | number[]`,
         }),
     item: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
             name: "item",
-            type: `Partial<Collections.${collectionName}>`,
+            type: `Partial<Collections.${singular(collectionName)}>`,
         }),
     items: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
             name: "items",
-            type: `Partial<Collections.${collectionName}>[]`,
+            type: `Partial<Collections.${singular(collectionName)}>[]`,
         }),
     patch: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
             name: "patch",
-            type: `Partial<Collections.${collectionName}>`,
+            type: `Partial<Collections.${singular(collectionName)}>`,
         }),
     option: <CollectionName extends string>(collectionName: CollectionName) =>
         FunctionParamGenerator.create({
@@ -57,14 +58,14 @@ export const GENERICS = {
     Query: <CollectionName extends string>(collectionName: CollectionName) =>
         GenericTypeGenerator.create({
             name: "Query",
-            extends: `Directus.Query<Schema, Collections.${collectionName}>`,
+            extends: `Directus.Query<Schema, Collections.${singular(collectionName)}>`,
         }),
     QueryArray: <CollectionName extends string>(
         collectionName: CollectionName,
     ) =>
         GenericTypeGenerator.create({
             name: "Query",
-            extends: `Directus.Query<Schema, Collections.${collectionName}>[]`,
+            extends: `Directus.Query<Schema, Collections.${singular(collectionName)}>[]`,
         }),
     AggregateOptions: <CollectionName extends string>(
         collectionName: CollectionName,
@@ -399,7 +400,7 @@ export function defaultCreatesFunction<
                         PARAMS.query(collectionName),
                     ]),
                     generics: GenericsTypeGenerator.create([
-                        GENERICS.QueryArray(collectionName),
+                        GENERICS.Query(collectionName),
                     ]),
                     body: `let toReturn = DirectusSDK.${directusMethodName}<Schema, Query>(items, query);`,
                     returnType: `ReturnType<typeof DirectusSDK.${directusMethodName}<Schema, Query>>`,

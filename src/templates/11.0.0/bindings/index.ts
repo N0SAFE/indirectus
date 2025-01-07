@@ -3,6 +3,7 @@ import { Registry } from "@/types/registry";
 import { TemplateContext, TemplateRenderer } from "@/types/template";
 import { snakeToPascal } from "../commands/system/generics";
 import itemBindingDirectoryGenerator from "./item-binding";
+import chainableBindableClassGenerator from "./chainable-bindable.generator";
 
 const systemBindingGenerator = {
     // DirectusActivity: () => {},
@@ -41,6 +42,10 @@ export default (
     },
 ) =>
     DirectoryGenerator.create({
+        ['chainable-bindable.ts']: chainableBindableClassGenerator(registry, {
+            ctx,
+            renderer
+        }),
         ["item-binding"]: itemBindingDirectoryGenerator(registry, {
             ctx,
             renderer,

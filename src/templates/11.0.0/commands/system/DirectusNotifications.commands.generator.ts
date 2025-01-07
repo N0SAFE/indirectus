@@ -17,7 +17,7 @@ import {
     defaultUpdatesFunction,
 } from "./generics";
 
-const collectionName = "DirectusNotification";
+const collectionName = "DirectusNotifications";
 
 export default () =>
     IdentifierGenerator.create(

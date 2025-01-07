@@ -21,8 +21,6 @@ import {
 import { MultiLineGenerator } from "../struct/arrangement.generator";
 import { IdentifierGenerator } from "../struct/identifier.generate";
 
-type RT<T extends (...args: any) => any> = ReturnType<T>;
-
 export class ClassMethodGenerator<
     Name extends string = string,
     Generics extends GenericsTypeGenerator = GenericsTypeGenerator,
@@ -33,23 +31,18 @@ export class ClassMethodGenerator<
     IsAsync extends boolean = boolean,
     IsArrow extends boolean = boolean,
     IsGenerator extends boolean = boolean,
-    Protection extends "public" | "private" | "protected" =
-        | "public"
-        | "private"
-        | "protected",
 > extends TemplateStringGenerator {
     getChildrenByIdentifier = getChildrenByIdentifier;
 
-    private name: Name;
-    private generics?: Generics;
-    private params?: Params;
-    private return?: Return;
-    private returnType?: ReturnType;
-    private body: Body;
-    private isAsync = false as IsAsync;
-    private isArrow = false as IsArrow;
-    private isGenerator = false as IsGenerator;
-    private protection: Protection = "public" as Protection;
+    protected name: Name;
+    protected generics?: Generics;
+    protected params?: Params;
+    protected return?: Return;
+    protected returnType?: ReturnType;
+    protected body: Body;
+    protected isAsync = false as IsAsync;
+    protected isArrow = false as IsArrow;
+    protected isGenerator = false as IsGenerator;
 
     constructor(options: {
         name: Name;
@@ -57,11 +50,10 @@ export class ClassMethodGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body | string | string[];
+        body?: Body | string | string[];
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;
-        protection?: Protection;
     }) {
         super();
         this.name = options.name;
@@ -81,14 +73,15 @@ export class ClassMethodGenerator<
             options.body instanceof MultiLineGenerator
                 ? options.body
                 : (new MultiLineGenerator(
-                      Array.isArray(options.body)
-                          ? options.body
-                          : [options.body],
+                      options.body
+                          ? Array.isArray(options.body)
+                              ? options.body
+                              : [options.body]
+                          : [],
                   ) as Body);
         this.isAsync = options.isAsync ?? this.isAsync;
         this.isArrow = options.isArrow ?? this.isArrow;
         this.isGenerator = options.isGenerator ?? this.isGenerator;
-        this.protection = options.protection ?? this.protection;
     }
 
     setName<NewName extends string>(name: NewName) {
@@ -123,8 +116,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.generics = generics;
         return This;
@@ -144,8 +136,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.generics?.addGeneric(
             generic as unknown as Generics extends GenericsTypeGenerator<
@@ -173,8 +164,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.params = params;
         return This;
@@ -196,8 +186,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.params?.addParam(param);
         return This;
@@ -219,8 +208,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.returnType = returnType;
         return This;
@@ -242,8 +230,7 @@ export class ClassMethodGenerator<
             NewBody,
             IsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.body =
             body instanceof MultiLineGenerator
@@ -253,7 +240,7 @@ export class ClassMethodGenerator<
     }
 
     addBody(body: string) {
-        this.body.addLine(body);
+        this.body?.addLine(body);
         return this;
     }
 
@@ -271,8 +258,7 @@ export class ClassMethodGenerator<
             Body,
             NewIsAsync,
             IsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.isAsync = isAsync;
         return This;
@@ -292,8 +278,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             NewIsArrow,
-            IsGenerator,
-            Protection
+            IsGenerator
         >;
         This.isArrow = isArrow;
         return This;
@@ -315,8 +300,7 @@ export class ClassMethodGenerator<
             Body,
             IsAsync,
             IsArrow,
-            NewIsGenerator,
-            Protection
+            NewIsGenerator
         >;
         This.isGenerator = isGenerator;
         return This;
@@ -326,28 +310,9 @@ export class ClassMethodGenerator<
         return this.isGenerator;
     }
 
-    setProtection<NewProtection extends "public" | "private" | "protected">(
-        protection: NewProtection,
-    ) {
-        const This = this as unknown as ClassMethodGenerator<
-            Name,
-            Generics,
-            Params,
-            Return,
-            ReturnType,
-            Body,
-            IsAsync,
-            IsArrow,
-            IsGenerator,
-            NewProtection
-        >;
-        This.protection = protection;
-        return This;
-    }
-
     generate() {
         return this.isArrow
-            ? `${this.protection} ${this.name} = ${FunctionGenerator.generate({
+            ? `${this.name} = ${FunctionGenerator.generate({
                   generics: this.generics,
                   params: this.params,
                   return: this.return,
@@ -357,7 +322,7 @@ export class ClassMethodGenerator<
                   isArrow: this.isArrow,
                   isGenerator: this.isGenerator,
               })}`
-            : `${this.protection} ${this.isAsync ? "async " : ""}${this.isGenerator ? "* " : ""}${this.name}${this.generics?.generate()}${wrapInParentheses(this.params?.generate() || "")}${this.returnType ? `: ${this.returnType}` : ""} ${wrapInBraces(`${this.body}\n${this.return}`)}`;
+            : `${this.isAsync ? "async " : ""}${this.isGenerator ? "* " : ""}${this.name}${this.generics?.generate()}${wrapInParentheses(this.params?.generate() || "")}${this.returnType ? `: ${this.returnType}` : ""} ${wrapInBraces(`${this.body}\n${this.return}`)}`;
     }
 
     clone() {
@@ -367,11 +332,10 @@ export class ClassMethodGenerator<
             params: this.params?.clone(),
             return: this.return,
             returnType: this.returnType,
-            body: this.body.clone(),
+            body: this.body?.clone(),
             isAsync: this.isAsync,
             isArrow: this.isArrow,
             isGenerator: this.isGenerator,
-            protection: this.protection,
         }) as this;
     }
 
@@ -379,7 +343,7 @@ export class ClassMethodGenerator<
         return [
             ...(this.generics ? [this.generics] : []),
             ...(this.params ? [this.params] : []),
-            this.body,
+            ...(this.body ? [this.body] : []),
         ];
     }
 
@@ -403,7 +367,7 @@ export class ClassMethodGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body | string | string[];
+        body?: Body | string | string[];
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;
@@ -432,13 +396,205 @@ export class ClassMethodGenerator<
         params?: Params | TemplateFunctionParam[];
         return?: Return;
         returnType?: ReturnType;
-        body: Body | string | string[];
+        body?: Body | string | string[];
         isAsync?: IsAsync;
         isArrow?: IsArrow;
         isGenerator?: IsGenerator;
         protection?: Protection;
     }) {
         return ClassMethodGenerator.create(options).generate();
+    }
+}
+
+export class ClassConstructorParamGenerator<
+    Name extends string = string,
+    Type extends string = string,
+    Optional extends boolean = boolean,
+    DefaultValue extends string = string,
+    Protection extends "public" | "private" | "protected" =
+        | "public"
+        | "private"
+        | "protected",
+> extends FunctionParamGenerator<Name, Type, Optional, DefaultValue> {
+    private protection: Protection;
+
+    constructor(options: {
+        name: Name;
+        type?: Type;
+        optional?: Optional;
+        defaultValue?: DefaultValue;
+        protection?: Protection;
+    }) {
+        super(options);
+        this.protection = options.protection ?? ("public" as Protection);
+    }
+
+    setProtection<NewProtection extends "public" | "private" | "protected">(
+        protection: NewProtection,
+    ) {
+        const This = this as unknown as ClassConstructorParamGenerator<
+            Name,
+            Type,
+            Optional,
+            DefaultValue,
+            NewProtection
+        >;
+        This.protection = protection;
+        return This;
+    }
+
+    override clone() {
+        return new ClassConstructorParamGenerator({
+            name: this.name,
+            type: this.type,
+            optional: this.optional,
+            defaultValue: this.defaultValue,
+            protection: this.protection,
+        }) as this;
+    }
+
+    override generate() {
+        return `${this.protection} ${super.generate()}`;
+    }
+
+    static override create<
+        Name extends string = string,
+        Type extends string = string,
+        Optional extends boolean = boolean,
+        DefaultValue extends string = string,
+        Protection extends "public" | "private" | "protected" =
+            | "public"
+            | "private"
+            | "protected",
+    >(options: {
+        name: Name;
+        type?: Type;
+        optional?: Optional;
+        defaultValue?: DefaultValue;
+        protection?: Protection;
+    }) {
+        return new ClassConstructorParamGenerator(options);
+    }
+
+    static override generate<
+        Name extends string = string,
+        Type extends string = string,
+        Optional extends boolean = boolean,
+        DefaultValue extends string = string,
+        Protection extends "public" | "private" | "protected" =
+            | "public"
+            | "private"
+            | "protected",
+    >(options: {
+        name: Name;
+        type?: Type;
+        optional?: Optional;
+        defaultValue?: DefaultValue;
+        protection?: Protection;
+    }) {
+        return ClassConstructorParamGenerator.create(options).generate();
+    }
+}
+
+// interface BaseFunctionParamGenerator<T extends string = string, U extends string = string, V extends boolean = boolean, W extends string = string> {
+//     // Propriétés communes à tous les générateurs de paramètres
+//     // ...
+// }
+
+// interface FunctionParamGenerator<T extends string = string, U extends string = string, V extends boolean = boolean, W extends string = string> extends BaseFunctionParamGenerator<T, U, V, W> {
+//     // Propriétés spécifiques aux paramètres de fonction
+//     // ...
+// }
+
+// interface ClassConstructorParamGeneratorr<T extends string = string, U extends string = string, V extends boolean = boolean, W extends string = string, X extends "public" | "private" | "protected" = "public" | "private" | "protected"> extends FunctionParamGenerator<T, U, V, W> {
+//     protection: X;
+//     setProtection(protection: X): this;
+// }
+
+// @ts-expect-error - This class do not implement the function create and generate correctly but i don't know how to fix it
+export class ClassConstructorParamsGenerator<
+    Param extends
+        ClassConstructorParamGenerator = ClassConstructorParamGenerator,
+> extends FunctionParamsGenerator<Param> {
+    constructor(params: (TemplateFunctionParam | Param)[]) {
+        super(params);
+    }
+
+    static override create<
+        Param extends
+            ClassConstructorParamGenerator = ClassConstructorParamGenerator,
+    >(
+        params: (TemplateFunctionParam | Param)[],
+    ): ClassConstructorParamsGenerator<Param> {
+        return new ClassConstructorParamsGenerator<Param>(params);
+    }
+
+    static override generate<
+        Param extends
+            ClassConstructorParamGenerator = ClassConstructorParamGenerator,
+    >(params: (Param | TemplateFunctionParam)[]) {
+        return ClassConstructorParamsGenerator.create(params).generate();
+    }
+}
+
+// @ts-expect-error - This class do not implement the function create and generate correctly but i don't know how to fix it
+export class ClassConstructorGenerator<
+    Params extends
+        ClassConstructorParamsGenerator = ClassConstructorParamsGenerator,
+    Return extends string = string,
+    Body extends MultiLineGenerator = MultiLineGenerator,
+> extends ClassMethodGenerator<
+    "constructor",
+    never,
+    Params,
+    Return,
+    never,
+    Body,
+    never,
+    never,
+    never
+> {
+    constructor(options: {
+        params?: Params | TemplateFunctionParam[];
+        body?: Body | string | string[];
+        return?: Return;
+    }) {
+        super({
+            name: "constructor",
+            params: options.params,
+            body: options.body,
+            return: options.return,
+        });
+    }
+
+    public override generate() {
+        return `constructor${wrapInParentheses(this.params?.generate() || "")} ${wrapInBraces(`${this.body}\n${this.return}`)}`;
+    }
+
+    static override create<
+        Params extends
+            ClassConstructorParamsGenerator = ClassConstructorParamsGenerator,
+        Return extends string = string,
+        Body extends MultiLineGenerator = MultiLineGenerator,
+    >(options: {
+        params?: Params | TemplateFunctionParam[];
+        body?: Body | string | string[];
+        return?: Return;
+    }) {
+        return new ClassConstructorGenerator(options);
+    }
+
+    static override generate<
+        Params extends
+            ClassConstructorParamsGenerator = ClassConstructorParamsGenerator,
+        Return extends string = string,
+        Body extends MultiLineGenerator = MultiLineGenerator,
+    >(options: {
+        params?: Params | TemplateFunctionParam[];
+        body?: Body | string | string[];
+        return?: Return;
+    }) {
+        return ClassConstructorGenerator.create(options).generate();
     }
 }
 
@@ -654,6 +810,7 @@ export class ClassGenerator<
               | IdentifierGenerator<string, ClassMethodGenerator>
           >
     >,
+    Constructor extends ClassConstructorGenerator = ClassConstructorGenerator,
     Extended extends string = string,
     Implemented extends string = string,
     Content extends string = string,
@@ -664,6 +821,7 @@ export class ClassGenerator<
     private generics: Generics;
     private properties: Properties;
     private methods: Methods;
+    private construct?: Constructor;
     private extended = "" as Extended;
     private implemented = [] as Implemented[];
 
@@ -701,6 +859,7 @@ export class ClassGenerator<
                         >
                   )[];
             content?: Content;
+            constructor?: Constructor;
         },
     ) {
         super();
@@ -742,6 +901,7 @@ export class ClassGenerator<
                 : (options?.methods ?? MultiLineGenerator.create([]))
         ) as Methods;
         this.content = options?.content;
+        this.construct = options?.constructor;
     }
 
     setName<NewName extends string = string>(name: NewName) {
@@ -750,6 +910,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -770,6 +931,7 @@ export class ClassGenerator<
             NewGenerics,
             Properties,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -792,6 +954,7 @@ export class ClassGenerator<
             >,
             Properties,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -816,6 +979,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             Methods,
+            Constructor,
             NewExtended,
             Implemented,
             Content
@@ -836,6 +1000,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             Methods,
+            Constructor,
             Extended,
             NewImplemented,
             Content
@@ -852,6 +1017,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             Methods,
+            Constructor,
             Extended,
             Implemented | NewImplemented,
             Content
@@ -901,6 +1067,7 @@ export class ClassGenerator<
             Generics,
             NewProperties,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -937,6 +1104,7 @@ export class ClassGenerator<
                     : never | NewProperty
             >,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -990,6 +1158,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             NewMethods,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -1024,6 +1193,7 @@ export class ClassGenerator<
                     ? R
                     : never | NewMethod
             >,
+            Constructor,
             Extended,
             Implemented,
             Content
@@ -1045,6 +1215,8 @@ export class ClassGenerator<
         ${this.content ? this.content : ""}
 
         ${this.properties.setSeperationSize(0)}
+
+        ${this.construct ?? ""}
         
         ${this.methods.setSeperationSize(2)}
     `)}`;
@@ -1056,6 +1228,7 @@ export class ClassGenerator<
             Generics,
             Properties,
             Methods,
+            Constructor,
             Extended,
             Implemented,
             NewContent
@@ -1072,6 +1245,7 @@ export class ClassGenerator<
             properties: this.properties.clone().getLines(),
             methods: this.methods.clone().getLines(),
             content: this.content,
+            constructor: this.construct?.clone(),
         }) as this;
     }
 
@@ -1116,6 +1290,8 @@ export class ClassGenerator<
                   | IdentifierGenerator<string, ClassMethodGenerator>
               >
         >,
+        Constructor extends
+            ClassConstructorGenerator = ClassConstructorGenerator,
         Extended extends string = string,
         Implemented extends string = string,
         Content extends string = string,
@@ -1153,6 +1329,7 @@ export class ClassGenerator<
                         >
                   )[];
             content?: Content;
+            constructor?: Constructor;
         },
     ) {
         return new ClassGenerator(name, options);
@@ -1195,6 +1372,8 @@ export class ClassGenerator<
                   | IdentifierGenerator<string, ClassMethodGenerator>
               >
         >,
+        Constructor extends
+            ClassConstructorGenerator = ClassConstructorGenerator,
         Extended extends string = string,
         Implemented extends string = string,
         Content extends string = string,
@@ -1232,6 +1411,7 @@ export class ClassGenerator<
                         >
                   )[];
             content?: Content;
+            constructor?: Constructor;
         },
     ) {
         return ClassGenerator.create(name, options).generate();
