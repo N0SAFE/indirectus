@@ -125,6 +125,7 @@ export default (
                                                         name: "recursiveConsumeChain",
                                                         value: FunctionGenerator.create(
                                                             {
+                                                                isArrow: true,
                                                                 params: FunctionParamsGenerator.create(
                                                                     [
                                                                         FunctionParamGenerator.create(

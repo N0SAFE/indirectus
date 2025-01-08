@@ -49,7 +49,7 @@ export default () =>
                                             type: `Directus.DirectusRelation<Schema>["field"]`,
                                         }),
                                     ]),
-                                    returnType: `Directus.RestCommand<Directus.ReadRelationOutput<Schema, Directus.DirectusRelation<Schema>>, Schema>`,
+                                    returnType: `Directus.RestCommand<Directus.ReadRelationOutput<Schema>, Schema>`,
                                     body: `let toReturn = DirectusSDK.readRelation(key, field);`,
                                     return: "toReturn",
                                 }),

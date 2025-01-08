@@ -5,7 +5,7 @@ import * as ItemTemplates from "./item.collection";
 import * as fs from "node:fs";
 import { ImportGenerator } from "@/lib/templating/generator/ts/import.generator";
 import { TemplateGenerator } from "@/lib/templating/generator/utils";
-import { MultiLineGenerator } from "@/lib/templating/generator/arrangement.generator";
+import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 import NunjuksVariable from "@/lib/templating/string/nunjuksVariable";
 import path from "node:path";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";

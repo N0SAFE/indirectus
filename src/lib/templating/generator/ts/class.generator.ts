@@ -901,7 +901,10 @@ export class ClassGenerator<
                 : (options?.methods ?? MultiLineGenerator.create([]))
         ) as Methods;
         this.content = options?.content;
-        this.construct = options?.constructor;
+        if ((options as any).__proto__.constructor !== options?.constructor) {
+            // if the constructor property is equal to __proto__.constructor so the constructor prop is not set and so the constructor is the default constructor for object
+            this.construct = options?.constructor;
+        }
     }
 
     setName<NewName extends string = string>(name: NewName) {

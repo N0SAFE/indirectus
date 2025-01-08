@@ -1,4 +1,4 @@
-import { MultiLineGenerator } from "@/lib/templating/generator/arrangement.generator";
+import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 import {
     ClassGenerator,
     ClassMethodGenerator,
