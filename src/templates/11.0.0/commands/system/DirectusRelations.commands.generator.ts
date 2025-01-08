@@ -5,9 +5,6 @@ import { Registry, Collection } from "@/types/registry";
 import {
     defaultImports,
     defaultAggregateFunction,
-    pascalToSpace,
-    PARAMS,
-    GENERICS,
 } from "./generics";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
@@ -19,6 +16,7 @@ import {
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
 import { singular } from "pluralize";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
+import { pascalToSpace, PARAMS, GENERICS } from "@/templates/utils";
 
 const collectionName = "DirectusRelations";
 
@@ -145,7 +143,7 @@ export default () =>
                                             name: "patch",
                                             type: `Partial<Collections.${singular(collectionName)}>`,
                                         }),
-                                        PARAMS.query(collectionName),
+                                        PARAMS.query(),
                                     ]),
                                     generics: GenericsTypeGenerator.create([
                                         GENERICS.Query(collectionName)

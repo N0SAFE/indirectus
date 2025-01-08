@@ -1,13 +1,10 @@
 import { FileGenerator } from "@/lib/templating/generator/struct/file.generator";
 import { IdentifierGenerator } from "@/lib/templating/generator/struct/identifier.generate";
-import { Collection, Registry } from "@/types/registry";
 import {
     defaultAggregateFunction,
     defaultImports,
     defaultReadsVariable,
     defaultReadVariable,
-    GENERICS,
-    PARAMS,
 } from "./generics";
 import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
@@ -18,6 +15,7 @@ import {
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 import { singular } from "pluralize";
+import { PARAMS, GENERICS } from "@/templates/utils";
 
 const collectionName = "DirectusFields";
 
@@ -86,7 +84,7 @@ export default () =>
                                         type: "keyof Schema",
                                     }),
                                     PARAMS.item(collectionName),
-                                    PARAMS.query(collectionName),
+                                    PARAMS.query(),
                                 ]),
                                 generics: GenericsTypeGenerator.create([
                                     GENERICS.Query(collectionName),
@@ -115,7 +113,7 @@ export default () =>
                                         type: 'Directus.DirectusField<Schema>["field"]',
                                     }),
                                     PARAMS.patch(collectionName),
-                                    PARAMS.query(collectionName),
+                                    PARAMS.query(),
                                 ]),
                                 generics: GenericsTypeGenerator.create([
                                     GENERICS.Query(collectionName),

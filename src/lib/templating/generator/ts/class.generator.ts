@@ -18,8 +18,14 @@ import {
     wrapInBraces,
     wrapInParentheses,
 } from "../utils";
-import { MultiLineGenerator } from "../struct/arrangement.generator";
-import { IdentifierGenerator } from "../struct/identifier.generate";
+import {
+    Mulitlineable,
+    MultiLineGenerator,
+} from "../struct/arrangement.generator";
+import {
+    Identifierable,
+    IdentifierGenerator,
+} from "../struct/identifier.generate";
 
 export class ClassMethodGenerator<
     Name extends string = string,
@@ -39,7 +45,7 @@ export class ClassMethodGenerator<
     protected params?: Params;
     protected return?: Return;
     protected returnType?: ReturnType;
-    protected body: Body;
+    protected body?: Body;
     protected isAsync = false as IsAsync;
     protected isArrow = false as IsArrow;
     protected isGenerator = false as IsGenerator;
@@ -322,7 +328,7 @@ export class ClassMethodGenerator<
                   isArrow: this.isArrow,
                   isGenerator: this.isGenerator,
               })}`
-            : `${this.isAsync ? "async " : ""}${this.isGenerator ? "* " : ""}${this.name}${this.generics?.generate()}${wrapInParentheses(this.params?.generate() || "")}${this.returnType ? `: ${this.returnType}` : ""} ${wrapInBraces(`${this.body}\n${this.return}`)}`;
+            : `${this.isAsync ? "async " : ""}${this.isGenerator ? "* " : ""}${this.name}${this.generics?.generate()}${wrapInParentheses(this.params?.generate() || "")}${this.returnType ? `: ${this.returnType}` : ""} ${wrapInBraces(`${this.body ?? ""}\n${this.return ? `return ${this.return}` : ""}`)}`;
     }
 
     clone() {
@@ -793,23 +799,9 @@ export class ClassGenerator<
               | IdentifierGenerator<string, ClassPropertyGenerator>
           >
     >,
-    Methods extends MultiLineGenerator<
-        | ClassMethodGenerator
-        | IdentifierGenerator<string, ClassMethodGenerator>
-        | MultiLineGenerator<
-              | CommentGenerator
-              | ClassMethodGenerator
-              | IdentifierGenerator<string, ClassMethodGenerator>
-          >
-    > = MultiLineGenerator<
-        | ClassMethodGenerator
-        | IdentifierGenerator<string, ClassMethodGenerator>
-        | MultiLineGenerator<
-              | CommentGenerator
-              | ClassMethodGenerator
-              | IdentifierGenerator<string, ClassMethodGenerator>
-          >
-    >,
+    Methods extends Identifierable<
+        Mulitlineable<ClassMethodGenerator, CommentGenerator>
+    > = Identifierable<Mulitlineable<ClassMethodGenerator, CommentGenerator>>,
     Constructor extends ClassConstructorGenerator = ClassConstructorGenerator,
     Extended extends string = string,
     Implemented extends string = string,
@@ -848,18 +840,15 @@ export class ClassGenerator<
                   )[];
             methods?:
                 | Methods
-                | (
-                      | ClassMethodGenerator
-                      | IdentifierGenerator<string, ClassMethodGenerator>
-                      | Parameters<typeof ClassMethodGenerator.generate>[0]
-                      | MultiLineGenerator<
-                            | CommentGenerator
-                            | ClassMethodGenerator
-                            | IdentifierGenerator<string, ClassMethodGenerator>
-                        >
-                  )[];
+                | Identifierable<
+                      Mulitlineable<
+                          | ClassMethodGenerator
+                          | Parameters<typeof ClassMethodGenerator.generate>[0],
+                          CommentGenerator
+                      >
+                  >[];
             content?: Content;
-            constructor?: Constructor;
+            construct?: Constructor;
         },
     ) {
         super();
@@ -901,10 +890,7 @@ export class ClassGenerator<
                 : (options?.methods ?? MultiLineGenerator.create([]))
         ) as Methods;
         this.content = options?.content;
-        if ((options as any).__proto__.constructor !== options?.constructor) {
-            // if the constructor property is equal to __proto__.constructor so the constructor prop is not set and so the constructor is the default constructor for object
-            this.construct = options?.constructor;
-        }
+        this.construct = options?.construct;
     }
 
     setName<NewName extends string = string>(name: NewName) {
@@ -1248,7 +1234,7 @@ export class ClassGenerator<
             properties: this.properties.clone().getLines(),
             methods: this.methods.clone().getLines(),
             content: this.content,
-            constructor: this.construct?.clone(),
+            construct: this.construct?.clone(),
         }) as this;
     }
 
@@ -1321,18 +1307,15 @@ export class ClassGenerator<
                   )[];
             methods?:
                 | Methods
-                | (
-                      | ClassMethodGenerator
-                      | IdentifierGenerator<string, ClassMethodGenerator>
-                      | Parameters<typeof ClassMethodGenerator.generate>[0]
-                      | MultiLineGenerator<
-                            | CommentGenerator
-                            | ClassMethodGenerator
-                            | IdentifierGenerator<string, ClassMethodGenerator>
-                        >
-                  )[];
+                | Identifierable<
+                      Mulitlineable<
+                          | ClassMethodGenerator
+                          | Parameters<typeof ClassMethodGenerator.generate>[0],
+                          CommentGenerator
+                      >
+                  >[];
             content?: Content;
-            constructor?: Constructor;
+            construct?: Constructor;
         },
     ) {
         return new ClassGenerator(name, options);
@@ -1403,20 +1386,18 @@ export class ClassGenerator<
                   )[];
             methods?:
                 | Methods
-                | (
-                      | ClassMethodGenerator
-                      | IdentifierGenerator<string, ClassMethodGenerator>
-                      | Parameters<typeof ClassMethodGenerator.generate>[0]
-                      | MultiLineGenerator<
-                            | CommentGenerator
-                            | ClassMethodGenerator
-                            | IdentifierGenerator<string, ClassMethodGenerator>
-                        >
-                  )[];
+                | Identifierable<
+                      Mulitlineable<
+                          | ClassMethodGenerator
+                          | Parameters<typeof ClassMethodGenerator.generate>[0],
+                          CommentGenerator
+                      >
+                  >[];
             content?: Content;
-            constructor?: Constructor;
+            construct?: Constructor;
         },
     ) {
         return ClassGenerator.create(name, options).generate();
     }
 }
+

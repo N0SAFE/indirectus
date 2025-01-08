@@ -5,13 +5,17 @@ import {
 } from "../utils";
 
 export class LoopGenerator<
-    Variable extends unknown[] = unknown[],
-    Callback extends (variable: Variable[number]) => unknown = (
-        variable: Variable[number],
-    ) => unknown,
+    Variable = any,
+    Output = unknown,
+    Callback extends (
+        this: LoopGenerator<Variable, Output, Callback>,
+        variable: Variable,
+        index: number,
+        array: Variable[],
+    ) => Output = (variable: Variable) => Output,
 > extends TemplateGenerator {
     constructor(
-        private variable: Variable,
+        private variable: Variable[],
         private callback: Callback,
     ) {
         super();
@@ -19,15 +23,21 @@ export class LoopGenerator<
 
     setContent<
         NewVariable extends unknown[],
-        NewCallback extends (variable: NewVariable[number]) => unknown,
+        NewOutput,
+        NewCallback extends (variable: NewVariable[number]) => NewOutput,
     >(variable: NewVariable, callback: NewCallback) {
         return new LoopGenerator(variable, callback);
     }
 
-    setCallback<NewCallback extends (variable: Variable[number]) => unknown>(
-        callback: NewCallback,
-    ) {
-        const This = this as unknown as LoopGenerator<Variable, NewCallback>;
+    setCallback<
+        NewOutput,
+        NewCallback extends (variable: Variable) => NewOutput,
+    >(callback: NewCallback) {
+        const This = this as unknown as LoopGenerator<
+            Variable,
+            NewOutput,
+            NewCallback
+        >;
         This.callback = callback;
         return This;
     }
@@ -37,17 +47,11 @@ export class LoopGenerator<
     }
 
     getContent() {
-        return this.variable.map((variable) => this.callback(variable));
+        return this.variable.map(this.callback.bind(this));
     }
 
     generate() {
-        const contents = this.getContent();
-        return contents.map((content) => {
-            if (Array.isArray(content)) {
-                return content.join("");
-            }
-            return `${content}`;
-        });
+        return this.getContent();
     }
 
     clone() {
@@ -134,9 +138,35 @@ export class LoopGenerator<
     >(variable: Variable, callback: Callback) {
         return LoopGenerator.create(variable, callback).generate();
     }
+
+    static toLoopable<
+        Variable extends unknown[],
+        Callback extends (variable: Variable[number]) => unknown,
+    >(
+        variable: Variable,
+        callback: Callback,
+    ): LoopGenerator<Variable, Callback>;
+    static toLoopable<Z extends unknown[], G extends Z | LoopGenerator<Z>>(
+        array: G,
+    ): G extends Z ? LoopGenerator<G> : G;
+    static toLoopable(...args: unknown[]) {
+        const [firstArg, ...rest] = args;
+        if (rest.length === 1) {
+            if (firstArg instanceof Array) {
+                return LoopGenerator.create(firstArg, rest[0] as any);
+            }
+            if (firstArg instanceof LoopGenerator) {
+                return firstArg;
+            }
+        }
+        if (firstArg instanceof Array) {
+            return LoopGenerator.create(firstArg, (variable) => variable);
+        }
+        return undefined as never;
+    }
 }
 
-export type Loopable<T extends unknown> = T | LoopGenerator<any[], (variable: any) => T>;
+export type Loopable<T extends unknown, Output = unknown> = T[] | LoopGenerator<T[], Output>;
 
 // const loop = LoopGenerator.create([1, 2, 3] as const, (content) => {
 //     return IdentifierGenerator.create(
@@ -145,3 +175,13 @@ export type Loopable<T extends unknown> = T | LoopGenerator<any[], (variable: an
 //     );
 // });
 // const t = loop.getChildrenByIdentifier("content2");
+
+const e = new LoopGenerator([1, 2, 3] as const, (content) => {
+    return content;
+});
+e.generate();
+
+type e = Loopable<number>;
+const z = {} as Loopable<number, string>;
+const zz = LoopGenerator.toLoopable(z);
+const a = zz.getContent();

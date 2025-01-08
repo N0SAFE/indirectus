@@ -15,10 +15,6 @@ import {
     defaultDeleteFunction,
     defaultDeletesFunction,
     defaultAggregateFunction,
-    pascalToSpace,
-    capitalize,
-    PARAMS,
-    GENERICS,
 } from "./generics";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
@@ -27,6 +23,7 @@ import {
     FunctionParamsGenerator,
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
+import { PARAMS, GENERICS } from "@/templates/utils";
 
 const collectionName = "DirectusUsers";
 
@@ -48,7 +45,7 @@ export default () =>
                                 FunctionGenerator.create({
                                     name: `readMeItem`,
                                     params: FunctionParamsGenerator.create([
-                                        PARAMS.query(collectionName),
+                                        PARAMS.query(),
                                     ]),
                                     generics: GenericsTypeGenerator.create([
                                         GENERICS.Query(collectionName),
@@ -96,7 +93,7 @@ export default () =>
                                     name: `updateMeItem`,
                                     params: FunctionParamsGenerator.create([
                                         PARAMS.patch(collectionName),
-                                        PARAMS.query(collectionName),
+                                        PARAMS.query(),
                                     ]),
                                     generics: GenericsTypeGenerator.create([
                                         GENERICS.Query(collectionName),

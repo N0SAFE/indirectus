@@ -123,6 +123,12 @@ export class IdentifierGenerator<
     }
 }
 
+export type Identifierable<T, Add extends TemplateStringGenerator = never> =
+    | T
+    | (T extends TemplateStringGenerator
+          ? IdentifierGenerator<string, T | Add>
+          : Add extends TemplateStringGenerator ? IdentifierGenerator<string, Add> : never);
+
 // const identifierGenerator = IdentifierGenerator.create(
 //   "a",
 //   ArrayGenerator.create(["1", "2", "3"]),

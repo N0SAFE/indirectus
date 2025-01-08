@@ -81,7 +81,7 @@ export default (
                                     ],
                                     content:
                                         "declare ['constructor']: typeof ChainableBinding;",
-                                    constructor:
+                                    construct:
                                         ClassConstructorGenerator.create({
                                             params: ClassConstructorParamsGenerator.create(
                                                 [
@@ -118,7 +118,6 @@ export default (
                                                     ),
                                                 ],
                                             ),
-
                                             body: MultiLineGenerator.create([
                                                 VariableDeclaratorGenerator.create(
                                                     {
@@ -159,8 +158,8 @@ export default (
                                                         keyword: "const",
                                                     },
                                                 ),
-                                                "return this.client.request(recursiveConsumeChain(this.chain, options)) as unknown as Promise<Output>;",
                                             ]),
+                                            return: "this.client.request(recursiveConsumeChain(this.chain, options)) as unknown as Promise<Output>",
                                         }),
                                         ClassMethodGenerator.create({
                                             name: "withOptions",
@@ -169,8 +168,7 @@ export default (
                                                     FunctionParamGenerator.create(
                                                         {
                                                             name: "extraOptions",
-                                                            type:
-                                                                "Directus.RequestTransformer | Partial<RequestInit>",
+                                                            type: "Directus.RequestTransformer | Partial<RequestInit>",
                                                         },
                                                     ),
                                                 ],
@@ -186,15 +184,16 @@ export default (
                                                                         FunctionParamGenerator.create(
                                                                             {
                                                                                 name: "last",
-                                                                                type:
-                                                                                    "Directus.RestCommand<unknown, Schema>",
+                                                                                type: "Directus.RestCommand<unknown, Schema>",
                                                                             },
                                                                         ),
                                                                     ],
                                                                 ),
-                                                                body: MultiLineGenerator.create([
-                                                                    "return DirectusSDK.withOptions(last, extraOptions);",
-                                                                ]),
+                                                                body: MultiLineGenerator.create(
+                                                                    [
+                                                                        "return DirectusSDK.withOptions(last, extraOptions);",
+                                                                    ],
+                                                                ),
                                                             },
                                                         ),
                                                         keyword: "const",
@@ -203,96 +202,125 @@ export default (
                                                 VariableDeclaratorGenerator.create(
                                                     {
                                                         name: "obj",
-                                                        value: 'new this.constructor(this.client) as this;',
+                                                        value: "new this.constructor(this.client) as this;",
                                                         keyword: "const",
                                                     },
                                                 ),
                                                 "obj.chain = [...this.chain, newFunc];",
-                                                "return obj;",
                                             ]),
+                                            return: "obj",
                                         }),
                                         ClassMethodGenerator.create({
                                             name: "withToken",
                                             params: FunctionParamsGenerator.create(
                                                 [
-                                                    FunctionParamGenerator.create({
-                                                        name: "token",
-                                                        type: "string",
-                                                    }),
+                                                    FunctionParamGenerator.create(
+                                                        {
+                                                            name: "token",
+                                                            type: "string",
+                                                        },
+                                                    ),
                                                 ],
                                             ),
                                             body: MultiLineGenerator.create([
-                                                VariableDeclaratorGenerator.create({
-                                                    name: "newFunc",
-                                                    value: FunctionGenerator.create({
-                                                        params: FunctionParamsGenerator.create([
-                                                            FunctionParamGenerator.create({
-                                                                name: "last",
-                                                                type:
-                                                                    "Directus.RestCommand<unknown, Schema>",
-                                                            }),
-                                                        ]),
-                                                        body: MultiLineGenerator.create([
-                                                            "return DirectusSDK.withToken(token, last);",
-                                                        ]),
-                                                    }),
-                                                    keyword: "const",
-                                                }),
-                                                VariableDeclaratorGenerator.create({
-                                                    name: "obj",
-                                                    value: 'new this.constructor(this.client) as this;',
-                                                    keyword: "const",
-                                                }),
+                                                VariableDeclaratorGenerator.create(
+                                                    {
+                                                        name: "newFunc",
+                                                        value: FunctionGenerator.create(
+                                                            {
+                                                                params: FunctionParamsGenerator.create(
+                                                                    [
+                                                                        FunctionParamGenerator.create(
+                                                                            {
+                                                                                name: "last",
+                                                                                type: "Directus.RestCommand<unknown, Schema>",
+                                                                            },
+                                                                        ),
+                                                                    ],
+                                                                ),
+                                                                body: MultiLineGenerator.create(
+                                                                    [
+                                                                        "return DirectusSDK.withToken(token, last);",
+                                                                    ],
+                                                                ),
+                                                            },
+                                                        ),
+                                                        keyword: "const",
+                                                    },
+                                                ),
+                                                VariableDeclaratorGenerator.create(
+                                                    {
+                                                        name: "obj",
+                                                        value: "new this.constructor(this.client) as this;",
+                                                        keyword: "const",
+                                                    },
+                                                ),
                                                 "obj.chain = [...this.chain, newFunc];",
-                                                "return obj;",
                                             ]),
+                                            return: "obj",
                                         }),
                                         ClassMethodGenerator.create({
                                             name: "withSearch",
                                             body: MultiLineGenerator.create([
-                                                VariableDeclaratorGenerator.create({
-                                                    name: "newFunc",
-                                                    value: FunctionGenerator.create({
-                                                        params: FunctionParamsGenerator.create([
-                                                            FunctionParamGenerator.create({
-                                                                name: "last",
-                                                                type:
-                                                                    "Directus.RestCommand<unknown, Schema>",
-                                                            }),
-                                                        ]),
-                                                        body: MultiLineGenerator.create([
-                                                            "return DirectusSDK.withSearch(last);",
-                                                        ]),
-                                                    }),
-                                                    keyword: "const",
-                                                }),
-                                                VariableDeclaratorGenerator.create({
-                                                    name: "obj",
-                                                    value: 'new this.constructor(this.client) as this;',
-                                                    keyword: "const",
-                                                }),
+                                                VariableDeclaratorGenerator.create(
+                                                    {
+                                                        name: "newFunc",
+                                                        value: FunctionGenerator.create(
+                                                            {
+                                                                params: FunctionParamsGenerator.create(
+                                                                    [
+                                                                        FunctionParamGenerator.create(
+                                                                            {
+                                                                                name: "last",
+                                                                                type: "Directus.RestCommand<unknown, Schema>",
+                                                                            },
+                                                                        ),
+                                                                    ],
+                                                                ),
+                                                                body: MultiLineGenerator.create(
+                                                                    [
+                                                                        "return DirectusSDK.withSearch(last);",
+                                                                    ],
+                                                                ),
+                                                            },
+                                                        ),
+                                                        keyword: "const",
+                                                    },
+                                                ),
+                                                VariableDeclaratorGenerator.create(
+                                                    {
+                                                        name: "obj",
+                                                        value: "new this.constructor(this.client) as this;",
+                                                        keyword: "const",
+                                                    },
+                                                ),
                                                 "obj.chain = [...this.chain, newFunc];",
-                                                "return obj;",
                                             ]),
+                                            return: "obj",
                                         }),
                                         ClassMethodGenerator.create({
                                             name: "withCustom",
-                                            params: FunctionParamsGenerator.create([
-                                                FunctionParamGenerator.create({
-                                                    name: "custom",
-                                                    type:
-                                                        "(last: Directus.RestCommand<unknown, Schema>) => Directus.RestCommand<unknown, Schema>",
-                                                }),
-                                            ]),
+                                            params: FunctionParamsGenerator.create(
+                                                [
+                                                    FunctionParamGenerator.create(
+                                                        {
+                                                            name: "custom",
+                                                            type: "(last: Directus.RestCommand<unknown, Schema>) => Directus.RestCommand<unknown, Schema>",
+                                                        },
+                                                    ),
+                                                ],
+                                            ),
                                             body: MultiLineGenerator.create([
-                                                VariableDeclaratorGenerator.create({
-                                                    name: "obj",
-                                                    value: 'new this.constructor(this.client) as this;',
-                                                    keyword: "const",
-                                                }),
+                                                VariableDeclaratorGenerator.create(
+                                                    {
+                                                        name: "obj",
+                                                        value: "new this.constructor(this.client) as this;",
+                                                        keyword: "const",
+                                                    },
+                                                ),
                                                 "obj.chain = [...this.chain, custom];",
-                                                "return obj;",
                                             ]),
+                                            return: "obj",
                                         }),
                                     ],
                                 }),

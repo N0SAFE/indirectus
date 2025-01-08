@@ -15,7 +15,6 @@ import {
     defaultDeleteFunction,
     defaultDeletesFunction,
     defaultAggregateFunction,
-    pascalToSpace,
 } from "./generics";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
 import { ExportGenerator } from "@/lib/templating/generator/ts/export.generator";
@@ -29,6 +28,7 @@ import {
     GenericsTypeGenerator,
 } from "@/lib/templating/generator/type/generic.generator";
 import { VariableDeclaratorGenerator } from "@/lib/templating/generator/ts/declarator.generator";
+import { pascalToSpace } from "@/templates/utils";
 
 const collectionName = "DirectusSettings";
 

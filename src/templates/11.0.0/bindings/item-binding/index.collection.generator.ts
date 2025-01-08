@@ -257,7 +257,7 @@ export default (
                                                                 body: [
                                                                     "let toReturn = this.request(read{{ collectionName }}(query)) as unknown as Promise<{{ applyType }}>;",
                                                                 ],
-                                                                return: "return toReturn;",
+                                                                return: "toReturn;",
                                                                 name: "read" satisfies SingletonMethods,
                                                             },
                                                         ),
@@ -316,7 +316,7 @@ export default (
                                                                 body: [
                                                                     "let toReturn = this.request(update{{ collectionName }}(patch, query)) as unknown as Promise<{{ applyType }}>;",
                                                                 ],
-                                                                return: "return toReturn;",
+                                                                return: "toReturn;",
                                                                 name: "update" satisfies SingletonMethods,
                                                             },
                                                         ),
@@ -395,7 +395,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(create{{ collectionName }}Items(items, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "create" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -450,7 +450,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(read{{ collectionName }}Items(query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "query" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -504,7 +504,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(read{{ collectionName }}Items({...query,limit: 1})).then(items => items?.[0]) as unknown as Promise<{{ applyType }} | undefined>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "find" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -570,7 +570,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(update{{ collectionName }}Items(keys, patch, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "update" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -630,7 +630,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(update{{ collectionName }}ItemsBatch(items, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "updateBatch" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -677,7 +677,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(delete{{ collectionName }}Items(keys)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "remove" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -729,7 +729,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(aggregate{{ collectionName }}Items<Options>(options)).then((a) => a?.[0]) as unknown as Promise<Output>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "aggregate" satisfies ItemsMethods,
                                                                 },
                                                             ),
@@ -805,7 +805,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(create{{ collectionName }}Item(item, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "create" satisfies ItemMethods,
                                                                 },
                                                             ),
@@ -865,7 +865,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(read{{ collectionName }}Item(key, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "get" satisfies ItemMethods,
                                                                 },
                                                             ),
@@ -931,7 +931,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(update{{ collectionName }}Item(key, patch, query)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "update" satisfies ItemMethods,
                                                                 },
                                                             ),
@@ -978,7 +978,7 @@ export default (
                                                                     body: [
                                                                         "let toReturn = this.request(delete{{ collectionName }}Item(key)) as unknown as Promise<{{ applyType }}>;",
                                                                     ],
-                                                                    return: "return toReturn;",
+                                                                    return: "toReturn;",
                                                                     name: "remove" satisfies ItemMethods,
                                                                 },
                                                             ),

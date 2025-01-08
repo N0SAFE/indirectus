@@ -1,24 +1,9 @@
 import { FileGenerator } from "@/lib/templating/generator/struct/file.generator";
 import { IdentifierGenerator } from "@/lib/templating/generator/struct/identifier.generate";
-import { Collection, Registry } from "@/types/registry";
 import {
-    capitalize,
     defaultAggregateFunction,
-    defaultCreateFunction,
-    defaultCreatesFunction,
-    defaultDeleteFunction,
-    defaultDeletesFunction,
     defaultImports,
-    defaultReadFunction,
-    defaultReadsFunction,
     defaultReadsVariable,
-    defaultReadVariable,
-    defaultUpdateFunction,
-    defaultUpdatesFunction,
-    GENERICS,
-    PARAMS,
-    pascalToSnake,
-    pascalToSpace,
 } from "./generics";
 import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 import { CommentGenerator } from "@/lib/templating/generator/ts/comment.generator";
@@ -30,6 +15,7 @@ import {
 } from "@/lib/templating/generator/ts/function.generator";
 import { GenericsTypeGenerator } from "@/lib/templating/generator/type/generic.generator";
 import { singular } from "pluralize";
+import { pascalToSpace, capitalize } from "@/templates/utils";
 
 const collectionName = "DirectusExtensions";
 

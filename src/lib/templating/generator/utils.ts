@@ -83,23 +83,21 @@ export function getChildrenByIdentifier<
     >[Identifier][];
 }
 
-export abstract class TemplateGenerator {
+export abstract class TemplateGenerator<Generate = unknown> {
     abstract clone(): this;
 
     abstract getChildrenByIdentifier(identifier: string): TemplateGenerator[];
 
     abstract getAllChildren(): TemplateGenerator[];
 
-    abstract generate(...args: unknown[]): unknown;
+    abstract generate(...args: unknown[]): Generate;
 
     public readonly toString = () => this.generate();
 }
 
-export abstract class TemplateStringGenerator extends TemplateGenerator {
-    abstract override generate(): string;
-}
+export abstract class TemplateStringGenerator extends TemplateGenerator<string> {}
 
-export abstract class TemplateFileGenerator extends TemplateGenerator {
+export abstract class TemplateFileGenerator extends TemplateGenerator<void> {
     abstract override generate(basePath: string): Promise<void>;
 
     abstract dryRun(basePath: string): Promise<void>;

@@ -548,22 +548,22 @@ export default (
                         ]),
                     ),
                 ),
-                IdentifierGenerator.create(
-                    "Client.ExcludedDirectusCommands",
-                    MultiLineGenerator.create([
-                        TypeDeclaratorGenerator.create({
-                            name: "ExcludedDirectusCommands",
-                            content: `"withOptions" | "withToken" | "withSearch";`,
-                        }),
-                        ExportGenerator.create(
-                            VariableDeclaratorGenerator.create({
-                                name: "excludedDirectusCommands",
-                                type: `{ [K in keyof Omit<DirectusSDK, Exclude<keyof DirectusCommands, ExcludedDirectusCommands>>]: true; }`,
-                                value: `{ ["auth"]: true, ["authentication"]: true, ["createDirectus"]: true, ["rest"]: true, ["formatFields"]: true, ["generateUid"]: true, ["getAuthEndpoint"]: true, ["graphql"]: true, ["memoryStorage"]: true, ["messageCallback"]: true, ["pong"]: true, ["queryToParams"]: true, ["realtime"]: true, ["sleep"]: true, ["staticToken"]: true, ["throwIfCoreCollection"]: true, ["throwIfEmpty"]: true, ["withOptions"]: true, ["withToken"]: true, ["withSearch"]: true, } as const;`,
-                            }),
-                        ),
-                    ]),
-                ),
+                // IdentifierGenerator.create(
+                //     "Client.ExcludedDirectusCommands",
+                //     MultiLineGenerator.create([
+                //         TypeDeclaratorGenerator.create({
+                //             name: "ExcludedDirectusCommands",
+                //             content: `"withOptions" | "withToken" | "withSearch";`,
+                //         }),
+                //         ExportGenerator.create(
+                //             VariableDeclaratorGenerator.create({
+                //                 name: "excludedDirectusCommands",
+                //                 type: `{ [K in keyof Omit<DirectusSDK, Exclude<keyof DirectusCommands, ExcludedDirectusCommands>>]: true; }`,
+                //                 value: `{ ["auth"]: true, ["authentication"]: true, ["createDirectus"]: true, ["rest"]: true, ["formatFields"]: true, ["generateUid"]: true, ["getAuthEndpoint"]: true, ["graphql"]: true, ["memoryStorage"]: true, ["messageCallback"]: true, ["pong"]: true, ["queryToParams"]: true, ["realtime"]: true, ["sleep"]: true, ["staticToken"]: true, ["throwIfCoreCollection"]: true, ["throwIfEmpty"]: true, ["withOptions"]: true, ["withToken"]: true, ["withSearch"]: true, } as const;`,
+                //             }),
+                //         ),
+                //     ]),
+                // ), this code is not used currently but is usefull (the codebase is not up to date)
             ]),
             renderer,
             ctx,

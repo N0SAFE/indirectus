@@ -1,3 +1,4 @@
+import { Loopable } from "../logic/loop.generator";
 import { ArrayGenerator } from "../ts/array.generator";
 import {
     getChildrenByIdentifier,
@@ -8,12 +9,12 @@ import {
 import { IdentifierGenerator } from "./identifier.generate";
 
 export class MultiLineGenerator<
-    Content extends string | TemplateStringGenerator =
-        | string
-        | TemplateStringGenerator,
+    Content extends Loopable<string | TemplateStringGenerator> = Loopable<
+        string | TemplateStringGenerator
+    >,
 > extends TemplateStringGenerator {
-    getChildrenByIdentifier = getChildrenByIdentifier
-    
+    getChildrenByIdentifier = getChildrenByIdentifier;
+
     private lines: Content[] = [];
     private seperationSize = 1;
 
@@ -128,6 +129,14 @@ export class MultiLineGenerator<
         return MultiLineGenerator.create<Content>(lines, options).generate();
     }
 }
+
+export type Mulitlineable<T, Add extends TemplateStringGenerator = never> =
+    | T
+    | (T extends TemplateStringGenerator
+          ? MultiLineGenerator<T | Add>
+          : Add extends TemplateStringGenerator
+            ? MultiLineGenerator<Add>
+            : never);
 
 // const identifierGenerator = IdentifierGenerator.create(
 //   "a",
