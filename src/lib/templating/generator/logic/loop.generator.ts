@@ -4,15 +4,17 @@ import {
     TemplateStringGenerator,
 } from "../utils";
 
+type CreateCallbackType<Variable, Output = Variable> = (
+    variable: Variable,
+    index: number,
+    array: Variable[],
+) => Output;
 export class LoopGenerator<
-    Variable = any,
-    Output = unknown,
-    Callback extends (
-        this: LoopGenerator<Variable, Output, Callback>,
-        variable: Variable,
-        index: number,
-        array: Variable[],
-    ) => Output = (variable: Variable) => Output,
+    Variable = unknown,
+    Callback extends CreateCallbackType<
+        Variable,
+        unknown
+    > = CreateCallbackType<Variable>,
 > extends TemplateGenerator {
     constructor(
         private variable: Variable[],
@@ -29,15 +31,10 @@ export class LoopGenerator<
         return new LoopGenerator(variable, callback);
     }
 
-    setCallback<
-        NewOutput,
-        NewCallback extends (variable: Variable) => NewOutput,
-    >(callback: NewCallback) {
-        const This = this as unknown as LoopGenerator<
-            Variable,
-            NewOutput,
-            NewCallback
-        >;
+    setCallback<NewCallback extends (variable: Variable) => unknown>(
+        callback: NewCallback,
+    ) {
+        const This = this as unknown as LoopGenerator<Variable, NewCallback>;
         This.callback = callback;
         return This;
     }
@@ -46,12 +43,38 @@ export class LoopGenerator<
         return this.variable;
     }
 
-    getContent() {
-        return this.variable.map(this.callback.bind(this));
+    loop<
+        CallbackLooper extends
+            | ((variable: ReturnType<Callback>) => unknown)
+            | undefined,
+    >(
+        callback?: CallbackLooper,
+    ): CallbackLooper extends undefined
+        ? ReturnType<Callback>[]
+        : CallbackLooper extends (variable: ReturnType<Callback>) => unknown
+          ? ReturnType<CallbackLooper>[]
+          : never {
+        const data = this.variable.map(
+            this.callback.bind(this),
+        ) as ReturnType<Callback>[];
+        if (callback) {
+            return data.map(callback) as CallbackLooper extends undefined
+                ? ReturnType<Callback>[]
+                : CallbackLooper extends (
+                        variable: ReturnType<Callback>,
+                    ) => unknown
+                  ? ReturnType<CallbackLooper>[]
+                  : never;
+        }
+        return data as CallbackLooper extends undefined
+            ? ReturnType<Callback>[]
+            : CallbackLooper extends (variable: ReturnType<Callback>) => unknown
+              ? ReturnType<CallbackLooper>[]
+              : never;
     }
 
     generate() {
-        return this.getContent();
+        return this.loop();
     }
 
     clone() {
@@ -86,7 +109,7 @@ export class LoopGenerator<
         : ReturnType<Callback> extends TemplateGenerator
           ? ReturnType<Callback>[]
           : never[] {
-        const contents = this.getContent();
+        const contents = this.loop();
         return contents.filter((content) => {
             if (Array.isArray(content)) {
                 return content.filter(
@@ -126,47 +149,62 @@ export class LoopGenerator<
     }
 
     static create<
-        Variable extends unknown[],
-        Callback extends (variable: Variable[number]) => unknown,
-    >(variable: Variable, callback: Callback) {
-        return new LoopGenerator(variable, callback);
+        Variable,
+        Callback extends (
+            variable: Variable,
+            index: number,
+            array: Variable[],
+        ) => unknown,
+    >(variable: Variable[], callback: Callback) {
+        return new LoopGenerator<Variable, Callback>(variable, callback);
     }
 
     static generate<
-        Variable extends unknown[],
-        Callback extends (variable: Variable[number]) => unknown,
-    >(variable: Variable, callback: Callback) {
+        Variable,
+        Callback extends (
+            variable: Variable,
+            index: number,
+            array: Variable[],
+        ) => unknown,
+    >(variable: Variable[], callback: Callback) {
         return LoopGenerator.create(variable, callback).generate();
     }
 
-    static toLoopable<
+    static toLoop<
         Variable extends unknown[],
         Callback extends (variable: Variable[number]) => unknown,
     >(
         variable: Variable,
         callback: Callback,
     ): LoopGenerator<Variable, Callback>;
-    static toLoopable<Z extends unknown[], G extends Z | LoopGenerator<Z>>(
-        array: G,
-    ): G extends Z ? LoopGenerator<G> : G;
-    static toLoopable(...args: unknown[]) {
+    static toLoop<Z extends unknown[]>(array: Z): LoopGenerator<Z[number]>;
+    static toLoop<Z extends Loopable<any>>(
+        lopable: Z,
+    ): Z extends unknown[]
+        ? LoopGenerator<unknown, CreateCallbackType<unknown, Z[number]>>
+        : Z;
+    static toLoop(...args: unknown[]) {
         const [firstArg, ...rest] = args;
         if (rest.length === 1) {
             if (firstArg instanceof Array) {
-                return LoopGenerator.create(firstArg, rest[0] as any);
-            }
-            if (firstArg instanceof LoopGenerator) {
-                return firstArg;
+                if (rest[0] instanceof Function) {
+                    return LoopGenerator.create(firstArg, rest[0] as any);
+                }
             }
         }
         if (firstArg instanceof Array) {
             return LoopGenerator.create(firstArg, (variable) => variable);
         }
+        if (firstArg instanceof LoopGenerator) {
+            return firstArg;
+        }
         return undefined as never;
     }
 }
 
-export type Loopable<T extends unknown, Output = unknown> = T[] | LoopGenerator<T[], Output>;
+export type Loopable<T> =
+    | T[]
+    | LoopGenerator<unknown, CreateCallbackType<unknown, T>>;
 
 // const loop = LoopGenerator.create([1, 2, 3] as const, (content) => {
 //     return IdentifierGenerator.create(
@@ -182,6 +220,13 @@ const e = new LoopGenerator([1, 2, 3] as const, (content) => {
 e.generate();
 
 type e = Loopable<number>;
-const z = {} as Loopable<number, string>;
-const zz = LoopGenerator.toLoopable(z);
-const a = zz.getContent();
+const z = {} as Loopable<number>;
+const gen = LoopGenerator.create(["1", "2", "3"], (content) => {
+    return Number(content);
+});
+const v = gen.loop();
+const zz = LoopGenerator.toLoop(z);
+function t(v: number) {
+    return `${v}`;
+}
+const zzz = zz.loop((v) => `${v}`);

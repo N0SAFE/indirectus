@@ -83,7 +83,9 @@ export function getChildrenByIdentifier<
     >[Identifier][];
 }
 
-export abstract class TemplateGenerator<Generate = unknown> {
+export abstract class SuperGenerator {}
+
+export abstract class TemplateGenerator<Generate = unknown> extends SuperGenerator {
     abstract clone(): this;
 
     abstract getChildrenByIdentifier(identifier: string): TemplateGenerator[];

@@ -527,32 +527,32 @@
 //     return toReturn;
 // }
 
-class Base {
+// class Base {
 
-}
+// }
 
-class T1 {
-    public other: Base = new Base();
-}
+// class T1 {
+//     public other: Base = new Base();
+// }
 
-class T2 extends Base {
-    constructor(private param: T1) {super()}
+// class T2 extends Base {
+//     constructor(private param: T1) {super()}
 
-    create(baseNumber: Base): T1 {
-        return new T1();
-    }
-}
+//     create(baseNumber: Base): T1 {
+//         return new T1();
+//     }
+// }
 
-class T1Super extends T1 {
-    public override other = new T2(this);
-}
+// class T1Super extends T1 {
+//     public override other = new T2(this);
+// }
 
-class T2Super extends T2 {
-    constructor(param: T1Super) {
-        super(param);
-    }
+// class T2Super extends T2 {
+//     constructor(param: T1Super) {
+//         super(param);
+//     }
 
-    override create(baseString: T2) {
-        return new T1Super();
-    }
-}
+//     override create(baseString: T2) {
+//         return new T1Super();
+//     }
+// }

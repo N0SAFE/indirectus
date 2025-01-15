@@ -235,6 +235,16 @@ export default (
                                     ],
                                     return: "Promise<Output>",
                                 }),
+                                // ! to add
+                                // update<
+                                //     const Query extends DirectusSDK.Query<Schema, Collection[]>,
+                                //     const OutputQuery extends DirectusSDK.Query<Schema, Collection[]>,
+                                //     Output = ApplyQueryFields<Schema, Collection, OutputQuery['fields']>[],
+                                // >(
+                                //     query: Query,
+                                //     patch: Partial<Collection>,
+                                //     outputQuery?: OutputQuery
+                                // ): Promise<Output>
                                 updateBatch: FunctionTypeGenerator.create({
                                     generics: GenericsTypeGenerator.create([
                                         GenericTypeGenerator.create({
@@ -271,6 +281,10 @@ export default (
                                     ],
                                     return: "Promise<void>",
                                 }),
+                                // ! to add
+                                // remove<Output = void>(
+                                //     query: DirectusSDK.Query<Schema, Collection[]>
+                                // ): Promise<Output>
                                 aggregate: FunctionTypeGenerator.create({
                                     generics: GenericsTypeGenerator.create([
                                         GenericTypeGenerator.create({

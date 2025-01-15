@@ -1,4 +1,4 @@
-import { Loopable } from "../logic/loop.generator";
+import { Loopable, LoopGenerator } from "../logic/loop.generator";
 import { ArrayGenerator } from "../ts/array.generator";
 import {
     getChildrenByIdentifier,
@@ -7,18 +7,25 @@ import {
     TemplateStringGenerator,
 } from "../utils";
 import { IdentifierGenerator } from "./identifier.generate";
+import {
+    ComposeStructableWithChild,
+    StructSuperGenerator,
+} from "./struct.super";
 
 export class MultiLineGenerator<
-    Content extends Loopable<string | TemplateStringGenerator> = Loopable<
-        string | TemplateStringGenerator
-    >,
+    T extends
+        | string
+        | TemplateGenerator<string>
+        | Loopable<T>
+        | StructSuperGenerator<T> = string | TemplateGenerator<string>,
+    Content extends Loopable<T> = Loopable<T>,
 > extends TemplateStringGenerator {
     getChildrenByIdentifier = getChildrenByIdentifier;
 
-    private lines: Content[] = [];
+    private lines: Content;
     private seperationSize = 1;
 
-    constructor(lines: Content[], options?: { seperationSize?: number }) {
+    constructor(lines: Content, options?: { seperationSize?: number }) {
         super();
         this.lines = lines;
         this.seperationSize = options?.seperationSize
@@ -170,6 +177,15 @@ const mult = MultiLineGenerator.create([
     ]),
 ]);
 
+const other = new MultiLineGenerator(
+    LoopGenerator.create(
+        [LoopGenerator.create(["string"], (v) => v)],
+        (v) => v,
+    ),
+);
+
+type e = MultiLineGenerator<string, LoopGenerator<LoopGenerator<string>>>;
+
 const t = mult.getChildrenByIdentifier("d");
 
 type z =
@@ -188,3 +204,28 @@ const aaa: "a" | "b" = "a";
 type aaa = { name: "a" } | { name: "b" };
 
 type p = aaa extends { name: "a" } ? "a" : never;
+
+class T<A extends string | LoopGenerator<string>> {
+    constructor(a: A) {}
+}
+
+const z = new T(
+    LoopGenerator.create(
+        [LoopGenerator.create(["string"]), (v) => v],
+        (v) => v,
+    ),
+);
+
+type ww = T<LoopGenerator<string>>;
+
+const generator = LoopGenerator.create([
+    LoopGenerator.create([
+        IdentifierGenerator.create(
+            "test",
+            LoopGenerator.create(["method1", "method2"]),
+        ),
+    ]),
+    "test"
+]);
+
+const e = generator.generate()

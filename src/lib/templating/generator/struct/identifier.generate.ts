@@ -1,4 +1,5 @@
 import { RecursiveGet, TemplateStringGenerator } from "../utils";
+import { StructSuperGenerator } from "./struct.super";
 
 // export type Depths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 // export type GetAllContentToTemplateStringGeneratorUnion<
@@ -58,12 +59,12 @@ import { RecursiveGet, TemplateStringGenerator } from "../utils";
 export class IdentifierGenerator<
     Name extends string = string,
     Content extends TemplateStringGenerator = TemplateStringGenerator,
-> extends TemplateStringGenerator {
+> extends StructSuperGenerator<string> {
     constructor(
         private name: Name,
         private content: Content,
     ) {
-        super();
+        super(content);
     }
 
     setName<NewName extends string>(name: NewName) {
@@ -127,7 +128,9 @@ export type Identifierable<T, Add extends TemplateStringGenerator = never> =
     | T
     | (T extends TemplateStringGenerator
           ? IdentifierGenerator<string, T | Add>
-          : Add extends TemplateStringGenerator ? IdentifierGenerator<string, Add> : never);
+          : Add extends TemplateStringGenerator
+            ? IdentifierGenerator<string, Add>
+            : never);
 
 // const identifierGenerator = IdentifierGenerator.create(
 //   "a",
