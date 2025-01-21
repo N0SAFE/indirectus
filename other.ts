@@ -1,3 +1,4 @@
+import { MultiLineGenerator } from "@/lib/templating/generator/struct/arrangement.generator";
 import { StructSuperGenerator } from "./src/lib/templating/generator/struct/struct.super";
 import {
     getChildrenByIdentifier,
@@ -13,10 +14,19 @@ type InferElementType<T> =
 
 export class LoopGenerator<
     T extends unknown[] = unknown[],
-    // @ts-expect-error
     NormalizedTo extends unknown[] = InferElementType<T[number]>[],
-> {
-    constructor(private source: T) {}
+> extends TemplateGenerator<NormalizedTo> {
+    getChildrenByIdentifier = getChildrenByIdentifier;
+
+    constructor(private source: T) {
+        super();
+    }
+
+    override getAllChildren() {
+        return this.normalize().filter(
+            (v): v is TemplateGenerator => v instanceof TemplateGenerator,
+        );
+    }
 
     loop<Callback extends (variable: T[number]) => unknown>(
         callback: Callback,
@@ -26,14 +36,14 @@ export class LoopGenerator<
 
     normalize(): NormalizedTo {
         return new LoopGenerator(this.flattenSource()).loop((v) => {
-            if (v instanceof StructSuperGenerator) {
+            if (v instanceof LoopGenerator) {
                 const normalized = v.normalize();
                 return normalized instanceof LoopGenerator
                     ? normalized.getSource()
                     : normalized;
             }
             return v;
-        }) as unknown as NormalizedTo
+        }).source as unknown as NormalizedTo;
     }
 
     private flattenSource(): InferElementType<T[number]>[] {
@@ -46,13 +56,20 @@ export class LoopGenerator<
         ) as InferElementType<T[number]>[];
     }
 
-    chain<
-        R extends (variable: InferElementType<T[number]>) => unknown,
-        NewR extends (variable: ReturnType<R>) => unknown,
-    >(callback: NewR): LoopGenerator<ReturnType<NewR>[]> {
+    clone(): this {
+        return new LoopGenerator(this.source) as this;
+    }
+
+    chain<NewR extends (variable: InferElementType<T[number]>) => unknown>(
+        callback: NewR,
+    ): LoopGenerator<ReturnType<NewR>[]> {
         return new LoopGenerator(
             this.flattenSource().map((v) => callback(v)),
-        ) as any;
+        ) as unknown as LoopGenerator<ReturnType<NewR>[]>;
+    }
+
+    generate(): NormalizedTo {
+        return this.normalize();
     }
 
     getSource(): InferElementType<T[number]>[] {
@@ -87,7 +104,7 @@ class CustomStruct<
         super(value);
     }
 
-    generate() {
+    override generate() {
         return this.onlyChild.generate();
     }
 }
@@ -162,10 +179,12 @@ const gen2 = new LoopGenerator([new LoopGenerator(["a", "b", "c"])]);
 
 const gen3 = new LoopGenerator([new LoopGenerator(["a", "b", "c"] as const)]);
 
-const gen4 = new LoopGenerator([new CustomStruct(2)]);
+const gen4 = new LoopGenerator([
+    new CustomStruct(new MultiLineGenerator(["1"])),
+]);
 console.log(gen4);
 
-const z = gen4.loop((v) => v.normalize());
+const z = gen4.generate();
 
 console.log(z, "z");
 
@@ -217,7 +236,7 @@ console.log(
         "a",
         "b",
         "c",
-        new CustomStruct(new LoopGenerator(["naha", "nahb"] as const)),
+        new LoopGenerator(["naha", "nahb"] as const),
         // ["a", "b", new LoopGenerator(["no good"] as const)],
         // new LoopGenerator([
         //     "other",

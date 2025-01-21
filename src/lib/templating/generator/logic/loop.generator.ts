@@ -224,6 +224,7 @@ const z = {} as Loopable<number>;
 const gen = LoopGenerator.create(["1", "2", "3"], (content) => {
     return Number(content);
 });
+console.log(gen)
 const v = gen.loop();
 const zz = LoopGenerator.toLoop(z);
 function t(v: number) {

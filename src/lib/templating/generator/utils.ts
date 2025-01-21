@@ -94,7 +94,7 @@ export abstract class TemplateGenerator<Generate = unknown> extends SuperGenerat
 
     abstract generate(...args: unknown[]): Generate;
 
-    public readonly toString = () => this.generate();
+    public override readonly toString = () => this.generate();
 }
 
 export abstract class TemplateStringGenerator extends TemplateGenerator<string> {}
