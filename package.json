@@ -1,6 +1,6 @@
 {
   "name": "@n0safe/indirectus",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/N0SAFE/indirectus"
@@ -23,12 +23,12 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
-    "./src/**/*.js",
-    "./src/**/*.d.ts",
-    "./src/**/*.njk"
+    "./dist/**/*.js",
+    "./dist/**/*.d.ts",
+    "./dist/**/*.njk"
   ],
   "bin": {
-    "n0safe-indirectus": "./src/cli/index.js"
+    "n0safe-indirectus": "./dist/cli/index.js"
   },
   "license": "MIT",
   "description": "Directus Tools CLI.",
