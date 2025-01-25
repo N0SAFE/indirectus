@@ -1,6 +1,6 @@
 {
   "name": "@n0safe/indirectus",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/N0SAFE/indirectus"
@@ -41,7 +41,7 @@
     "version": "changeset version",
     "release": "npm publish --access public",
     "ci": "npm run build && npm run release",
-    "test": "node ./src/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
+    "test": "node ./dist/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",
