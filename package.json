@@ -45,7 +45,11 @@
         "version": "changeset version",
         "release": "npm publish --access public",
         "ci": "npm run build && npm run release",
-        "test": "node ./dist/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src",
+        "test": "vitest --run",
+        "test:coverage": "vitest --coverage --run",
+        "test:watch:coverage": "vitest --coverage",
+        "test:watch": "vitest",
+        "test:run": "node ./dist/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src",
         "clean": "rimraf ./dist/**/* --glob"
     },
     "dependencies": {
@@ -74,6 +78,7 @@
         "@types/nunjucks": "^3.2.6",
         "@types/pluralize": "^0.0.33",
         "@types/uuid": "^10.0.0",
+        "@vitest/coverage-v8": "^3.0.5",
         "@wolfpkgs/tsconfig": "^0.2.0",
         "concurrently": "^9.1.0",
         "conditional-type-checks": "^1.0.6",
@@ -83,7 +88,8 @@
         "rimraf": "^5.0.10",
         "ts-toolbelt": "^9.6.0",
         "tsup": "^8.3.5",
-        "typescript": "^5.7.2"
+        "typescript": "^5.7.2",
+        "vitest": "^3.0.5"
     },
     "engines": {
         "node": ">=18"

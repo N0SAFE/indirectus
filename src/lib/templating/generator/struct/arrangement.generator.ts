@@ -177,55 +177,55 @@ const mult = MultiLineGenerator.create([
     ]),
 ]);
 
-const other = new MultiLineGenerator(
-    LoopGenerator.create(
-        [LoopGenerator.create(["string"], (v) => v)],
-        (v) => v,
-    ),
-);
+// const other = new MultiLineGenerator(
+//     LoopGenerator.create(
+//         [LoopGenerator.create(["string"], (v) => v)],
+//         (v) => v,
+//     ),
+// );
 
-type e = MultiLineGenerator<string, LoopGenerator<LoopGenerator<string>>>;
+// type e = MultiLineGenerator<string, LoopGenerator<LoopGenerator<string>>>;
 
-const t = mult.getChildrenByIdentifier("d");
+// const t = mult.getChildrenByIdentifier("d");
 
-type z =
-    typeof mult extends MultiLineGenerator<infer Content> ? Content : never;
+// type z =
+//     typeof mult extends MultiLineGenerator<infer Content> ? Content : never;
 
-// type ez<T extends TemplateStringGenerator> = {
-//   [Key in _RecursiveGet<T>["name"]]: never
+// // type ez<T extends TemplateStringGenerator> = {
+// //   [Key in _RecursiveGet<T>["name"]]: never
+// // }
+
+// type zz = RecursiveGet<typeof mult>;
+
+// const aaa: "a" | "b" = "a";
+
+// // type e = RecursiveGet<typeof mult>;
+
+// type aaa = { name: "a" } | { name: "b" };
+
+// type p = aaa extends { name: "a" } ? "a" : never;
+
+// class T<A extends string | LoopGenerator<string>> {
+//     constructor(a: A) {}
 // }
 
-type zz = RecursiveGet<typeof mult>;
+// const z = new T(
+//     LoopGenerator.create(
+//         [LoopGenerator.create(["string"]), (v) => v],
+//         (v) => v,
+//     ),
+// );
 
-const aaa: "a" | "b" = "a";
+// type ww = T<LoopGenerator<string>>;
 
-// type e = RecursiveGet<typeof mult>;
+// const generator = LoopGenerator.create([
+//     LoopGenerator.create([
+//         IdentifierGenerator.create(
+//             "test",
+//             LoopGenerator.create(["method1", "method2"]),
+//         ),
+//     ]),
+//     "test"
+// ]);
 
-type aaa = { name: "a" } | { name: "b" };
-
-type p = aaa extends { name: "a" } ? "a" : never;
-
-class T<A extends string | LoopGenerator<string>> {
-    constructor(a: A) {}
-}
-
-const z = new T(
-    LoopGenerator.create(
-        [LoopGenerator.create(["string"]), (v) => v],
-        (v) => v,
-    ),
-);
-
-type ww = T<LoopGenerator<string>>;
-
-const generator = LoopGenerator.create([
-    LoopGenerator.create([
-        IdentifierGenerator.create(
-            "test",
-            LoopGenerator.create(["method1", "method2"]),
-        ),
-    ]),
-    "test"
-]);
-
-const e = generator.generate()
+// const e = generator.generate()

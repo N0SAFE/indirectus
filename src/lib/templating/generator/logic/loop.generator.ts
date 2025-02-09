@@ -78,7 +78,7 @@ export class LoopGenerator<
     }
 
     clone() {
-        return new LoopGenerator({ ...this.variable }, this.callback) as this;
+        return new LoopGenerator([ ...this.variable ], this.callback) as this;
     }
 
     override getChildrenByIdentifier<
@@ -206,28 +206,28 @@ export type Loopable<T> =
     | T[]
     | LoopGenerator<unknown, CreateCallbackType<unknown, T>>;
 
-// const loop = LoopGenerator.create([1, 2, 3] as const, (content) => {
-//     return IdentifierGenerator.create(
-//         `content${content}`,
-//         MultiLineGenerator.create([`${content}`]),
-//     );
+// // const loop = LoopGenerator.create([1, 2, 3] as const, (content) => {
+// //     return IdentifierGenerator.create(
+// //         `content${content}`,
+// //         MultiLineGenerator.create([`${content}`]),
+// //     );
+// // });
+// // const t = loop.getChildrenByIdentifier("content2");
+
+// const e = new LoopGenerator([1, 2, 3] as const, (content) => {
+//     return content;
 // });
-// const t = loop.getChildrenByIdentifier("content2");
+// e.generate();
 
-const e = new LoopGenerator([1, 2, 3] as const, (content) => {
-    return content;
-});
-e.generate();
-
-type e = Loopable<number>;
-const z = {} as Loopable<number>;
-const gen = LoopGenerator.create(["1", "2", "3"], (content) => {
-    return Number(content);
-});
-console.log(gen)
-const v = gen.loop();
-const zz = LoopGenerator.toLoop(z);
-function t(v: number) {
-    return `${v}`;
-}
-const zzz = zz.loop((v) => `${v}`);
+// type e = Loopable<number>;
+// const z = {} as Loopable<number>;
+// const gen = LoopGenerator.create(["1", "2", "3"], (content) => {
+//     return Number(content);
+// });
+// console.log(gen)
+// const v = gen.loop();
+// const zz = LoopGenerator.toLoop(z);
+// function t(v: number) {
+//     return `${v}`;
+// }
+// const zzz = zz.loop((v) => `${v}`);

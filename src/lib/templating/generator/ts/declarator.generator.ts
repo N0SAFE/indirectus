@@ -84,7 +84,7 @@ export class VariableDeclaratorGenerator<
     }
 
     generate() {
-        return `${this.keyword} ${this.name}${this.type ? `: ${this.type} ` : ""} = ${this.value instanceof TemplateStringGenerator ? this.value.generate() : this.value};`;
+        return `${this.keyword} ${this.name}${this.type ? `: ${this.type}` : ""} = ${this.value instanceof TemplateStringGenerator ? this.value.generate() : this.value};`;
     }
 
     clone() {

@@ -408,7 +408,7 @@ export class FunctionGenerator<
     }
 
     generate() {
-        return `${this.isAsync ? "async " : ""}${this.isArrow ? "" : "function"}${this.isGenerator ? "* " : ""}${" " + (this.name ?? "")}${this.generics.generate()}${wrapInParentheses(this.params.generate())}${this.returnType ? `:${this.returnType}` : ""} ${this.isArrow ? "=>" : ""} ${wrapInBraces(`${this.body}${this.return ? `\nreturn ${this.return};` : ""}`)}`;
+        return `${this.isAsync ? "async " : ""}${this.isArrow ? "" : "function"}${this.isGenerator ? "* " : " "}${(this.name ?? "")}${this.generics.generate()}${wrapInParentheses(this.params.generate())}${this.returnType ? `:${this.returnType}` : ""} ${this.isArrow ? "=>" : ""} ${wrapInBraces(`${this.body}${this.return ? `\nreturn ${this.return};` : ""}`)}`;
     }
 
     clone() {
