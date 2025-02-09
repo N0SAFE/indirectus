@@ -1,6 +1,6 @@
 {
   "name": "@n0safe/indirectus",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/N0SAFE/indirectus"
@@ -23,12 +23,12 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
-    "./dist/**/*.js",
-    "./dist/**/*.d.ts",
-    "./dist/**/*.njk"
+    "./src/**/*.js",
+    "./src/**/*.d.ts",
+    "./src/**/*.njk"
   ],
   "bin": {
-    "n0safe-indirectus": "./dist/cli/index.js"
+    "n0safe-indirectus": "./src/cli/index.js"
   },
   "license": "MIT",
   "description": "Directus Tools CLI.",
@@ -41,7 +41,7 @@
     "version": "changeset version",
     "release": "npm publish --access public",
     "ci": "npm run build && npm run release",
-    "test": "node ./dist/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
+    "test": "node ./src/cli/index.js sdk generate --dir ./.directus/src --plugins=safe --outputDir ./.directus/src"
   },
   "dependencies": {
     "@changesets/cli": "^2.27.1",

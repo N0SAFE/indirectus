@@ -5,7 +5,7 @@
       "module": "CommonJS",
       "target": "ESNext",
       "baseUrl": ".",
-      "outDir": "dist",
+      "outDir": "src",
       "rootDir": "src"
     },
     "exclude": ["out", "dist", "node_modules", "**/*.test.ts", "**/*.test.tsx"],
