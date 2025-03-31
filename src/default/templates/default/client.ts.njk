@@ -325,7 +325,7 @@ function isDirectusRestClient<Schema>(
 }
 
 export const schema = () => {
-  return <Schema>(client: Directus.DirectusClient<Schema>): TypedClient => {
+  return <Schema>(client: Directus.DirectusClient<Schema> & DirectusSDK.WebSocketClient<Schema>): TypedClient => {
 
     if (!isDirectusRestClient(client)) {
       throw new Error("Directus client must have the REST plugin enabled.");
@@ -407,7 +407,7 @@ export const bindings = () => {
 
 export function createDirectusWithTypes(
   url: string,
-): Directus.DirectusClient<Schema> & Directus.RestClient<Schema> & TypedClient {
+): Directus.DirectusClient<Schema> & Directus.RestClient<Schema> & Directus.WebSocketClient<Schema> & TypedClient {
   return DirectusSDK.createDirectus<Schema>(url)
     .with(bindings())
     .with(DirectusSDK.rest())

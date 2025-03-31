@@ -1,6 +1,7 @@
 import type { Schema } from "../client";
 import type * as Directus from "@directus/sdk";
 import * as DirectusSDK from "@directus/sdk";
+import { Fallback, SubscriptionOutput } from "../utils";
 
 interface ChainableBinding {
     ['constructor']: typeof ChainableBinding
@@ -13,7 +14,8 @@ class ChainableBinding {
   
   constructor(
     protected client: Directus.DirectusClient<Schema> &
-      Directus.RestClient<Schema>,
+      Directus.RestClient<Schema> &
+      Directus.WebSocketClient<Schema>,
   ) {}
 
   async request<Output>(options: Directus.RestCommand<Output, Schema>) {
@@ -30,6 +32,51 @@ class ChainableBinding {
     return this.client.request(
       recursiveConsumeChain(this.chain, options),
     ) as unknown as Promise<Output>;
+  }
+
+  protected async _subscribe<
+    Collection extends keyof Schema,
+    const Options extends Directus.SubscribeOptions<Schema, Collection>,
+  >(
+    collection: Collection,
+    options?: Options,
+  ): Promise<{
+    subscription: AsyncGenerator<
+      SubscriptionOutput<
+        Schema,
+        Collection,
+        Options["query"],
+        Fallback<Options["event"], Directus.SubscriptionOptionsEvents> | "init"
+      >,
+      void,
+      unknown
+    >;
+    unsubscribe(): void;
+  }> {
+    // const recursiveConsumeChain = (
+    //   chain: typeof this.chain,
+    //   content: Directus.RestCommand<Output, Schema>,
+    // ) => {
+    //   if (chain.length === 0) {
+    //     return content;
+    //   }
+    //   const [head, ...tail] = chain;
+    //   return recursiveConsumeChain(tail, head(content));
+    // };
+    return this.client.subscribe(collection, options) as unknown as Promise<{
+      subscription: AsyncGenerator<
+        SubscriptionOutput<
+          Schema,
+          Collection,
+          Options["query"],
+          | Fallback<Options["event"], Directus.SubscriptionOptionsEvents>
+          | "init"
+        >,
+        void,
+        unknown
+      >;
+      unsubscribe(): void;
+    }>;
   }
 
   withOptions(
